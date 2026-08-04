@@ -1,166 +1,341 @@
+
+
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta name="google-site-verification" content="0kn6vvxqXHDhxRJH9Jcw_WaUbrYoBlOGxma-cTG_tNw" />
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title>Anamol Raj Singh</title>
-        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-        <link rel="stylesheet" type="text/css" href="style.css">
-        <link rel="shortcut icon" href="https://i.ibb.co/H4VGVf7/download.png" type="image/svg+xml">
-    </head>
+<html lang="en" data-theme="dark">
+<head>
+    <!-- ===== META ===== -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Anamol Raj Singh — Student, lifelong learner, and curious mind exploring technology, ideas, and the spaces in between.">
+    <meta name="author" content="Anamol Raj Singh">
+    <meta name="theme-color" content="#0a0b0d">
+    <title>Anamol Raj Singh — Student & Lifelong Learner</title>
 
+    <!-- ===== FAVICON ===== -->
+    <link rel="shortcut icon" href="https://i.ibb.co/H4VGVf7/download.png" type="image/svg+xml">
 
-    <body>
-        <header class="header">
-             <a class="logo">Personal Portfolio</a>
-            <i class='bx bx-menu' id="menu-icon"></i>
-            <nav class="navbar">
-               <a href="#home" class="active">HOME</a>
-                <a href="#about">ABOUT</a>
-                <a href="#interest">INTEREST</a>
-                <a href="#portfolio">PORTFOLIO</a>
-                <a href="#contact">CONTACT</a>
-            </nav>
-        </header>
+    <!-- ===== Tailwind CSS (CDN) ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
 
-         <!--HOME-->    
-        <section class="home" id="home">
-            <div class="home-content">
-                <h3>Hello,It's Me</h3>
-                <h1>Anamol Raj Singh</h1>
-                <h3>I'm a <span class="multiple-text"></span></h3>
-                <div class="social-media">
-                    <a href="https://www.x.com/anamolrajsingh"><i class='bx bxl-twitter'></i></a>
-                    <a href="https://www.linkedin.com/in/anamolrajsingh/"><i class='bx bxl-linkedin-square' ></i></a>
-                    <a href="https://github.com/anamolrajsingh"><i class='bx bxl-github'></i></a>
-                    <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A"><i class='bx bxl-youtube'></i></a>
-                </div>
-                <a href="#" class="btn">Think Before You Link</a>
-            </div>
-            <div class="home-img">
-                <img src="https://i.ibb.co/6vv4RnH/155214218-modified.png" alt="">
-            </div>
-        </section>
+    <!-- ===== Fonts ===== -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-       <!--ABOUT-->  
-        <section class="about" id="about">
-            <div class="about-img">
-                <img src="https://i.ibb.co/1TFJRwj/Ayanokouji-Kiyotaka-600-3016704-removebg-preview.png" alt="">
-            </div>
-            <div class="about-content">
-                <h2 class="heading">About<span>Me</span></h2>
+    <!-- ===== Boxicons ===== -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- ===== Custom Styles ===== -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ================================================================
+         BACKGROUND DECORATIVE ELEMENTS
+         Low-opacity abstract shapes for visual depth (purely decorative)
+         ================================================================ -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="bg-blob bg-blob--1"></div>
+        <div class="bg-blob bg-blob--2"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- ================================================================
+         NAVIGATION
+         Sticky glass header with: logo, live clock, theme toggle,
+         smooth-scroll links, and mobile hamburger menu
+         ================================================================ -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
+        <div class="glass-nav">
+            <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
                 
-                <p> I am a dedicated student and learner.
+                <!-- Logo / Name -->
+                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5">
+                    <span class="text-lime-accent font-mono text-sm">{"</span>
+                    <span class="nav-name">Anamol Raj Singh</span>
+                    <span class="text-lime-accent font-mono text-sm">"}</span>
+                </a>
 
+                <!-- Desktop Nav Links -->
+                <div class="hidden md:flex items-center gap-7">
+                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors">Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium transition-colors">About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium transition-colors">Interests</a>
+                    <a href="#contact" class="nav-link text-sm font-medium transition-colors">Contact</a>
+                </div>
 
+                <!-- Right cluster: clock, theme toggle, mobile menu -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <!-- Live Clock -->
+                    <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs nav-dim-text">
+                        <i class='bx bx-time-five text-sm'></i>
+                        <span id="navClock">--:--:--</span>
+                    </div>
 
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark/light theme">
+                        <i class='bx bx-sun' id="themeIcon"></i>
+                    </button>
+
+                    <!-- Mobile Hamburger -->
+                    <button id="menuToggle" class="md:hidden text-2xl transition-colors" aria-label="Toggle menu">
+                        <i class='bx bx-menu' id="menuIcon"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- Mobile Menu (collapsible) -->
+            <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-400" style="max-height: 0;">
+                <div class="px-5 pb-4 flex flex-col gap-3">
+                    <a href="#hero" class="mobile-link text-sm font-medium py-1.5 transition-colors">Home</a>
+                    <a href="#about" class="mobile-link text-sm font-medium py-1.5 transition-colors">About</a>
+                    <a href="#interests" class="mobile-link text-sm font-medium py-1.5 transition-colors">Interests</a>
+                    <a href="#contact" class="mobile-link text-sm font-medium py-1.5 transition-colors">Contact</a>
+                    <span class="font-mono text-xs nav-dim-text pt-1"><i class='bx bx-time-five'></i> <span id="navClockMobile">--:--:--</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================================================================
+         HERO SECTION
+         Welcoming headline, personal intro, student/learner statement,
+         two CTA buttons
+         ================================================================ -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-5 sm:px-8 pt-24 pb-16">
+        <div class="max-w-4xl mx-auto text-center">
+
+            <!-- Eyebrow -->
+            <div class="reveal mb-8 inline-flex items-center gap-2.5">
+                <span class="w-6 h-px bg-lime-accent"></span>
+                <span class="font-mono text-xs nav-dim-text uppercase tracking-widest">Personal Space — 2026</span>
+                <span class="w-6 h-px bg-lime-accent"></span>
+            </div>
+
+            <!-- Headline -->
+            <h1 class="reveal font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+                Hello, I'm<br>
+                <span class="text-lime-accent">Anamol Raj Singh</span>
+            </h1>
+
+            <!-- Personal Introduction -->
+            <p class="reveal text-lg sm:text-xl text-opacity-70 leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text">
+                A <span class="font-semibold text-lime-accent">student</span>, <span class="font-semibold text-lime-accent">lifelong learner</span>,
+                and curious mind navigating the intersection of technology, ideas, and intentional living.
+            </p>
+
+            <!-- Short Statement -->
+            <p class="reveal text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-12 hero-statement-text">
+                I believe learning isn't a phase — it's a way of being.
+                This is my corner of the internet where I share what I'm exploring,
+                what I'm building, and what I'm becoming.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                    Explore
+                    <i class='bx bx-right-arrow-alt'></i>
+                </a>
+                <a href="#contact" class="btn-secondary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                    <i class='bx bx-envelope'></i>
+                    Contact
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 reveal">
+            <i class='bx bx-chevrons-down text-xl nav-dim-text animate-bounce-slow'></i>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         ABOUT SECTION
+         A warm, personal section introducing who the user is as a
+         student and learner. Modular — easy to extend or replace.
+         ================================================================ -->
+    <section id="about" class="relative py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal mb-14">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">01 / About</span>
+            </div>
+
+            <div class="reveal glass-card rounded-2xl p-8 sm:p-12">
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+                    Who I am
+                </h2>
+                <p class="text-lg leading-relaxed mb-4 about-text">
+                    I'm a student in the truest sense — not just enrolled somewhere, but genuinely
+                    <span class="text-lime-accent font-medium">curious</span> about how things work and why they matter.
+                    Some days that means diving into code, other days it's philosophy, design, or a conversation
+                    that changes how I see the world.
+                </p>
+                <p class="text-lg leading-relaxed about-text">
+                    I created this space to document the journey — the ideas I'm exploring,
+                    the things I'm learning, and the questions I haven't answered yet.
+                    If any of that resonates, I'd love to connect.
                 </p>
             </div>
-        </section>
+        </div>
+    </section>
 
-            
-          <!--INTEREST-->  
-         <section class="interest"id="interest">
-            <h2 class="heading">My<span>Interest</span></h2>
-
-            <div class="services-container">
-                <div class="services-box">
-                    <i class='bx bxl-youtube'></i>
-                    <h3>Studying</h3>
-                    <p>When you find a way to enjoy what you’re studying, though, you’ll be more motivated to do well in school & might even have fun doing it!</p>
-                
-                </div>
-        
-                <div class="services-box">
-                    <i class='bx bx-crop' ></i>
-                    <h3>Website Design</h3>
-                    <p>You cannot make a good design if you do not understand people, design is made for people.</p>
-                </div>
-            
-                <div class="services-box">
-                    <i class='bx bxl-instagram-alt' ></i>
-                    <h3>Digital Platforms</h3>
-                    <p>I'm digital citizen. The main goal is to konw about current affairs, politices, movies, information, communication & many more.
-                        </p>
-                    
-                </div>
-              </div>
-            </section>
-
-            
-             <!--PORTFOLIO-->  
-            <section class="portfolio"id="portfolio">
-                <h2 class="heading">Protfolio<span>Photos</span></h2>
-                <div class="portfolio-container">
-                    <div class="portfolio-box">
-                        <img src="https://i.ibb.co/87HCJLN/OIG.jpg"alt="">
-                        <div class="portfolio-layer">
-                        </div>
-                    </div>
-                    <div class="portfolio-box">
-                        <img src="https://i.ibb.co/ryQBvkG/photo2.jpg"alt="">
-                        <div class="portfolio-layer">
-                        </div>
-                    </div>
-                    <div class="portfolio-box">
-                        <img src="https://i.ibb.co/cCFnQJW/phot.jpg"alt="">
-                        <div class="portfolio-layer">
-                        </div>
-                    </div>
-                    
-                </div>
-            </section>
-
-
-                
-         <!--CONTACT-->  
-        <section class="contact"id="contact">
-            <h2 class="heading">Contact<span>ME!</span></h2>
-
-            <div class="my-contact-form">
-                <CONtact Form></CONtact>
-                  
-                <div class="contact__container bd-grid">
-                    <form action="https://api.web3forms.com/submit" method="POST" name="submit-to-google-sheet">
-                        <div class="input-box">
-                            <input type="text" name="Name" placeholder="Full Name" required="" type="text"> 
-                            <input type="email" name="Email Address" placeholder="Email Address" required="" type="email""> 
-                        </div>
-                        <input type="hidden" name="access_key" value="4294471a-8961-4090-b53b-ca33ef6ef011">
-                        <textarea name="Your Message" id="" cols="30" rows="10"placeholder="Your Message" required=" " type="message"></textarea> 
-                        <input type="submit" value="Send Message"class="btn">
-                    </form>
-              </div>
-            <span id="msg"></span>
-        </section>
-
-        <!--FOOTER-->  
-        <footer class="footer">
-            <div class="footer-text">
-                <p> &copy; Copyright by Anamol Raj Singh 2026 | All Rights Reserved.</p>
+    <!-- ================================================================
+         INTERESTS SECTION
+         What the user enjoys learning. Cards with glass styling.
+         Modular — easily editable or expandable.
+         ================================================================ -->
+    <section id="interests" class="relative py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-5xl mx-auto">
+            <div class="reveal mb-14">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">02 / Interests</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                    What I enjoy learning
+                </h2>
             </div>
-            <div class="footer-iconTop">
-                <a href="#home"><i class='bx bx-up-arrow-alt' ></i></a>
-            </div>
-        </footer>
 
-        
-        <script src="https://unpkg.com/scrollreveal"></script>
-        <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
-        <script src="script.js"></script>
-        <script>
-    document.addEventListener('contextmenu', event => event.preventDefault());
-</script>
-        <script>
-    document.onselectstart = () => {
-        event.preventDefault();
-    }
-</script>
-        
-  
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Card 1 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-code-alt text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Technology</h3>
+                    <p class="text-sm leading-relaxed card-text">Exploring how software shapes the world — from web development to systems thinking and everything in between.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-book-open text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Reading & Ideas</h3>
+                    <p class="text-sm leading-relaxed card-text">Books, essays, and long-form thinking. I'm drawn to writing that challenges how I see things.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-planet text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Current Affairs</h3>
+                    <p class="text-sm leading-relaxed card-text">Staying informed about the world — politics, culture, and the conversations shaping our future.</p>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-palette text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Design</h3>
+                    <p class="text-sm leading-relaxed card-text">The intersection of aesthetics and function. How good design makes things feel effortless.</p>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-brain text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Philosophy</h3>
+                    <p class="text-sm leading-relaxed card-text">Questions without easy answers. What it means to live well, think clearly, and stay open.</p>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-movie-play text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Film & Media</h3>
+                    <p class="text-sm leading-relaxed card-text">Stories told well. Cinema, documentaries, and the craft behind meaningful visual storytelling.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         CONTACT SECTION
+         A simple, elegant contact prompt with social links.
+         ================================================================ -->
+    <section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="reveal mb-10">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Contact</span>
+            </div>
+
+            <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5">
+                Let's connect.
+            </h2>
+            <p class="reveal text-lg leading-relaxed mb-10 about-text max-w-lg mx-auto">
+                Whether it's a shared interest, a question, or just a hello —
+                my inbox is always open.
+            </p>
+
+            <!-- Social links -->
+            <div class="reveal flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-github text-lg'></i>
+                    <span>GitHub</span>
+                </a>
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-linkedin-square text-lg'></i>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-twitter text-lg'></i>
+                    <span>Twitter</span>
+                </a>
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-youtube text-lg'></i>
+                    <span>YouTube</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         FOOTER
+         Copyright, social links, back-to-top button
+         ================================================================ -->
+    <footer class="relative py-10 px-5 sm:px-8 border-t" id="footer">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <!-- Copyright -->
+            <p class="font-mono text-xs nav-dim-text text-center sm:text-left">
+                © 2026 Anamol Raj Singh — All rights reserved.
+            </p>
+
+            <!-- Social mini links -->
+            <div class="flex items-center gap-3">
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="GitHub"><i class='bx bxl-github'></i></a>
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-mini" aria-label="LinkedIn"><i class='bx bxl-linkedin-square'></i></a>
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-mini" aria-label="YouTube"><i class='bx bxl-youtube'></i></a>
+            </div>
+
+            <!-- Back to top -->
+            <button id="backToTop" class="back-to-top-btn" aria-label="Back to top">
+                <i class='bx bx-up-arrow-alt'></i>
+            </button>
+        </div>
+    </footer>
+
+    <!-- ===== JavaScript ===== -->
+    <script src="script.js"></script>
 </body>
 </html>
-
+<html lang="en" data-theme="dark">
 
