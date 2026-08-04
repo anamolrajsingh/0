@@ -1,80 +1,644 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+/* ================================================================
+   Anamol Raj Singh — Personal Website
+   script.js — Vanilla JavaScript
+   Handles: theme toggle, live clock, mobile menu, scroll reveal,
+   active nav links, back-to-top, smooth scrolling
+   ================================================================ */
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    text-decoration: none;
-    border: none;
-    outline: none;
-    scroll-behavior: smooth;
-    font-family: 'Poppins', sans-serif;
+(function () {/* ================================================================
+/* ================================================================
 
- }
+    'use strict';
 
- :root {
-    --bg-color:#1f242d;
-    --second-bg-color:#323946;
-    --text-color:#fff;
-    --main-color:rgb(0, 225, 255);  
- }
+    // ============================================================
+    // 1. THEME TOGGLE (dark/light with system detection + localStorage)
+    // ============================================================
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+    const STORAGE_KEY = 'ars-theme';
 
- html{
-    font-size: 62.5%;
-    overflow-x:hidden;
+    /**
+     * Determine the initial theme:
+     * 1. Check localStorage for a saved preference
+     * 2. Fall back to system preference (prefers-color-scheme)
+     * 3. Default to dark
+     */
+    function getInitialTheme() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved === 'dark' || saved === 'light') return saved;
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+            return 'light';
+        }
+        return 'dark';
+    }
 
- }
+    /**
+     * Apply a theme and update the toggle icon + meta theme-color
+     */
+    function applyTheme(theme) {
+        root.setAttribute('data-theme', theme);
+        if (themeIcon) {
+            themeIcon.className = theme === 'dark' ? 'bx bx-sun' : 'bx bx-moon';
+        }
+        // Update meta theme-color for browser UI
+        const metaTheme = document.querySelector('meta[name="theme-color"]');
+        if (metaTheme) {
+            metaTheme.setAttribute('content', theme === 'dark' ? '#0a0b0d' : '#f5f5f3');
+        }
+    }
 
-.content{
-position:relative;
-padding:1rem;
-      }
-   .cover{
-        position:absolute;
-        top:0;
-        left:0;
-        right:0;
-        bottom:0;
-        width:100%;
-        height:100%;
-        background:transparent;
-       z-index:100;
+    // Set initial theme
+    applyTheme(getInitialTheme());
 
-      }
+    // Toggle on click
+    themeToggle.addEventListener('click', function () {
+        const current = root.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        applyTheme(next);
+        localStorage.setItem(STORAGE_KEY, next);
+    });
 
- body{
-    background: var(--bg-color);
-    color: var(--text-color);
- }
+    // Listen for system theme changes (only if user hasn't manually set a preference)
+    if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                applyTheme(e.matches ? 'dark' : 'light');
+            }
+        });
+    }
 
- section{
-    min-height: 100vh;
-    padding: 10rem 9% 2rem;
- }
- .header{
-    position: fixed;
-    top:0;
-    left:0;
+    // ============================================================
+    // 2. LIVE CLOCK (updates every second)
+    // ============================================================
+    const navClock = document.getElementById('navClock');
+    const navClockMobile = document.getElementById('navClockMobile');
+
+    function updateClock() {
+        const now = new Date();
+        // Format: HH:MM:SS (24-hour)
+        const time = now.toLocaleTimeString('en-US', { hour12: false });
+        if (navClock) navClock.textContent = time;
+        if (navClockMobile) navClockMobile.textContent = time;
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ============================================================
+    // 3. MOBILE MENU (hamburger toggle)
+    // ============================================================
+    const menuToggle = document.getElementById('menuToggle');
+    const menuIcon = document.getElementById('menuIcon');
+    const mobileMenu = document.getElementById('mobileMenu');
+    let menuOpen = false;
+
+    function toggleMobileMenu() {
+        menuOpen = !menuOpen;
+        if (menuOpen) {
+            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+            menuIcon.className = 'bx bx-x';
+        } else {
+            mobileMenu.style.maxHeight = '0';
+            menuIcon.className = 'bx bx-menu';
+        }
+    }
+
+    menuToggle.addEventListener('click', toggleMobileMenu);
+
+    // Close mobile menu when a link is clicked
+    document.querySelectorAll('.mobile-link').forEach(function (link) {
+        link.addEventListener('click', function () {
+            if (menuOpen) toggleMobileMenu();
+        });
+    });
+
+    // ============================================================
+    // 4. SCROLL REVEAL (Intersection Observer)
+    // ============================================================
+    const revealElements = document.querySelectorAll('.reveal');
+
+    if ('IntersectionObserver' in window) {
+        const revealObserver = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(function (el) {
+            revealObserver.observe(el);
+        });
+    } else {
+        // Fallback: show all elements if IntersectionObserver isn't supported
+        revealElements.forEach(function (el) {
+            el.classList.add('visible');
+        });
+    }
+
+    // ============================================================
+    // 5. ACTIVE NAV LINK ON SCROLL
+    // ============================================================
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link');
+    const navbar = document.getElementById('navbar');
+
+    function onScroll() {
+        const scrollY = window.scrollY;
+
+        // Add shadow to navbar when scrolled
+        if (scrollY > 20) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+
+        // Highlight active section in nav
+        let currentSection = '';
+        sections.forEach(function (section) {
+            const sectionTop = section.offsetTop - 150;
+            if (scrollY >= sectionTop) {
+                currentSection = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(function (link) {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + currentSection) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // ============================================================
+    // 6. BACK TO TOP BUTTON
+    // ============================================================
+    const backToTop = document.getElementById('backToTop');
+
+    backToTop.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // Show/hide back-to-top based on scroll position
+    function toggleBackToTop() {
+        if (window.scrollY > 400) {
+            backToTop.style.opacity = '1';
+            backToTop.style.pointerEvents = 'auto';
+        } else {
+            backToTop.style.opacity = '0.4';
+            backToTop.style.pointerEvents = 'auto';
+        }
+    }
+
+    window.addEventListener('scroll', toggleBackToTop, { passive: true });
+    toggleBackToTop();
+
+    // ============================================================
+    // 7. SMOOTH SCROLL (for browsers that don't support scroll-behavior)
+    // ============================================================
+    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+        anchor.addEventListener('click', function (e) {
+            const targetId = this.getAttribute('href');
+            if (targetId === '#' || targetId.length < 2) return;
+
+            const target = document.querySelector(targetId);
+            if (target) {
+                e.preventDefault();
+                const offset = 80; // account for fixed navbar
+                const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // ============================================================
+    // 8. INITIALIZE — run onScroll once on load
+    // ============================================================
+    onScroll();
+
+})();
+osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* ===== THEME VARIABLES ===== */
+
+/* --- Dark Theme (default) --- */
+[data-theme="dark"] {
+    --bg-base: #0a0b0d;
+    --bg-elevated: #121417;
+    --bg-glass: rgba(255, 255, 255, 0.035);
+    --bg-glass-hover: rgba(255, 255, 255, 0.06);
+    --bg-glass-nav: rgba(10, 11, 13, 0.6);
+    --text-primary: #f0f0f0;
+    --text-secondary: #a1a1aa;
+    --text-dim: #6b7280;
+    --border-color: rgba(255, 255, 255, 0.07);
+    --border-hover: rgba(198, 255, 0, 0.35);
+    --accent: #C6FF00;
+    --accent-glow: rgba(198, 255, 0, 0.15);
+    --accent-glow-strong: rgba(198, 255, 0, 0.3);
+    --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.3);
+    --blob-opacity: 0.4;
+    --grid-opacity: 0.025;
+}
+
+/* --- Light Theme --- */
+[data-theme="light"] {
+    --bg-base: #f5f5f3;
+    --bg-elevated: #ffffff;
+    --bg-glass: rgba(255, 255, 255, 0.55);
+    --bg-glass-hover: rgba(255, 255, 255, 0.75);
+    --bg-glass-nav: rgba(245, 245, 243, 0.6);
+    --text-primary: #1a1a1a;
+    --text-secondary: #4a4a52;
+    --text-dim: #8a8a92;
+    --border-color: rgba(0, 0, 0, 0.08);
+    --border-hover: rgba(150, 200, 0, 0.4);
+    --accent: #8BCC00;
+    --accent-glow: rgba(139, 204, 0, 0.12);
+    --accent-glow-strong: rgba(139, 204, 0, 0.25);
+    --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.06);
+    --blob-opacity: 0.25;
+    --grid-opacity: 0.03;
+}
+
+/* ===== APPLY THEME ===== */
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+}
+
+/* ===== UTILITY CLASSES (theme-aware) ===== */
+.text-lime-accent { color: var(--accent); }
+.nav-dim-text { color: var(--text-dim); }
+.about-text { color: var(--text-secondary); }
+.card-text { color: var(--text-secondary); }
+.hero-intro-text { color: var(--text-secondary); }
+.hero-statement-text { color: var(--text-dim); }
+
+#footer {
+    border-color: var(--border-color);
+}
+
+/* ===== LIQUID GLASS COMPONENTS ===== */
+
+/* Glass navigation bar */
+.glass-nav {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: var(--bg-glass-nav);
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.4s ease;
+}
+
+/* Glass card */
+.glass-card {
+    background: var(--bg-glass);
+    backdrop-filter: blur(16px) saturate(150%);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-soft);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px var(--accent-glow);
+}
+
+/* Glass icon wrapper */
+.glass-icon-wrap {
+    background: var(--accent-glow);
+    border: 1px solid var(--border-color);
+}
+
+/* ===== NAVIGATION LINKS ===== */
+.nav-link {
+    color: var(--text-secondary);
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    color: var(--accent);
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 0;
+    height: 1.5px;
+    background: var(--accent);
+    border-radius: 1px;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
     width: 100%;
-    padding: 2rem 9%;
-    background: var(--bg-color);
+}
+
+/* Mobile link */
+.mobile-link {
+    color: var(--text-secondary);
+}
+
+.mobile-link:hover {
+    color: var(--accent);
+}
+
+/* ===== THEME TOGGLE BUTTON ===== */
+.theme-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     display: flex;
-    justify-content:space-between;
     align-items: center;
-    z-index:100 ;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
- }
+.theme-toggle-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
 
- .header.sticky{
-   border-bottom: .1rem solid rgba(0, 0,0, .2);
- }
- .logo{
-    font-size: 2.5rem;
-    color: var(--text-color);
-    font-weight:600;
-    cursor:default;
- }
- .navbar a {
+/* ===== BUTTONS ===== */
+.btn-primary {
+    background: var(--accent);
+    color: #0a0b0d;
+    border: 1px solid var(--accent);
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 30px var(--accent-glow-strong);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    border-color: var(--border-hover);
+    color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+/* ===== SOCIAL PILLS (contact section) ===== */
+.social-pill {
+    color: var(--text-secondary);
+}
+
+.social-pill:hover {
+    color: var(--accent);
+    border-color: var(--border-hover) !important;
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+/* ===== SOCIAL MINI (footer) ===== */
+.social-mini {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.social-mini:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 15px var(--accent-glow);
+    transform: translateY(-2px);
+}
+
+/* ===== BACK TO TOP BUTTON ===== */
+.back-to-top-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.back-to-top-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+    transform: translateY(-3px);
+}
+
+/* ===== BACKGROUND DECORATIVE ELEMENTS ===== */
+.bg-decoration {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Floating blobs */
+.bg-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: var(--blob-opacity);
+    transition: opacity 0.5s ease;
+}
+
+.bg-blob--1 {
+    width: 500px;
+    height: 500px;
+    background: var(--accent);
+    top: -10%;
+    right: -10%;
+    animation: blob-float-1 20s ease-in-out infinite;
+}
+
+.bg-blob--2 {
+    width: 400px;
+    height: 400px;
+    background: var(--accent);
+    bottom: -10%;
+    left: -5%;
+    opacity: calc(var(--blob-opacity) * 0.6);
+    animation: blob-float-2 25s ease-in-out infinite;
+}
+
+/* Subtle grid */
+.bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(var(--border-color) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border-color) 1px, transparent 1px);
+    background-size: 80px 80px;
+    opacity: var(--grid-opacity);
+}
+
+/* Blob animations */
+@keyframes blob-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-30px, 50px) scale(1.1); }
+    66% { transform: translate(40px, -30px) scale(0.9); }
+}
+
+@keyframes blob-float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(40px, -40px) scale(1.05); }
+    66% { transform: translate(-30px, 30px) scale(0.95); }
+}
+
+/* Ensure content is above background */
+section, header, footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== SCROLL REVEAL ANIMATION ===== */
+.reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ===== SLOW BOUNCE ===== */
+.animate-bounce-slow {
+    animation: bounce-slow 2.5s ease-in-out infinite;
+}
+
+@keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50% { transform: translateY(8px); opacity: 1; }
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--bg-elevated);
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* ===== TEXT SELECTION ===== */
+::selection {
+    background: var(--accent-glow-strong);
+    color: var(--text-primary);
+}
+
+/* ===== NAVBAR SCROLLED STATE ===== */
+#navbar.scrolled .glass-nav {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] #navbar.scrolled .glass-nav {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* ===== RESPONSIVE ADJUSTMENTS ===== */
+@media (max-width: 640px) {
+    .nav-name {
+        font-size: 0.95rem;
+    }
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .reveal {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* ===== PRINT ===== */
+@media print {
+    .bg-decoration, #navbar, #backToTop, .reveal {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+}
+
     font-size: 1.7rem;
     color: var(--text-color);
     margin-left: 4rem;
