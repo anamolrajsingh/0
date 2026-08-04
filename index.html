@@ -73,6 +73,7 @@
                     <a href="#hero" class="nav-link active text-sm font-medium transition-colors">Home</a>
                     <a href="#about" class="nav-link text-sm font-medium transition-colors">About</a>
                     <a href="#interests" class="nav-link text-sm font-medium transition-colors">Interests</a>
+                    <a href="#writings" class="nav-link text-sm font-medium transition-colors">Writings</a>
                     <a href="#contact" class="nav-link text-sm font-medium transition-colors">Contact</a>
                 </div>
 
@@ -102,6 +103,7 @@
                     <a href="#hero" class="mobile-link text-sm font-medium py-1.5 transition-colors">Home</a>
                     <a href="#about" class="mobile-link text-sm font-medium py-1.5 transition-colors">About</a>
                     <a href="#interests" class="mobile-link text-sm font-medium py-1.5 transition-colors">Interests</a>
+                    <a href="#writings" class="mobile-link text-sm font-medium py-1.5 transition-colors">Writings</a>
                     <a href="#contact" class="mobile-link text-sm font-medium py-1.5 transition-colors">Contact</a>
                     <span class="font-mono text-xs nav-dim-text pt-1"><i class='bx bx-time-five'></i> <span id="navClockMobile">--:--:--</span></span>
                 </div>
@@ -265,14 +267,47 @@
         </div>
     </section>
 
+
+    <!-- ================================================================
+         WRITINGS SECTION
+         A preview of the latest blog posts — notes on what I'm
+         currently exploring. Full list lives on writings.html
+         ================================================================ -->
+    <section id="writings" class="relative py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal mb-14">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Writings</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                    Exploring
+                </h2>
+                <p class="text-lg leading-relaxed about-text mt-3 max-w-2xl">
+                    Notes on what I'm currently thinking through — not polished conclusions,
+                    just honest writing as I work through ideas.
+                </p>
+            </div>
+
+            <!-- Latest 3 posts (rendered by writings.js) -->
+            <div id="writingsPreview" class="reveal"></div>
+
+            <!-- View all link -->
+            <div class="reveal mt-10">
+                <a href="writings.html" class="btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm">
+                    Read all writings
+                    <i class='bx bx-right-arrow-alt'></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- ================================================================
          CONTACT SECTION
          A simple, elegant contact prompt with social links.
          ================================================================ -->
-    <section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
+
+<section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto text-center">
             <div class="reveal mb-10">
-                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Contact</span>
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">04 / Contact</span>
             </div>
 
             <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5">
@@ -332,6 +367,8 @@
     </footer>
 
     <!-- ===== JavaScript ===== -->
+    <script src="posts.js"></script>
     <script src="script.js"></script>
+    <script src="writings.js"></script>
 </body>
 </html>

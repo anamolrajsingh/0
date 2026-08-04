@@ -425,3 +425,198 @@ section, header, footer {
         color: black;
     }
 }
+
+/* ================================================================
+   BLOG / WRITINGS STYLES
+   ================================================================ */
+
+/* Tag filter buttons */
+.tag-filter {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tag-filter:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+}
+
+.tag-filter-active {
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    background: var(--accent-glow);
+}
+
+/* Post tag badge (inline) */
+.post-tag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid var(--border-color);
+    white-space: nowrap;
+}
+
+/* Post list item divider */
+.post-item {
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.post-item:hover {
+    border-color: var(--border-hover);
+}
+
+/* Post link */
+.post-link {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.post-link:hover {
+    transform: translateX(6px);
+}
+
+/* Writings preview items (on main page) */
+.writings-preview-item {
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.writings-preview-item:hover {
+    border-color: var(--border-hover);
+}
+
+/* ===== ARTICLE TYPOGRAPHY (single post view) ===== */
+.article-content {
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+.article-content h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+}
+
+.article-content h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.article-content p {
+    margin-bottom: 1.25rem;
+}
+
+.article-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.article-content em {
+    color: var(--text-primary);
+}
+
+.article-content a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid var(--accent-glow);
+    transition: border-color 0.2s ease;
+}
+
+.article-content a:hover {
+    border-color: var(--accent);
+}
+
+.article-content ul {
+    margin: 1rem 0 1.5rem 1.5rem;
+    list-style: none;
+}
+
+.article-content ul li {
+    position: relative;
+    margin-bottom: 0.5rem;
+    padding-left: 1rem;
+}
+
+.article-content ul li::before {
+    content: '—';
+    position: absolute;
+    left: -0.5rem;
+    color: var(--accent);
+}
+
+.article-content blockquote {
+    border-left: 2px solid var(--accent);
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    margin: 1.5rem 0;
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 1rem;
+}
+
+.article-content pre {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.article-content pre code {
+    color: var(--accent);
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+.article-content code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85em;
+    color: var(--accent);
+    background: var(--accent-glow);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Responsive: reduce post link hover transform on mobile */
+@media (max-width: 640px) {
+    .post-link:hover {
+        transform: none;
+    }
+}
