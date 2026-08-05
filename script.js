@@ -541,47 +541,111 @@
     renderThoughtStream();
 
     // ============================================================
-    // 16. AMBIENT AUDIO (Web Audio API — subtle drone)
+    // 16. AMBIENT AUDIO (Web Audio API — relaxing soundscape)
+    // A layered ambient soundscape: warm chord drone + gentle LFO breathing
+    // + brown noise "stream" layer. Tuned to A minor for a calming feel.
     // ============================================================
     const audioToggle = document.getElementById('audioToggle');
     const audioIcon = document.getElementById('audioIcon');
-    let audioCtx = null, osc1 = null, osc2 = null, filterNode = null, gainNode = null, audioActive = false;
+    let audioCtx = null, audioMasterGain = null, audioActive = false;
+    let audioNodes = [];
 
     if (audioToggle) {
         audioToggle.addEventListener('click', function () {
             if (!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                osc1 = audioCtx.createOscillator();
-                osc2 = audioCtx.createOscillator();
-                filterNode = audioCtx.createBiquadFilter();
-                gainNode = audioCtx.createGain();
+                audioMasterGain = audioCtx.createGain();
+                audioMasterGain.gain.value = 0;
+                audioMasterGain.connect(audioCtx.destination);
 
-                osc1.frequency.value = 58;
-                osc2.frequency.value = 87;
-                osc1.type = 'sine';
-                osc2.type = 'sine';
-                filterNode.type = 'lowpass';
-                filterNode.frequency.value = 200;
-                filterNode.Q.value = 1;
-                gainNode.gain.value = 0;
+                // --- Layer 1: Warm chord drone (A2, E3, A3, C4) ---
+                var chordFreqs = [110, 164.81, 220, 261.63]; // A2, E3, A3, C4
+                chordFreqs.forEach(function (freq, i) {
+                    var osc = audioCtx.createOscillator();
+                    var oscGain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    // Slight detune for warmth
+                    osc.detune.value = (i - 1.5) * 3;
+                    // Each oscillator gets progressively quieter
+                    oscGain.gain.value = 0.15 / (i + 1);
+                    osc.connect(oscGain);
+                    oscGain.connect(audioMasterGain);
+                    osc.start();
+                    audioNodes.push({ osc: osc, gain: oscGain });
+                });
 
-                osc1.connect(filterNode);
-                osc2.connect(filterNode);
-                filterNode.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                osc1.start();
-                osc2.start();
+                // --- Layer 2: Gentle LFO for "breathing" volume effect ---
+                var lfo = audioCtx.createOscillator();
+                var lfoGain = audioCtx.createGain();
+                lfo.frequency.value = 0.06; // Very slow: ~10 sec cycle
+                lfo.type = 'sine';
+                lfoGain.gain.value = 0.03; // Subtle 3% modulation
+                lfo.connect(lfoGain);
+                // Modulate the master gain slightly (creates a "breathing" feel)
+                lfoGain.connect(audioMasterGain.gain);
+                lfo.start();
+                audioNodes.push({ osc: lfo, gain: lfoGain });
+
+                // --- Layer 3: Brown noise "stream/wind" layer ---
+                var bufferSize = 2 * audioCtx.sampleRate;
+                var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                var output = noiseBuffer.getChannelData(0);
+                var lastOut = 0;
+                for (var j = 0; j < bufferSize; j++) {
+                    var white = Math.random() * 2 - 1;
+                    output[j] = (lastOut + 0.02 * white) / 1.02;
+                    lastOut = output[j];
+                    output[j] *= 3.5;
+                }
+                var noise = audioCtx.createBufferSource();
+                noise.buffer = noiseBuffer;
+                noise.loop = true;
+                var noiseFilter = audioCtx.createBiquadFilter();
+                noiseFilter.type = 'lowpass';
+                noiseFilter.frequency.value = 400;
+                noiseFilter.Q.value = 0.5;
+                var noiseGain = audioCtx.createGain();
+                noiseGain.gain.value = 0.04;
+                noise.connect(noiseFilter);
+                noiseFilter.connect(noiseGain);
+                noiseGain.connect(audioMasterGain);
+                noise.start();
+                audioNodes.push({ osc: noise, gain: noiseGain });
+
+                // --- Layer 4: High shimmer (A5, very faint singing bowl) ---
+                var shimmer = audioCtx.createOscillator();
+                var shimmerGain = audioCtx.createGain();
+                shimmer.type = 'sine';
+                shimmer.frequency.value = 880; // A5
+                shimmerGain.gain.value = 0.008;
+                shimmer.connect(shimmerGain);
+                shimmerGain.connect(audioMasterGain);
+                shimmer.start();
+                audioNodes.push({ osc: shimmer, gain: shimmerGain });
+
+                // --- Master low-pass filter for overall warmth ---
+                var masterFilter = audioCtx.createBiquadFilter();
+                masterFilter.type = 'lowpass';
+                masterFilter.frequency.value = 1200;
+                masterFilter.Q.value = 0.3;
+                // Reconnect everything through the master filter
+                audioMasterGain.disconnect();
+                audioMasterGain.connect(masterFilter);
+                masterFilter.connect(audioCtx.destination);
             }
 
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             if (!audioActive) {
-                gainNode.gain.linearRampToValueAtTime(0.025, audioCtx.currentTime + 2);
+                // Smooth 3-second fade in
+                audioMasterGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
                 audioActive = true;
                 audioToggle.classList.add('audio-active');
                 if (audioIcon) audioIcon.className = 'bx bx-volume-full';
             } else {
-                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
+                // Smooth 2-second fade out
+                audioMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
                 audioActive = false;
                 audioToggle.classList.remove('audio-active');
                 if (audioIcon) audioIcon.className = 'bx bx-volume-low';
@@ -719,17 +783,6 @@
     // ============================================================
     onScroll();
 
-    // Show margin notes on scroll
-    const marginNotes = document.querySelectorAll('.margin-note');
-    if ('IntersectionObserver' in window) {
-        const noteObserver = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) { entry.target.classList.add('visible'); noteObserver.unobserve(entry.target); }
-            });
-        }, { threshold: 0.3 });
-        marginNotes.forEach(function (el) { noteObserver.observe(el); });
-    } else {
-        marginNotes.forEach(function (el) { el.classList.add('visible'); });
     }
 
 })();
