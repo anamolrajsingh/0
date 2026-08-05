@@ -7,11 +7,10 @@
     <meta name="description" content="Anamol Raj Singh — Student, lifelong learner, and curious mind exploring technology, ideas, and the spaces in between.">
     <meta name="author" content="Anamol Raj Singh">
     <meta name="theme-color" content="#0a0b0d">
-    <meta name="google-site-verification" content="0kn6vvxqXHDhxRJH9Jcw_WaUbrYoBlOGxma-cTG_tNw" />
     <title>Anamol Raj Singh — Student & Lifelong Learner</title>
 
     <!-- ===== FAVICON ===== -->
-    <link rel="shortcut icon" href="https://i.ibb.co/k2YscZyF/download.png" type="image/svg+xml">
+    <link rel="shortcut icon" href="https://i.ibb.co/H4VGVf7/download.png" type="image/svg+xml">
 
     <!-- ===== Tailwind CSS (CDN) ===== -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +21,7 @@
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
                         display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                        serif: ['"Fraunces"', 'Georgia', 'serif'],
                         mono: ['"JetBrains Mono"', 'monospace'],
                     },
                 }
@@ -29,13 +29,16 @@
         }
     </script>
 
-    <!-- ===== Fonts ===== -->
+    <!-- ===== Fonts (added Fraunces editorial serif) ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
 
     <!-- ===== Boxicons ===== -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <!-- ===== Lenis Smooth Scroll ===== -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
 
     <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
@@ -43,9 +46,15 @@
 
 <body>
 
+    <!-- ===== CUSTOM CURSOR (magnetic trailing circle) ===== -->
+    <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+    <!-- ===== PARTICLE CANVAS (subtle interactive grid) ===== -->
+    <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
+
     <!-- ================================================================
          BACKGROUND DECORATIVE ELEMENTS
-         Low-opacity abstract shapes for visual depth (purely decorative)
          ================================================================ -->
     <div class="bg-decoration" aria-hidden="true">
         <div class="bg-blob bg-blob--1"></div>
@@ -55,15 +64,13 @@
 
     <!-- ================================================================
          NAVIGATION
-         Sticky glass header with: logo, live clock, theme toggle,
-         smooth-scroll links, and mobile hamburger menu
          ================================================================ -->
     <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
         <div class="glass-nav">
             <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
                 
                 <!-- Logo / Name -->
-                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5">
+                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5 magnetic" data-magnetic>
                     <span class="text-lime-accent font-mono text-sm">{"</span>
                     <span class="nav-name">Anamol Raj Singh</span>
                     <span class="text-lime-accent font-mono text-sm">"}</span>
@@ -71,11 +78,11 @@
 
                 <!-- Desktop Nav Links -->
                 <div class="hidden md:flex items-center gap-7">
-                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors">Home</a>
-                    <a href="#about" class="nav-link text-sm font-medium transition-colors">About</a>
-                    <a href="#interests" class="nav-link text-sm font-medium transition-colors">Interests</a>
-                    <a href="#writings" class="nav-link text-sm font-medium transition-colors">Writings</a>
-                    <a href="#contact" class="nav-link text-sm font-medium transition-colors">Contact</a>
+                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors magnetic" data-magnetic>Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Interests</a>
+                    <a href="#writings" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Writings</a>
+                    <a href="#contact" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Contact</a>
                 </div>
 
                 <!-- Right cluster: clock, theme toggle, mobile menu -->
@@ -87,7 +94,7 @@
                     </div>
 
                     <!-- Theme Toggle -->
-                    <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark/light theme">
+                    <button id="themeToggle" class="theme-toggle-btn magnetic" data-magnetic aria-label="Toggle dark/light theme">
                         <i class='bx bx-sun' id="themeIcon"></i>
                     </button>
 
@@ -114,8 +121,6 @@
 
     <!-- ================================================================
          HERO SECTION
-         Welcoming headline, personal intro, student/learner statement,
-         two CTA buttons
          ================================================================ -->
     <section id="hero" class="relative min-h-screen flex items-center justify-center px-5 sm:px-8 pt-24 pb-16">
         <div class="max-w-4xl mx-auto text-center">
@@ -123,14 +128,14 @@
             <!-- Eyebrow -->
             <div class="reveal mb-8 inline-flex items-center gap-2.5">
                 <span class="w-6 h-px bg-lime-accent"></span>
-                <span class="font-mono text-xs nav-dim-text uppercase tracking-widest">Personal Space — 2026</span>
+                <span class="font-serif text-sm nav-dim-text italic tracking-wide">Personal Space — 2026</span>
                 <span class="w-6 h-px bg-lime-accent"></span>
             </div>
 
-            <!-- Headline -->
-            <h1 class="reveal font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            <!-- Headline (editorial serif) -->
+            <h1 class="reveal font-serif text-4xl sm:text-5xl lg:text-7xl font-medium tracking-tight leading-[1.1] mb-6">
                 Hello, I'm<br>
-                <span class="text-lime-accent">Anamol Raj Singh</span>
+                <span class="text-lime-accent italic">Anamol Raj Singh</span>
             </h1>
 
             <!-- Personal Introduction -->
@@ -148,11 +153,11 @@
 
             <!-- CTA Buttons -->
             <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href="#about" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                <a href="#about" class="btn-primary magnetic inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm" data-magnetic>
                     Explore
                     <i class='bx bx-right-arrow-alt'></i>
                 </a>
-                <a href="#contact" class="btn-secondary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                <a href="#contact" class="btn-secondary magnetic inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm" data-magnetic>
                     <i class='bx bx-envelope'></i>
                     Contact
                 </a>
@@ -168,17 +173,15 @@
 
     <!-- ================================================================
          ABOUT SECTION
-         A warm, personal section introducing who the user is as a
-         student and learner. Modular — easy to extend or replace.
          ================================================================ -->
     <section id="about" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-4xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">01 / About</span>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">01 / About</span>
             </div>
 
             <div class="reveal glass-card rounded-2xl p-8 sm:p-12">
-                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+                <h2 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight mb-6">
                     Who I am
                 </h2>
                 <p class="text-lg leading-relaxed mb-4 about-text">
@@ -198,87 +201,100 @@
 
     <!-- ================================================================
          INTERESTS SECTION
-         What the user enjoys learning. Cards with glass styling.
-         Modular — easily editable or expandable.
          ================================================================ -->
     <section id="interests" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">02 / Interests</span>
-                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">02 / Interests</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight mt-3">
                     What I enjoy learning
                 </h2>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 <!-- Card 1 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-code-alt text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Technology</h3>
                     <p class="text-sm leading-relaxed card-text">Exploring how software shapes the world — from web development to systems thinking and everything in between.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Currently exploring: systems design, Rust, and AI tooling</span>
+                    </div>
                 </div>
 
                 <!-- Card 2 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-book-open text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Reading & Ideas</h3>
                     <p class="text-sm leading-relaxed card-text">Books, essays, and long-form thinking. I'm drawn to writing that challenges how I see things.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Currently reading: The Beginning of Infinity — David Deutsch</span>
+                    </div>
                 </div>
 
                 <!-- Card 3 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-planet text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Current Affairs</h3>
                     <p class="text-sm leading-relaxed card-text">Staying informed about the world — politics, culture, and the conversations shaping our future.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Following: AI policy, global tech regulation, and media ecosystems</span>
+                    </div>
                 </div>
 
                 <!-- Card 4 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-palette text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Design</h3>
                     <p class="text-sm leading-relaxed card-text">The intersection of aesthetics and function. How good design makes things feel effortless.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Inspired by: Ozu's framing, Awwwards editorial, and constraint-first design</span>
+                    </div>
                 </div>
 
                 <!-- Card 5 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-brain text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Philosophy</h3>
                     <p class="text-sm leading-relaxed card-text">Questions without easy answers. What it means to live well, think clearly, and stay open.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Thinking about: epistemology, the ethics of attention, and what "progress" means</span>
+                    </div>
                 </div>
 
                 <!-- Card 6 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <div class="reveal glass-card interactive-card rounded-2xl p-7 group" data-card>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-movie-play text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Film & Media</h3>
                     <p class="text-sm leading-relaxed card-text">Stories told well. Cinema, documentaries, and the craft behind meaningful visual storytelling.</p>
+                    <div class="card-preview mt-4">
+                        <span class="font-mono text-xs text-lime-accent">Recently watched: Tokyo Story, Stalker, and 12 Angry Men</span>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-
     <!-- ================================================================
          WRITINGS SECTION
-         A preview of the latest blog posts — notes on what I'm
-         currently exploring. Full list lives on writings.html
          ================================================================ -->
     <section id="writings" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-4xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Writings</span>
-                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">03 / Writings</span>
+                <h2 class="font-serif text-3xl sm:text-4xl font-medium tracking-tight mt-3">
                     Exploring
                 </h2>
                 <p class="text-lg leading-relaxed about-text mt-3 max-w-2xl">
@@ -292,7 +308,7 @@
 
             <!-- View all link -->
             <div class="reveal mt-10">
-                <a href="writings.html" class="btn-secondary inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm">
+                <a href="writings.html" class="btn-secondary magnetic inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" data-magnetic>
                     Read all writings
                     <i class='bx bx-right-arrow-alt'></i>
                 </a>
@@ -302,16 +318,14 @@
 
     <!-- ================================================================
          CONTACT SECTION
-         A simple, elegant contact prompt with social links.
          ================================================================ -->
-
-<section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
+    <section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto text-center">
             <div class="reveal mb-10">
-                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">04 / Contact</span>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">04 / Contact</span>
             </div>
 
-            <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5">
+            <h2 class="reveal font-serif text-3xl sm:text-5xl font-medium tracking-tight mb-5">
                 Let's connect.
             </h2>
             <p class="reveal text-lg leading-relaxed mb-10 about-text max-w-lg mx-auto">
@@ -321,19 +335,19 @@
 
             <!-- Social links -->
             <div class="reveal flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium trans[...]">
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card magnetic rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300" data-magnetic>
                     <i class='bx bxl-github text-lg'></i>
                     <span>GitHub</span>
                 </a>
-                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-me[...]">
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-pill glass-card magnetic rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300" data-magnetic>
                     <i class='bx bxl-linkedin-square text-lg'></i>
                     <span>LinkedIn</span>
                 </a>
-                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transi[...]">
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card magnetic rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300" data-magnetic>
                     <i class='bx bxl-twitter text-lg'></i>
                     <span>Twitter</span>
                 </a>
-                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 te[...]">
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-pill glass-card magnetic rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300" data-magnetic>
                     <i class='bx bxl-youtube text-lg'></i>
                     <span>YouTube</span>
                 </a>
@@ -343,29 +357,42 @@
 
     <!-- ================================================================
          FOOTER
-         Copyright, social links, back-to-top button
          ================================================================ -->
     <footer class="relative py-10 px-5 sm:px-8 border-t" id="footer">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <!-- Copyright -->
             <p class="font-mono text-xs nav-dim-text text-center sm:text-left">
                 © 2026 Anamol Raj Singh — All rights reserved.
             </p>
-
-            <!-- Social mini links -->
             <div class="flex items-center gap-3">
-                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="GitHub"><i class='bx bxl-github'></i></a>
-                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-mini" aria-label="LinkedIn"><i class='bx bxl-linkedin-square'></i></a>
-                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
-                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-mini" aria-label="YouTube"><i class='bx bxl-youtube'></i></a>
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="GitHub"><i class='bx bxl-github'></i></a>
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="LinkedIn"><i class='bx bxl-linkedin-square'></i></a>
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="YouTube"><i class='bx bxl-youtube'></i></a>
             </div>
-
-            <!-- Back to top -->
-            <button id="backToTop" class="back-to-top-btn" aria-label="Back to top">
+            <button id="backToTop" class="back-to-top-btn magnetic" data-magnetic aria-label="Back to top">
                 <i class='bx bx-up-arrow-alt'></i>
             </button>
         </div>
     </footer>
+
+    <!-- ===== TERMINAL EASTER EGG ===== -->
+    <div id="terminalHint" class="terminal-hint" aria-hidden="true">
+        <span class="font-mono text-xs">Press <kbd>~</kbd> for terminal</span>
+    </div>
+
+    <div id="terminal" class="terminal hidden" aria-hidden="true">
+        <div class="terminal-header">
+            <span class="font-mono text-xs terminal-title">anamol@personal-space:~$</span>
+            <button id="terminalClose" class="terminal-close" aria-label="Close terminal">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <div id="terminalBody" class="terminal-body"></div>
+        <div class="terminal-input-wrap">
+            <span class="font-mono text-xs terminal-prompt">$</span>
+            <input type="text" id="terminalInput" class="terminal-input" autocomplete="off" spellcheck="false" placeholder="type help for commands...">
+        </div>
+    </div>
 
     <!-- ===== JavaScript ===== -->
     <script src="posts.js"></script>
