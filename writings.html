@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-    <!-- ===== META ===== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Writings by Anamol Raj Singh — notes on technology, ideas, philosophy, design, and books.">
@@ -9,10 +8,8 @@
     <meta name="theme-color" content="#0a0b0d">
     <title>Writings — Anamol Raj Singh</title>
 
-    <!-- ===== FAVICON ===== -->
     <link rel="shortcut icon" href="https://i.ibb.co/H4VGVf7/download.png" type="image/svg+xml">
 
-    <!-- ===== Tailwind CSS (CDN) ===== -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -29,121 +26,98 @@
         }
     </script>
 
-    <!-- ===== Fonts ===== -->
+    <!-- Fonts (variable Fraunces for breathing headings) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..500&display=swap" rel="stylesheet">
 
-    <!-- ===== Boxicons ===== -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
-    <!-- ===== Lenis Smooth Scroll ===== -->
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-    <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
+    <!-- Page transition curtain -->
+    <div class="page-transition" id="pageTransition" aria-hidden="true"></div>
 
-    <!-- ===== CUSTOM CURSOR ===== -->
+    <!-- Custom cursor -->
     <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
     <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
 
-    <!-- ===== PARTICLE CANVAS ===== -->
+    <!-- Particle canvas -->
     <canvas id="particleCanvas" class="particle-canvas" aria-hidden="true"></canvas>
 
-    <!-- ===== BACKGROUND ===== -->
+    <!-- Background -->
     <div class="bg-decoration" aria-hidden="true">
-        <div class="bg-blob bg-blob--1"></div>
-        <div class="bg-blob bg-blob--2"></div>
+        <div class="bg-blob bg-blob--1" id="blob1"></div>
+        <div class="bg-blob bg-blob--2" id="blob2"></div>
         <div class="bg-grid"></div>
     </div>
 
-    <!-- ===== NAVIGATION ===== -->
+    <!-- Navigation -->
     <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
         <div class="glass-nav">
             <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
-                <a href="index.html#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5 magnetic" data-magnetic>
+                <a href="index.html#hero" class="page-link font-display font-bold text-lg tracking-tight flex items-center gap-1.5 magnetic" data-magnetic>
                     <span class="text-lime-accent font-mono text-sm">{"</span>
                     <span class="nav-name">Anamol Raj Singh</span>
                     <span class="text-lime-accent font-mono text-sm">"}</span>
                 </a>
                 <div class="hidden md:flex items-center gap-7">
-                    <a href="index.html#hero" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Home</a>
-                    <a href="index.html#about" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>About</a>
-                    <a href="index.html#interests" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Interests</a>
-                    <a href="index.html#writings" class="nav-link active text-sm font-medium transition-colors magnetic" data-magnetic>Writings</a>
-                    <a href="index.html#contact" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Contact</a>
+                    <a href="index.html#hero" class="page-link nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Home</a>
+                    <a href="index.html#about" class="page-link nav-link text-sm font-medium transition-colors magnetic" data-magnetic>About</a>
+                    <a href="index.html#interests" class="page-link nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Interests</a>
+                    <a href="index.html#now" class="page-link nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Now</a>
+                    <a href="index.html#writings" class="page-link nav-link active text-sm font-medium transition-colors magnetic" data-magnetic>Writings</a>
+                    <a href="index.html#contact" class="page-link nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Contact</a>
                 </div>
                 <div class="flex items-center gap-3 sm:gap-4">
                     <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs nav-dim-text">
-                        <i class='bx bx-time-five text-sm'></i>
-                        <span id="navClock">--:--:--</span>
+                        <i class='bx bx-time-five text-sm'></i><span id="navClock">--:--:--</span>
                     </div>
-                    <button id="themeToggle" class="theme-toggle-btn magnetic" data-magnetic aria-label="Toggle dark/light theme">
-                        <i class='bx bx-sun' id="themeIcon"></i>
-                    </button>
-                    <button id="menuToggle" class="md:hidden text-2xl transition-colors" aria-label="Toggle menu">
-                        <i class='bx bx-menu' id="menuIcon"></i>
-                    </button>
+                    <button id="audioToggle" class="audio-toggle-btn magnetic" data-magnetic aria-label="Toggle ambient audio"><i class='bx bx-volume-low' id="audioIcon"></i></button>
+                    <button id="themeToggle" class="theme-toggle-btn magnetic" data-magnetic aria-label="Toggle dark/light theme"><i class='bx bx-sun' id="themeIcon"></i></button>
+                    <button id="menuToggle" class="md:hidden text-2xl transition-colors" aria-label="Toggle menu"><i class='bx bx-menu' id="menuIcon"></i></button>
                 </div>
             </nav>
             <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-400" style="max-height: 0;">
                 <div class="px-5 pb-4 flex flex-col gap-3">
-                    <a href="index.html#hero" class="mobile-link text-sm font-medium py-1.5">Home</a>
-                    <a href="index.html#about" class="mobile-link text-sm font-medium py-1.5">About</a>
-                    <a href="index.html#interests" class="mobile-link text-sm font-medium py-1.5">Interests</a>
-                    <a href="index.html#writings" class="mobile-link text-sm font-medium py-1.5">Writings</a>
-                    <a href="index.html#contact" class="mobile-link text-sm font-medium py-1.5">Contact</a>
+                    <a href="index.html#hero" class="page-link mobile-link text-sm font-medium py-1.5">Home</a>
+                    <a href="index.html#about" class="page-link mobile-link text-sm font-medium py-1.5">About</a>
+                    <a href="index.html#interests" class="page-link mobile-link text-sm font-medium py-1.5">Interests</a>
+                    <a href="index.html#now" class="page-link mobile-link text-sm font-medium py-1.5">Now</a>
+                    <a href="index.html#writings" class="page-link mobile-link text-sm font-medium py-1.5">Writings</a>
+                    <a href="index.html#contact" class="page-link mobile-link text-sm font-medium py-1.5">Contact</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- ===== POST LIST VIEW ===== -->
+    <!-- Post list view -->
     <section id="postList" class="relative min-h-screen pt-32 pb-20 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto">
-
-            <!-- Section header -->
             <div class="reveal mb-14">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">03 / Writings</span>
-                <h1 class="font-serif text-4xl sm:text-5xl font-medium tracking-tight mt-4 mb-4">
-                    Exploring
-                </h1>
-                <p class="text-lg leading-relaxed about-text max-w-2xl">
-                    Notes on what I'm currently thinking through — not polished conclusions, just honest
-                    writing about ideas, technology, philosophy, design, and books as I encounter them.
-                </p>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">04 / Writings</span>
+                <h1 class="font-serif breathe-heading text-4xl sm:text-5xl tracking-tight mt-4 mb-4">Exploring</h1>
+                <p class="text-lg leading-relaxed about-text max-w-2xl">Notes on what I'm currently thinking through — not polished conclusions, just honest writing about ideas, technology, philosophy, design, and books as I encounter them.</p>
             </div>
-
-            <!-- Tag filters -->
             <div id="tagFilters" class="reveal flex flex-wrap gap-2 mb-10"></div>
-
-            <!-- Posts list -->
             <div id="postsContainer" class="space-y-1"></div>
-
         </div>
     </section>
 
-    <!-- ===== SINGLE POST VIEW (hidden initially) ===== -->
+    <!-- Single post view -->
     <article id="postView" class="relative min-h-screen pt-32 pb-20 px-5 sm:px-8 hidden">
         <div class="max-w-2xl mx-auto">
-            <!-- Back link -->
             <a href="#" id="backToPosts" class="inline-flex items-center gap-1.5 font-mono text-xs nav-dim-text hover:text-lime-accent transition-colors mb-10">
                 <i class='bx bx-left-arrow-alt'></i> Writings
             </a>
-
-            <!-- Post meta -->
             <div id="postMeta" class="mb-6"></div>
-
-            <!-- Post title -->
-            <h1 id="postTitle" class="font-serif text-3xl sm:text-4xl font-medium tracking-tight leading-tight mb-8"></h1>
-
-            <!-- Post content -->
+            <h1 id="postTitle" class="font-serif text-3xl sm:text-4xl tracking-tight leading-tight mb-8"></h1>
             <div id="postContent" class="article-content"></div>
-
-            <!-- Footer nav -->
             <div class="mt-16 pt-8 border-t" style="border-color: var(--border-color)">
                 <a href="#" id="backToPostsBottom" class="inline-flex items-center gap-1.5 font-mono text-xs nav-dim-text hover:text-lime-accent transition-colors">
                     <i class='bx bx-left-arrow-alt'></i> Back to all writings
@@ -152,12 +126,10 @@
         </div>
     </article>
 
-    <!-- ===== FOOTER ===== -->
+    <!-- Footer -->
     <footer class="relative py-10 px-5 sm:px-8 border-t" id="footer">
         <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
-            <p class="font-mono text-xs nav-dim-text text-center sm:text-left">
-                © 2026 Anamol Raj Singh — All rights reserved.
-            </p>
+            <p class="font-mono text-xs nav-dim-text text-center sm:text-left">© 2026 Anamol Raj Singh — All rights reserved.</p>
             <div class="flex items-center gap-3">
                 <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="GitHub"><i class='bx bxl-github'></i></a>
                 <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-mini magnetic" data-magnetic aria-label="LinkedIn"><i class='bx bxl-linkedin-square'></i></a>
@@ -167,17 +139,12 @@
         </div>
     </footer>
 
-    <!-- ===== TERMINAL EASTER EGG ===== -->
-    <div id="terminalHint" class="terminal-hint" aria-hidden="true">
-        <span class="font-mono text-xs">Press <kbd>~</kbd> for terminal</span>
-    </div>
-
+    <!-- Terminal easter egg -->
+    <div id="terminalHint" class="terminal-hint" aria-hidden="true"><span class="font-mono text-xs">Press <kbd>~</kbd> for terminal</span></div>
     <div id="terminal" class="terminal hidden" aria-hidden="true">
         <div class="terminal-header">
             <span class="font-mono text-xs terminal-title">anamol@personal-space:~$</span>
-            <button id="terminalClose" class="terminal-close" aria-label="Close terminal">
-                <i class='bx bx-x'></i>
-            </button>
+            <button id="terminalClose" class="terminal-close" aria-label="Close terminal"><i class='bx bx-x'></i></button>
         </div>
         <div id="terminalBody" class="terminal-body"></div>
         <div class="terminal-input-wrap">
@@ -186,7 +153,8 @@
         </div>
     </div>
 
-    <!-- ===== Scripts ===== -->
+    <!-- Scripts -->
+    <script src="now.js"></script>
     <script src="posts.js"></script>
     <script src="script.js"></script>
     <script src="writings.js"></script>

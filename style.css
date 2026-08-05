@@ -962,3 +962,353 @@ html.lenis body {
 [data-theme="night"] .bg-blob--2 {
     background: #6a5aff;
 }
+
+/* ================================================================
+   MASTERCLASS SPRINT — Awwwards-level enhancements
+   GSAP scroll animations, cursor-following previews, page transitions,
+   Now widget, Thought Stream, ambient audio, asymmetrical editorial layout
+   ================================================================ */
+
+/* ===== PAGE TRANSITION CURTAIN ===== */
+.page-transition {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: var(--accent);
+    transform: translateY(100%);
+    pointer-events: none;
+    transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.page-transition.curtain-up {
+    transform: translateY(0);
+}
+
+.page-transition.curtain-down {
+    transform: translateY(-100%);
+}
+
+/* ===== CURSOR-FOLLOWING PREVIEW CARD ===== */
+.cursor-preview {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9000;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 280px;
+    padding: 20px 24px;
+    border-radius: 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-hover);
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.4), 0 0 30px var(--accent-glow);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.cursor-preview.preview-visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.cursor-preview-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 8px;
+}
+
+.cursor-preview-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.cursor-preview-ambient {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    opacity: 0.08;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+/* ===== NOW WIDGET ===== */
+.now-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+    .now-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Staggered editorial offsets */
+    .now-grid > :nth-child(2) {
+        margin-top: 2.5rem;
+    }
+    .now-grid > :nth-child(3) {
+        margin-top: -1rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .now-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .now-reading {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+    .now-thinking {
+        grid-column: span 3;
+    }
+    .now-grid > :nth-child(2) {
+        margin-top: 2rem;
+    }
+    .now-grid > :nth-child(3) {
+        margin-top: 0;
+    }
+}
+
+.now-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 12px;
+}
+
+.now-title {
+    font-weight: 500;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.now-author {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+}
+
+.now-progress {
+    width: 100%;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.now-progress-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.now-quote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text-primary);
+    padding-left: 16px;
+    border-left: 2px solid var(--accent);
+    margin-bottom: 12px;
+}
+
+.now-note {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.now-question {
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+.now-updated {
+    margin-top: 1.5rem;
+    opacity: 0.5;
+}
+
+/* ===== THOUGHT STREAM ===== */
+.thought-stream {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.thought-item {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-color);
+    transition: border-color 0.3s ease, padding-left 0.3s ease;
+}
+
+.thought-item:last-child {
+    border-bottom: none;
+}
+
+.thought-item:hover {
+    border-color: var(--border-hover);
+    padding-left: 8px;
+}
+
+.thought-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    min-width: 64px;
+}
+
+.thought-text {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 0.95rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.thought-item:hover .thought-text {
+    color: var(--text-primary);
+}
+
+/* ===== AMBIENT AUDIO TOGGLE ===== */
+.audio-toggle-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    color: var(--text-secondary);
+    background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.audio-toggle-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.audio-toggle-btn.audio-active {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 15px var(--accent-glow);
+    animation: audio-pulse 2s ease-in-out infinite;
+}
+
+@keyframes audio-pulse {
+    0%, 100% { box-shadow: 0 0 15px var(--accent-glow); }
+    50% { box-shadow: 0 0 25px var(--accent-glow-strong); }
+}
+
+/* ===== EDITORIAL MARGIN NOTES (marginalia) ===== */
+.margin-note {
+    display: none;
+}
+
+@media (min-width: 1024px) {
+    .margin-note {
+        display: block;
+        position: absolute;
+        font-family: 'Fraunces', Georgia, serif;
+        font-size: 0.8rem;
+        font-style: italic;
+        line-height: 1.5;
+        color: var(--text-dim);
+        max-width: 200px;
+        opacity: 0;
+        transition: opacity 0.8s ease;
+    }
+
+    .margin-note.visible {
+        opacity: 1;
+    }
+
+    .margin-note--right {
+        right: -20px;
+        transform: translateX(100%);
+        padding-left: 24px;
+        border-left: 1px solid var(--border-color);
+    }
+}
+
+/* ===== ASYMMETRIC INTEREST CARDS (staggered) ===== */
+@media (min-width: 640px) {
+    .interests-grid .interest-card:nth-child(odd) {
+        margin-top: 0;
+    }
+    .interests-grid .interest-card:nth-child(even) {
+        margin-top: 2rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .interests-grid .interest-card:nth-child(3n+2) {
+        margin-top: 2.5rem;
+    }
+    .interests-grid .interest-card:nth-child(3n+3) {
+        margin-top: -1rem;
+    }
+}
+
+/* ===== BREATHING HEADINGS (GSAP-driven variable font weight) ===== */
+.breathe-heading {
+    font-weight: 400;
+    will-change: font-weight;
+}
+
+/* ===== GSAP STAGGERED REVEAL (replaces basic fade-in for grids) ===== */
+.gsap-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+}
+
+/* ===== SECTION DIVIDER LINE ===== */
+.section-divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border-color);
+    margin: 0 auto;
+}
+
+/* ===== MOBILE ADJUSTMENTS ===== */
+@media (max-width: 768px) {
+    .cursor-preview {
+        display: none;
+    }
+
+    .now-grid > :nth-child(2),
+    .now-grid > :nth-child(3) {
+        margin-top: 0;
+    }
+
+    .interests-grid .interest-card:nth-child(even),
+    .interests-grid .interest-card:nth-child(3n+2),
+    .interests-grid .interest-card:nth-child(3n+3) {
+        margin-top: 0;
+    }
+}
