@@ -1039,24 +1039,23 @@ html.lenis body {
     transition: opacity 0.4s ease;
 }
 
-/* ===== NOW WIDGET ===== */
+/* ===== NOW WIDGET (clean bento grid, no stray offsets) ===== */
 .now-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1.25rem;
+    align-items: stretch;
 }
 
 @media (min-width: 640px) {
     .now-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-
-    /* Staggered editorial offsets */
-    .now-grid > :nth-child(2) {
-        margin-top: 2.5rem;
+    .now-reading {
+        grid-column: span 2;
     }
-    .now-grid > :nth-child(3) {
-        margin-top: -1rem;
+    .now-thinking {
+        grid-column: span 2;
     }
 }
 
@@ -1064,19 +1063,13 @@ html.lenis body {
     .now-grid {
         grid-template-columns: repeat(3, 1fr);
     }
-
     .now-reading {
         grid-column: span 2;
-        grid-row: span 1;
+        grid-row: span 2;
     }
     .now-thinking {
         grid-column: span 3;
-    }
-    .now-grid > :nth-child(2) {
-        margin-top: 2rem;
-    }
-    .now-grid > :nth-child(3) {
-        margin-top: 0;
+        grid-row: auto;
     }
 }
 
@@ -1225,23 +1218,14 @@ html.lenis body {
     50% { box-shadow: 0 0 25px var(--accent-glow-strong); }
 }
 
-/* ===== ASYMMETRIC INTEREST CARDS (staggered) ===== */
-@media (min-width: 640px) {
-    .interests-grid .interest-card:nth-child(odd) {
-        margin-top: 0;
-    }
-    .interests-grid .interest-card:nth-child(even) {
-        margin-top: 2rem;
-    }
+/* ===== INTEREST CARDS (clean, evenly aligned grid) ===== */
+.interests-grid {
+    align-items: stretch;
 }
-
-@media (min-width: 1024px) {
-    .interests-grid .interest-card:nth-child(3n+2) {
-        margin-top: 2.5rem;
-    }
-    .interests-grid .interest-card:nth-child(3n+3) {
-        margin-top: -1rem;
-    }
+.interests-grid .interest-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* ===== BREATHING HEADINGS (GSAP-driven variable font weight) ===== */
@@ -1269,30 +1253,11 @@ html.lenis body {
     .cursor-preview {
         display: none;
     }
-
-    .now-grid > :nth-child(2),
-    .now-grid > :nth-child(3) {
-        margin-top: 0;
-    }
-
-    .interests-grid .interest-card:nth-child(even),
-    .interests-grid .interest-card:nth-child(3n+2),
-    .interests-grid .interest-card:nth-child(3n+3) {
-        margin-top: 0;
-    }
 }
 
 /* ===== ENHANCED RESPONSIVE FIXES ===== */
 
-/* Tablet and small desktop */
-@media (max-width: 1024px) and (min-width: 769px) {
-    .now-grid > :nth-child(2) {
-        margin-top: 1.5rem;
-    }
-    .now-grid > :nth-child(3) {
-        margin-top: 0;
-    }
-}
+
 
 /* Mobile and small tablet */
 @media (max-width: 768px) {
