@@ -1379,3 +1379,401 @@ html.lenis body {
         font-size: 0.75rem;
     }
 }
+
+/* ================================================================
+   AWWWARDS ELEVATION — NEW ENHANCEMENTS
+   Vibes widget, scroll progress, editorial typography,
+   text reveal masks, theme morphing, atmosphere
+   ================================================================ */
+
+/* ===== SCROLL PROGRESS INDICATOR ===== */
+.scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    z-index: 100;
+    background: transparent;
+    pointer-events: none;
+}
+
+.scroll-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow-strong);
+    transition: width 0.1s linear;
+}
+
+/* ===== EDITORIAL SECTION MARKERS ===== */
+.section-marker {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+
+.section-num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: clamp(3.5rem, 8vw, 6rem);
+    font-weight: 300;
+    line-height: 0.85;
+    color: var(--accent);
+    opacity: 0.15;
+    letter-spacing: -0.04em;
+    font-style: italic;
+    font-variation-settings: "opsz" 144;
+}
+
+/* ===== EDITORIAL TYPOGRAPHY ENHANCEMENTS ===== */
+.font-serif {
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" auto;
+}
+
+/* Drop cap for About section */
+.drop-cap {
+    float: left;
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 3.5rem;
+    line-height: 0.85;
+    font-weight: 500;
+    color: var(--accent);
+    padding-right: 0.08em;
+    padding-top: 0.05em;
+    font-style: italic;
+    font-variation-settings: "opsz" 144;
+}
+
+/* Asymmetrical editorial layout for sections */
+@media (min-width: 768px) {
+    section#about .max-w-4xl {
+        max-width: 52rem;
+        padding-left: 3rem;
+    }
+    section#interests .max-w-5xl {
+        max-width: 64rem;
+    }
+    section#writings .max-w-4xl {
+        max-width: 50rem;
+        padding-right: 2rem;
+    }
+    section#thoughts .max-w-3xl {
+        max-width: 42rem;
+        padding-left: 2rem;
+    }
+}
+
+/* Editorial pull-quote for About section */
+.editorial-pullquote {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 1.5rem;
+    font-style: italic;
+    line-height: 1.5;
+    color: var(--text-primary);
+    padding: 1.5rem 0 1.5rem 1.5rem;
+    border-left: 2px solid var(--accent);
+    margin: 2rem 0;
+    font-variation-settings: "opsz" 72;
+}
+
+/* ===== TEXT REVEAL MASK ===== */
+.text-reveal-mask {
+    overflow: hidden;
+    display: block;
+}
+
+/* Override the .reveal transform — GSAP handles the animation */
+.reveal.text-reveal-mask {
+    transform: none !important;
+    opacity: 1 !important;
+}
+
+.text-reveal-mask .reveal-text {
+    display: inline-block;
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Fallback: if GSAP doesn't load, IntersectionObserver will still work */
+.text-reveal-mask.reveal.visible .reveal-text {
+    transform: translateY(0);
+}
+
+/* ===== VIBES MUSIC WIDGET ===== */
+.vibes-widget {
+    position: relative;
+}
+
+.vibes-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px 7px 10px;
+    border-radius: 100px;
+    background: var(--bg-glass);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    user-select: none;
+}
+
+.vibes-trigger:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.vibes-label {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Pulsing equalizer bars */
+.vibes-pulse {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 14px;
+}
+
+.vibes-bar {
+    width: 2.5px;
+    background: var(--accent);
+    border-radius: 1px;
+    height: 4px;
+    animation: vibes-equalize 1.2s ease-in-out infinite;
+    transform-origin: bottom;
+}
+
+.vibes-bar:nth-child(1) { animation-delay: 0s; }
+.vibes-bar:nth-child(2) { animation-delay: 0.2s; }
+.vibes-bar:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes vibes-equalize {
+    0%, 100% { height: 4px; opacity: 0.5; }
+    50% { height: 14px; opacity: 1; }
+}
+
+/* Vibes widget active state */
+.vibes-widget.open .vibes-trigger {
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.vibes-widget.open .vibes-bar {
+    animation-duration: 0.6s;
+}
+
+/* Vibes drawer */
+.vibes-drawer {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 10px 60px rgba(0, 0, 0, 0.4), 0 0 30px var(--accent-glow);
+    opacity: 0;
+    transform: translateY(-8px) scale(0.96);
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    z-index: 60;
+}
+
+.vibes-widget.open .vibes-drawer {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+/* Vibes tabs */
+.vibes-tabs {
+    display: flex;
+    gap: 2px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.vibes-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+}
+
+.vibes-tab i {
+    font-size: 1rem;
+}
+
+.vibes-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-glass);
+}
+
+.vibes-tab.active {
+    color: var(--accent);
+    background: var(--accent-glow);
+}
+
+/* Vibes content panels */
+.vibes-content {
+    padding: 0;
+}
+
+.vibes-panel {
+    display: none;
+}
+
+.vibes-panel.active {
+    display: block;
+}
+
+.vibes-panel iframe {
+    display: block;
+    border: none;
+    border-radius: 0 0 18px 18px;
+    width: 100%;
+}
+
+/* Ambient panel */
+.vibes-ambient-info {
+    padding: 28px 20px;
+    text-align: center;
+}
+
+/* ===== THEME MORPHING (smoother color transitions) ===== */
+body {
+    transition: background-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                color 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-nav,
+.glass-card,
+.bg-blob,
+.bg-grid {
+    transition: background 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ===== THEME LABELS (tooltip on toggle) ===== */
+.theme-toggle-btn {
+    position: relative;
+    overflow: visible;
+}
+
+.theme-toggle-btn::after {
+    content: attr(data-theme-label);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.theme-toggle-btn:hover::after {
+    opacity: 1;
+}
+
+/* ===== HERO NAME SPLIT ANIMATION ===== */
+.hero-name {
+    display: inline-block;
+}
+
+.hero-word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(40px);
+    animation: hero-word-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-word:nth-child(1) { animation-delay: 0.2s; }
+.hero-word:nth-child(2) { animation-delay: 0.35s; }
+.hero-word:nth-child(3) { animation-delay: 0.5s; }
+
+@keyframes hero-word-in {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-word {
+        opacity: 1;
+        transform: none;
+        animation: none;
+    }
+}
+
+/* ===== MOBILE: VIBES WIDGET ===== */
+@media (max-width: 768px) {
+    .vibes-drawer {
+        position: fixed;
+        top: 64px;
+        right: 16px;
+        left: 16px;
+        width: auto;
+        max-width: none;
+    }
+    
+    .vibes-trigger {
+        padding: 5px 10px 5px 8px;
+        font-size: 0.7rem;
+    }
+    
+    .vibes-pulse {
+        height: 10px;
+    }
+    
+    .vibes-bar {
+        width: 2px;
+    }
+}
+
+/* ===== SECTION ATMOSPHERE MORPHING (data attributes set by JS) ===== */
+body[data-atmosphere="warm"] {
+    --blob-opacity: 0.3;
+}
+
+body[data-atmosphere="cool"] {
+    --blob-opacity: 0.2;
+}
+
+body[data-atmosphere="deep"] {
+    --blob-opacity: 0.12;
+}

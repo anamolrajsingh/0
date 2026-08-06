@@ -66,7 +66,18 @@
         const next = THEMES[(idx + 1) % THEMES.length];
         applyTheme(next);
         localStorage.setItem(STORAGE_KEY, next);
+        updateThemeLabel(next);
     });
+
+    function updateThemeLabel(theme) {
+        var labels = {
+            'dark': 'Daytime Study',
+            'light': 'Late Night Deep Work',
+            'night': 'Midnight Mode'
+        };
+        if (themeToggle) themeToggle.setAttribute('data-theme-label', labels[theme] || '');
+    }
+    updateThemeLabel(getInitialTheme());
 
     if (window.matchMedia) {
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
@@ -87,6 +98,20 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    // ============================================================
+    // 2b. SCROLL PROGRESS INDICATOR
+    // ============================================================
+    const scrollProgressBar = document.querySelector('.scroll-progress-bar');
+    if (scrollProgressBar) {
+        function updateScrollProgress() {
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrolled = window.scrollY / scrollHeight * 100;
+            scrollProgressBar.style.width = Math.min(100, scrolled) + '%';
+        }
+        window.addEventListener('scroll', updateScrollProgress, { passive: true });
+        updateScrollProgress();
+    }
 
     // ============================================================
     // 3. MOBILE MENU
@@ -202,7 +227,7 @@
         }
         animateCursor();
 
-        document.querySelectorAll('a, button, .glass-card, .interactive-card, .post-link, .tag-filter, input, .terminal-hint, .terminal-close, .thought-item').forEach(function (el) {
+        document.querySelectorAll('a, button, .glass-card, .interactive-card, .post-link, .tag-filter, input, .terminal-hint, .terminal-close, .thought-item, .vibes-trigger, .vibes-tab').forEach(function (el) {
             el.addEventListener('mouseenter', function () { cursorRing.classList.add('cursor-hover'); cursorDot.classList.add('cursor-hover'); });
             el.addEventListener('mouseleave', function () { cursorRing.classList.remove('cursor-hover'); cursorDot.classList.remove('cursor-hover'); });
         });
@@ -358,6 +383,81 @@
                     opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
                     scrollTrigger: { trigger: card, start: 'top 85%' },
                     delay: (idx % 3) * 0.1
+                }
+            );
+        });
+
+        // Text reveal mask animation for section headings
+        document.querySelectorAll('.text-reveal-mask').forEach(function (el) {
+            gsap.fromTo(el.querySelector('.reveal-text'),
+                { yPercent: 100 },
+                {
+                    yPercent: 0,
+                    duration: 0.9,
+                    ease: 'power4.out',
+                    scrollTrigger: {
+                        trigger: el,
+                        start: 'top 88%',
+                        toggleActions: 'play none none none'
+                    }
+                }
+            );
+        });
+
+        // Section atmosphere morphing — shift blob colors as user crosses sections
+        const sections = document.querySelectorAll('section[id]');
+        sections.forEach(function (section) {
+            ScrollTrigger.create({
+                trigger: section,
+                start: 'top 50%',
+                end: 'bottom 50%',
+                onEnter: function () { setAtmosphere(section.id); },
+                onEnterBack: function () { setAtmosphere(section.id); }
+            });
+        });
+
+        function setAtmosphere(sectionId) {
+            var body = document.body;
+            var atmospheres = {
+                'hero': 'warm',
+                'about': 'warm',
+                'interests': 'cool',
+                'now': 'cool',
+                'writings': 'deep',
+                'thoughts': 'deep',
+                'contact': 'warm'
+            };
+            body.setAttribute('data-atmosphere', atmospheres[sectionId] || 'warm');
+        }
+
+        // Hero parallax — name drifts slightly on scroll
+        const heroName = document.querySelector('.hero-name');
+        if (heroName) {
+            gsap.to(heroName, {
+                y: -80,
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: '#hero',
+                    start: 'top top',
+                    end: 'bottom top',
+                    scrub: 1
+                }
+            });
+        }
+
+        // Section number markers — subtle parallax
+        document.querySelectorAll('.section-num').forEach(function (num) {
+            gsap.fromTo(num,
+                { y: 20, opacity: 0 },
+                {
+                    y: 0,
+                    opacity: 0.15,
+                    duration: 1,
+                    ease: 'power3.out',
+                    scrollTrigger: {
+                        trigger: num,
+                        start: 'top 90%'
+                    }
                 }
             );
         });
@@ -541,114 +641,157 @@
     renderThoughtStream();
 
     // ============================================================
-    // 16. AMBIENT AUDIO (Web Audio API — relaxing soundscape)
-    // A layered ambient soundscape: warm chord drone + gentle LFO breathing
-    // + brown noise "stream" layer. Tuned to A minor for a calming feel.
+    // 16. VIBES MUSIC WIDGET + AMBIENT AUDIO
+    // Pill-shaped glassmorphism trigger with dropdown drawer.
+    // Tabs: Spotify embed, YT Music embed, Ambient soundscape.
     // ============================================================
-    const audioToggle = document.getElementById('audioToggle');
-    const audioIcon = document.getElementById('audioIcon');
+    
+    // --- 16a. VIBES WIDGET (open/close, tab switching) ---
+    const vibesWidget = document.getElementById('vibesWidget');
+    const vibesToggle = document.getElementById('vibesToggle');
+    const vibesDrawer = document.getElementById('vibesDrawer');
+    let vibesOpen = false;
+
+    if (vibesToggle && vibesDrawer) {
+        vibesToggle.addEventListener('click', function (e) {
+            e.stopPropagation();
+            vibesOpen = !vibesOpen;
+            vibesWidget.classList.toggle('open', vibesOpen);
+            vibesDrawer.setAttribute('aria-hidden', !vibesOpen);
+        });
+
+        // Close on outside click
+        document.addEventListener('click', function (e) {
+            if (vibesOpen && !vibesWidget.contains(e.target)) {
+                vibesOpen = false;
+                vibesWidget.classList.remove('open');
+                vibesDrawer.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        // Close on Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && vibesOpen) {
+                vibesOpen = false;
+                vibesWidget.classList.remove('open');
+                vibesDrawer.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        // Tab switching
+        document.querySelectorAll('.vibes-tab').forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                var target = tab.getAttribute('data-vibes-tab');
+                document.querySelectorAll('.vibes-tab').forEach(function (t) { t.classList.remove('active'); });
+                document.querySelectorAll('.vibes-panel').forEach(function (p) { p.classList.remove('active'); });
+                tab.classList.add('active');
+                var panel = document.querySelector('[data-vibes-panel="' + target + '"]');
+                if (panel) panel.classList.add('active');
+            });
+        });
+    }
+
+    // --- 16b. AMBIENT AUDIO (Web Audio API — relaxing soundscape) ---
+    const ambientToggle = document.getElementById('ambientToggle');
+    const ambientIcon = document.getElementById('ambientIcon');
+    const ambientLabel = document.getElementById('ambientLabel');
     let audioCtx = null, audioMasterGain = null, audioActive = false;
     let audioNodes = [];
 
-    if (audioToggle) {
-        audioToggle.addEventListener('click', function () {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                audioMasterGain = audioCtx.createGain();
-                audioMasterGain.gain.value = 0;
-                audioMasterGain.connect(audioCtx.destination);
+    function initAmbientAudio() {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        audioMasterGain = audioCtx.createGain();
+        audioMasterGain.gain.value = 0;
+        audioMasterGain.connect(audioCtx.destination);
 
-                // --- Layer 1: Warm chord drone (A2, E3, A3, C4) ---
-                var chordFreqs = [110, 164.81, 220, 261.63]; // A2, E3, A3, C4
-                chordFreqs.forEach(function (freq, i) {
-                    var osc = audioCtx.createOscillator();
-                    var oscGain = audioCtx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.value = freq;
-                    // Slight detune for warmth
-                    osc.detune.value = (i - 1.5) * 3;
-                    // Each oscillator gets progressively quieter
-                    oscGain.gain.value = 0.15 / (i + 1);
-                    osc.connect(oscGain);
-                    oscGain.connect(audioMasterGain);
-                    osc.start();
-                    audioNodes.push({ osc: osc, gain: oscGain });
-                });
+        // --- Layer 1: Warm chord drone (A2, E3, A3, C4) ---
+        var chordFreqs = [110, 164.81, 220, 261.63];
+        chordFreqs.forEach(function (freq, i) {
+            var osc = audioCtx.createOscillator();
+            var oscGain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+            osc.detune.value = (i - 1.5) * 3;
+            oscGain.gain.value = 0.15 / (i + 1);
+            osc.connect(oscGain);
+            oscGain.connect(audioMasterGain);
+            osc.start();
+            audioNodes.push({ osc: osc, gain: oscGain });
+        });
 
-                // --- Layer 2: Gentle LFO for "breathing" volume effect ---
-                var lfo = audioCtx.createOscillator();
-                var lfoGain = audioCtx.createGain();
-                lfo.frequency.value = 0.06; // Very slow: ~10 sec cycle
-                lfo.type = 'sine';
-                lfoGain.gain.value = 0.03; // Subtle 3% modulation
-                lfo.connect(lfoGain);
-                // Modulate the master gain slightly (creates a "breathing" feel)
-                lfoGain.connect(audioMasterGain.gain);
-                lfo.start();
-                audioNodes.push({ osc: lfo, gain: lfoGain });
+        // --- Layer 2: Gentle LFO for "breathing" volume effect ---
+        var lfo = audioCtx.createOscillator();
+        var lfoGain = audioCtx.createGain();
+        lfo.frequency.value = 0.06;
+        lfo.type = 'sine';
+        lfoGain.gain.value = 0.03;
+        lfo.connect(lfoGain);
+        lfoGain.connect(audioMasterGain.gain);
+        lfo.start();
+        audioNodes.push({ osc: lfo, gain: lfoGain });
 
-                // --- Layer 3: Brown noise "stream/wind" layer ---
-                var bufferSize = 2 * audioCtx.sampleRate;
-                var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                var output = noiseBuffer.getChannelData(0);
-                var lastOut = 0;
-                for (var j = 0; j < bufferSize; j++) {
-                    var white = Math.random() * 2 - 1;
-                    output[j] = (lastOut + 0.02 * white) / 1.02;
-                    lastOut = output[j];
-                    output[j] *= 3.5;
-                }
-                var noise = audioCtx.createBufferSource();
-                noise.buffer = noiseBuffer;
-                noise.loop = true;
-                var noiseFilter = audioCtx.createBiquadFilter();
-                noiseFilter.type = 'lowpass';
-                noiseFilter.frequency.value = 400;
-                noiseFilter.Q.value = 0.5;
-                var noiseGain = audioCtx.createGain();
-                noiseGain.gain.value = 0.04;
-                noise.connect(noiseFilter);
-                noiseFilter.connect(noiseGain);
-                noiseGain.connect(audioMasterGain);
-                noise.start();
-                audioNodes.push({ osc: noise, gain: noiseGain });
+        // --- Layer 3: Brown noise "stream/wind" layer ---
+        var bufferSize = 2 * audioCtx.sampleRate;
+        var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        var output = noiseBuffer.getChannelData(0);
+        var lastOut = 0;
+        for (var j = 0; j < bufferSize; j++) {
+            var white = Math.random() * 2 - 1;
+            output[j] = (lastOut + 0.02 * white) / 1.02;
+            lastOut = output[j];
+            output[j] *= 3.5;
+        }
+        var noise = audioCtx.createBufferSource();
+        noise.buffer = noiseBuffer;
+        noise.loop = true;
+        var noiseFilter = audioCtx.createBiquadFilter();
+        noiseFilter.type = 'lowpass';
+        noiseFilter.frequency.value = 400;
+        noiseFilter.Q.value = 0.5;
+        var noiseGain = audioCtx.createGain();
+        noiseGain.gain.value = 0.04;
+        noise.connect(noiseFilter);
+        noiseFilter.connect(noiseGain);
+        noiseGain.connect(audioMasterGain);
+        noise.start();
+        audioNodes.push({ osc: noise, gain: noiseGain });
 
-                // --- Layer 4: High shimmer (A5, very faint singing bowl) ---
-                var shimmer = audioCtx.createOscillator();
-                var shimmerGain = audioCtx.createGain();
-                shimmer.type = 'sine';
-                shimmer.frequency.value = 880; // A5
-                shimmerGain.gain.value = 0.008;
-                shimmer.connect(shimmerGain);
-                shimmerGain.connect(audioMasterGain);
-                shimmer.start();
-                audioNodes.push({ osc: shimmer, gain: shimmerGain });
+        // --- Layer 4: High shimmer (A5, very faint singing bowl) ---
+        var shimmer = audioCtx.createOscillator();
+        var shimmerGain = audioCtx.createGain();
+        shimmer.type = 'sine';
+        shimmer.frequency.value = 880;
+        shimmerGain.gain.value = 0.008;
+        shimmer.connect(shimmerGain);
+        shimmerGain.connect(audioMasterGain);
+        shimmer.start();
+        audioNodes.push({ osc: shimmer, gain: shimmerGain });
 
-                // --- Master low-pass filter for overall warmth ---
-                var masterFilter = audioCtx.createBiquadFilter();
-                masterFilter.type = 'lowpass';
-                masterFilter.frequency.value = 1200;
-                masterFilter.Q.value = 0.3;
-                // Reconnect everything through the master filter
-                audioMasterGain.disconnect();
-                audioMasterGain.connect(masterFilter);
-                masterFilter.connect(audioCtx.destination);
-            }
+        // --- Master low-pass filter for overall warmth ---
+        var masterFilter = audioCtx.createBiquadFilter();
+        masterFilter.type = 'lowpass';
+        masterFilter.frequency.value = 1200;
+        masterFilter.Q.value = 0.3;
+        audioMasterGain.disconnect();
+        audioMasterGain.connect(masterFilter);
+        masterFilter.connect(audioCtx.destination);
+    }
 
+    if (ambientToggle) {
+        ambientToggle.addEventListener('click', function () {
+            if (!audioCtx) initAmbientAudio();
             if (audioCtx.state === 'suspended') audioCtx.resume();
 
             if (!audioActive) {
-                // Smooth 3-second fade in
                 audioMasterGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
                 audioActive = true;
-                audioToggle.classList.add('audio-active');
-                if (audioIcon) audioIcon.className = 'bx bx-volume-full';
+                if (ambientIcon) ambientIcon.className = 'bx bx-pause';
+                if (ambientLabel) ambientLabel.textContent = 'Pause Ambient';
             } else {
-                // Smooth 2-second fade out
                 audioMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
                 audioActive = false;
-                audioToggle.classList.remove('audio-active');
-                if (audioIcon) audioIcon.className = 'bx bx-volume-low';
+                if (ambientIcon) ambientIcon.className = 'bx bx-play';
+                if (ambientLabel) ambientLabel.textContent = 'Play Ambient';
             }
         });
     }

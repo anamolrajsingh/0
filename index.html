@@ -49,6 +49,8 @@
 </head>
 
 <body>
+    <!-- ===== SCROLL PROGRESS INDICATOR ===== -->
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"><div class="scroll-progress-bar"></div></div>
 
     <!-- ===== PAGE TRANSITION CURTAIN ===== -->
     <div class="page-transition" id="pageTransition" aria-hidden="true"></div>
@@ -96,10 +98,48 @@
                         <i class='bx bx-time-five text-sm'></i>
                         <span id="navClock">--:--:--</span>
                     </div>
-                    <!-- Ambient Audio Toggle -->
-                    <button id="audioToggle" class="audio-toggle-btn magnetic" data-magnetic aria-label="Toggle ambient audio">
-                        <i class='bx bx-volume-low' id="audioIcon"></i>
-                    </button>
+                    <!-- Vibes Music Widget -->
+                    <div class="vibes-widget" id="vibesWidget">
+                        <button id="vibesToggle" class="vibes-trigger magnetic" data-magnetic aria-label="Open vibes music player">
+                            <span class="vibes-pulse" id="vibesPulse">
+                                <span class="vibes-bar"></span>
+                                <span class="vibes-bar"></span>
+                                <span class="vibes-bar"></span>
+                            </span>
+                            <span class="vibes-label">Vibes</span>
+                        </button>
+                        <div class="vibes-drawer" id="vibesDrawer" aria-hidden="true">
+                            <div class="vibes-tabs">
+                                <button class="vibes-tab active" data-vibes-tab="spotify">
+                                    <i class='bx bxl-spotify'></i> Spotify
+                                </button>
+                                <button class="vibes-tab" data-vibes-tab="ytmusic">
+                                    <i class='bx bx-music'></i> YT Music
+                                </button>
+                                <button class="vibes-tab" data-vibes-tab="ambient">
+                                    <i class='bx bx-wave'></i> Ambient
+                                </button>
+                            </div>
+                            <div class="vibes-content">
+                                <div class="vibes-panel active" data-vibes-panel="spotify">
+                                    <iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                                </div>
+                                <div class="vibes-panel" data-vibes-panel="ytmusic">
+                                    <iframe src="https://www.youtube.com/embed/videoseries?list=PLrAl6rYASBGizj7gMCSjQ3lYq0Tq9o7Nk" width="100%" height="352" frameborder="0" loading="lazy" allow="autoplay; encrypted-media; fullscreen></iframe>
+                                </div>
+                                <div class="vibes-panel" data-vibes-panel="ambient">
+                                    <div class="vibes-ambient-info">
+                                        <i class='bx bx-wave text-3xl text-lime-accent mb-3'></i>
+                                        <p class="font-serif text-lg italic mb-2">Layered ambient soundscape</p>
+                                        <p class="text-sm about-text mb-4">Warm chord drone + brown noise + gentle LFO breathing. Tuned to A minor for a calming feel.</p>
+                                        <button id="ambientToggle" class="btn-primary magnetic inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" data-magnetic>
+                                            <i class='bx bx-play' id="ambientIcon"></i> <span id="ambientLabel">Play Ambient</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <button id="themeToggle" class="theme-toggle-btn magnetic" data-magnetic aria-label="Toggle dark/light theme">
                         <i class='bx bx-sun' id="themeIcon"></i>
                     </button>
@@ -132,7 +172,9 @@
             </div>
             <h1 class="reveal font-serif breathe-heading text-4xl sm:text-5xl lg:text-7xl tracking-tight leading-[1.1] mb-6">
                 Hello, I'm<br>
-                <span class="text-lime-accent italic">Anamol Raj Singh</span>
+                <span class="hero-name text-lime-accent italic">
+                    <span class="hero-word">Anamol</span> <span class="hero-word">Raj</span> <span class="hero-word">Singh</span>
+                </span>
             </h1>
             <p class="reveal text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text">
                 A <span class="font-semibold text-lime-accent">student</span>, <span class="font-semibold text-lime-accent">lifelong learner</span>,
@@ -160,13 +202,14 @@
     <!-- ===== ABOUT (01) ===== -->
     <section id="about" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-4xl mx-auto relative">
+            <div class="section-marker reveal"><span class="section-num">01</span></div>
             <div class="reveal mb-14">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">01 / About</span>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">About</span>
             </div>
             <div class="reveal glass-card rounded-2xl p-8 sm:p-12 relative">
-                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mb-6">Who I am</h2>
+                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mb-6 text-reveal-mask"><span class="reveal-text">Who I am</span></h2>
                 <p class="text-lg leading-relaxed mb-4 about-text">
-                    I'm a student in the truest sense — not just enrolled somewhere, but genuinely
+                    <span class="drop-cap">I</span>'m a student in the truest sense — not just enrolled somewhere, but genuinely
                     <span class="text-lime-accent font-medium">curious</span> about how things work and why they matter.
                     Some days that means diving into code, other days it's philosophy, design, or a conversation
                     that changes how I see the world.
@@ -184,8 +227,9 @@
     <section id="interests" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">02 / Interests</span>
-                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3">What I enjoy learning</h2>
+                <div class="section-marker reveal"><span class="section-num">02</span></div>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">Interests</span>
+                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3 text-reveal-mask"><span class="reveal-text">What I enjoy learning</span></h2>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 interests-grid">
                 <div class="reveal glass-card interactive-card interest-card rounded-2xl p-7 group" data-card data-preview-label="Technology" data-preview-text="Currently diving into systems design, Rust, and AI tooling — thinking about how compilers enforce thinking.">
@@ -232,8 +276,9 @@
     <section id="now" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">03 / Currently</span>
-                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3">Now</h2>
+                <div class="section-marker reveal"><span class="section-num">03</span></div>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">Currently</span>
+                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3 text-reveal-mask"><span class="reveal-text">Now</span></h2>
                 <p class="text-lg about-text mt-3 max-w-xl">A snapshot of what's in my orbit right now — books, ideas, films, and questions I'm sitting with.</p>
             </div>
             <div class="now-grid" id="nowGrid"></div>
@@ -245,8 +290,9 @@
     <section id="writings" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-4xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">04 / Writings</span>
-                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3">Exploring</h2>
+                <div class="section-marker reveal"><span class="section-num">04</span></div>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">Writings</span>
+                <h2 class="font-serif breathe-heading text-3xl sm:text-4xl tracking-tight mt-3 text-reveal-mask"><span class="reveal-text">Exploring</span></h2>
                 <p class="text-lg leading-relaxed about-text mt-3 max-w-2xl">Notes on what I'm currently thinking through — not polished conclusions, just honest writing as I work through ideas.</p>
             </div>
             <div id="writingsPreview" class="reveal"></div>
@@ -262,8 +308,9 @@
     <section id="thoughts" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto">
             <div class="reveal mb-10">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">05 / Thoughts</span>
-                <h2 class="font-serif breathe-heading text-2xl sm:text-3xl tracking-tight mt-3">Recent thoughts</h2>
+                <div class="section-marker reveal"><span class="section-num">05</span></div>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">Thoughts</span>
+                <h2 class="font-serif breathe-heading text-2xl sm:text-3xl tracking-tight mt-3 text-reveal-mask"><span class="reveal-text">Recent thoughts</span></h2>
                 <p class="text-sm about-text mt-2">Short, unpolished epiphanies that don't warrant a full essay.</p>
             </div>
             <div class="reveal thought-stream" id="thoughtStream"></div>
@@ -274,9 +321,10 @@
     <section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto relative">
             <div class="reveal mb-10">
-                <span class="font-serif text-lg text-lime-accent italic tracking-wide">06 / Contact</span>
+                <div class="section-marker reveal"><span class="section-num">06</span></div>
+                <span class="font-serif text-lg text-lime-accent italic tracking-wide">Contact</span>
             </div>
-            <h2 class="reveal font-serif breathe-heading text-3xl sm:text-5xl tracking-tight mb-5">Let's connect.</h2>
+            <h2 class="reveal font-serif breathe-heading text-3xl sm:text-5xl tracking-tight mb-5 text-reveal-mask"><span class="reveal-text">Let's connect.</span></h2>
             <p class="reveal text-lg leading-relaxed mb-10 about-text max-w-lg mx-auto">
                 Whether it's a shared interest, a question, or just a hello — my inbox is always open.
             </p>
