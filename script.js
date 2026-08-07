@@ -231,12 +231,11 @@
     var vibesToggle = document.getElementById('vibesToggle');
     var vibesDrawer = document.getElementById('vibesDrawer');
     var vibesWidget = document.getElementById('vibesWidget');
-    var vibesLoaded = { spotify: false, ytmusic: false };
+    var vibesLoaded = { spotify: false };
 
     // Embed URLs (loaded only when drawer opens)
     var vibesUrls = {
-        spotify: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0',
-        ytmusic: 'https://www.youtube.com/'
+        spotify: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0'
     };
 
     // Load an iframe into a panel (only once)
