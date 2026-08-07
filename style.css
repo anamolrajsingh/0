@@ -516,8 +516,8 @@ section, header, footer {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
-    width: 340px;
-    max-width: min(92vw, 340px);
+    width: 380px;
+    max-width: min(92vw, 380px);
     box-sizing: border-box;
     border-radius: 16px;
     background: var(--bg-elevated);
@@ -594,31 +594,350 @@ section, header, footer {
     display: block;
 }
 
-.vibes-panel iframe {
-    display: block;
-    width: 100%;
-    border: none;
-    border-radius: 12px;
+
+/* ===== YOUTUBE MUSIC PLAYER (Apple Music style) ===== */
+#ytPlayerHidden {
+    position: absolute;
+    width: 1px; height: 1px;
+    opacity: 0; pointer-events: none;
+    overflow: hidden;
+}
+
+/* Mini Player */
+.mp-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 14px;
     background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.mp-mini:hover {
+    background: var(--bg-glass-hover);
+    border-color: var(--border-hover);
+}
+.mp-mini-thumb {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+}
+.mp-mini-info {
+    flex: 1; min-width: 0;
+}
+.mp-mini-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mp-mini-artist {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mp-mini-controls {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
 }
 
-/* Spotify: fixed "compact" embed height (Spotify's own recommended size
-   for playlist embeds) — this is the size Spotify actually renders at,
-   so there's no leftover blank space below it. */
-.vibes-panel[data-vibes-panel="spotify"] iframe {
-    height: 152px;
+/* Expanded Player */
+.mp-expanded {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px 8px 12px;
+    animation: mp-slide-up 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes mp-slide-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
-/* Loading placeholder */
-.vibes-loading {
-    height: 152px;
+.mp-chevron {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    color: var(--text-dim);
+    font-size: 1.5rem;
+    transition: color 0.2s ease;
+}
+.mp-chevron:hover { color: var(--text-secondary); }
+
+.mp-art-row {
+    position: relative;
+    width: 200px; height: 200px;
+    margin-bottom: 16px;
+}
+.mp-art {
+    width: 100%; height: 100%;
+    border-radius: 14px;
+    object-fit: cover;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    background: var(--bg-elevated);
+}
+.mp-art-overlay {
+    position: absolute;
+    top: 0; right: 0;
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+}
+.mp-fav, .mp-menu {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--text-secondary);
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+.mp-fav.active { color: var(--accent); }
+.mp-fav:hover, .mp-menu:hover {
+    background: rgba(0,0,0,0.65);
+    color: var(--text-primary);
+}
+
+.mp-track-info {
+    text-align: center;
+    margin-bottom: 18px;
+    width: 100%;
+}
+.mp-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.mp-artist {
+    font-size: 0.82rem;
     color: var(--text-dim);
-    font-size: 0.85rem;
-    border-radius: 12px;
+}
+
+/* Progress Bar */
+.mp-progress-wrap {
+    width: 100%;
+    margin-bottom: 16px;
+}
+.mp-seek {
+    position: relative;
+    width: 100%;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--border-color);
+    cursor: pointer;
+    margin-bottom: 6px;
+    touch-action: none;
+}
+.mp-seek-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.1s linear;
+}
+.mp-seek-handle {
+    position: absolute;
+    top: 50%;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px var(--accent-glow);
+    left: 0%;
+    transition: left 0.1s linear;
+    pointer-events: none;
+}
+.mp-time-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-dim);
+}
+
+/* Controls */
+.mp-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+.mp-btn-icon {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    transition: all 0.2s ease;
+}
+.mp-btn-icon:hover { color: var(--accent); transform: scale(1.1); }
+.mp-btn-sm { font-size: 1.15rem; }
+.mp-btn-play {
+    width: 54px; height: 54px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent);
+    color: #0a0b0d;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+.mp-btn-play:hover {
+    transform: scale(1.06);
+    box-shadow: 0 0 30px var(--accent-glow-strong);
+}
+.mp-mini-play {
+    width: 34px; height: 34px;
+    font-size: 1.15rem;
+}
+
+/* Volume */
+.mp-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 12px;
+}
+.mp-vol-icon {
+    font-size: 1rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+}
+.mp-volume {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--border-color);
+    outline: none;
+    cursor: pointer;
+}
+.mp-volume::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--accent-glow);
+}
+.mp-volume::-moz-range-thumb {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: none;
+}
+
+/* Queue */
+.mp-queue-row {
+    display: flex;
+    justify-content: center;
+}
+.mp-queue-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.mp-queue-btn:hover {
+    color: var(--accent);
+    border-color: var(--border-hover);
+}
+
+/* Spotify Link-out Card */
+.spotify-linkout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 14px;
     background: var(--bg-glass);
+    border: 1px solid var(--border-color);
+}
+.spotify-linkout-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: rgba(30, 215, 96, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: #1ed760;
+    flex-shrink: 0;
+}
+.spotify-linkout-text {
+    flex: 1; min-width: 0;
+}
+.spotify-linkout-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.spotify-linkout-sub {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+}
+.spotify-linkout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    background: #1ed760;
+    color: #000;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+.spotify-linkout-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(30, 215, 96, 0.35);
 }
 
 /* Mobile: detach the drawer from the trigger's local position and pin it
