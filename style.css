@@ -432,6 +432,477 @@ body {
     border-color: var(--lime);
 }
 
+/* --- Vibes pane visibility (Spotify vs YouTube tab) --- */
+.vibes-pane[hidden] { display: none; }
+
+/* ============================================================
+   7a. SPOTIFY LINK-OUT CARD
+   Simple "open in app" card — no in-page playback (needs Premium)
+   ============================================================ */
+.spotify-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    transition: all var(--dur) var(--ease);
+    cursor: pointer;
+}
+
+.spotify-card:hover {
+    border-color: var(--lime);
+    background: var(--glass-bg-hover);
+}
+
+.spotify-art {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: var(--r-sm);
+    background: linear-gradient(135deg, #1db954, #14532d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.25rem;
+}
+
+.spotify-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.spotify-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spotify-sub {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.spotify-open-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--lime);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.spotify-note {
+    margin-top: 0.75rem;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+}
+
+/* ============================================================
+   7b. YOUTUBE PLAYER — HIDDEN IFRAME HOST
+   Audio-only experience — the actual <iframe> is invisible;
+   only the thumbnail image is shown as the visual.
+   ============================================================ */
+.yt-hidden-host {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    top: -9999px;
+    left: -9999px;
+}
+
+/* ============================================================
+   7c. PLAYER VIEWS CONTAINER (mini <-> expanded)
+   ============================================================ */
+.yt-player-views {
+    position: relative;
+}
+
+/* --- MINI PLAYER (Apple Music style pill bar) --- */
+.yt-mini-player {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--r-pill);
+    cursor: pointer;
+    transition: all var(--dur) var(--ease);
+    animation: yt-slide-in 0.35s var(--ease);
+}
+
+.yt-mini-player:hover {
+    border-color: var(--border-strong);
+    background: var(--glass-bg-hover);
+}
+
+.yt-mini-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--r-sm);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--bg-elevated);
+}
+
+.yt-mini-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.yt-mini-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-mini-artist {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-mini-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-shrink: 0;
+}
+
+.yt-mini-play-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--lime);
+    color: var(--bg);
+    font-size: 1rem;
+    transition: all var(--dur) var(--ease);
+}
+
+.yt-mini-play-btn:hover {
+    background: var(--lime-bright);
+    box-shadow: 0 0 12px var(--lime-glow);
+}
+
+.yt-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    transition: color var(--dur) var(--ease);
+}
+
+.yt-icon-btn:hover { color: var(--lime); }
+
+/* --- EXPANDED PLAYER --- */
+.yt-expanded-player {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 0.25rem;
+}
+
+.yt-player-views.expanded .yt-mini-player { display: none; }
+
+.yt-player-views.expanded .yt-expanded-player {
+    display: flex;
+    animation: yt-slide-in 0.35s var(--ease);
+}
+
+@keyframes yt-slide-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.yt-collapse-btn {
+    align-self: center;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    transition: color var(--dur) var(--ease);
+}
+
+.yt-collapse-btn:hover { color: var(--lime); }
+
+.yt-expanded-thumb {
+    width: 100%;
+    max-width: 220px;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--r-lg);
+    object-fit: cover;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 1rem;
+}
+
+.yt-expanded-titlerow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.yt-expanded-titles {
+    min-width: 0;
+    flex: 1;
+}
+
+.yt-expanded-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-expanded-artist {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-expanded-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+    padding-top: 0.2rem;
+}
+
+.yt-icon-btn-sm {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    transition: color var(--dur) var(--ease);
+}
+
+.yt-icon-btn-sm:hover { color: var(--lime); }
+.yt-icon-btn-sm.active { color: var(--lime); }
+
+/* --- Progress / seek bar --- */
+.yt-progress-wrap {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.yt-time-row {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.35rem;
+}
+
+.yt-time {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+}
+
+/* --- Range input reset + fill styling (seek + volume) --- */
+.yt-seek-bar,
+.yt-volume-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        var(--lime) 0%,
+        var(--lime) var(--yt-fill, 0%),
+        var(--border-strong) var(--yt-fill, 0%),
+        var(--border-strong) 100%);
+    cursor: pointer;
+    outline: none;
+    margin: 0;
+}
+
+.yt-seek-bar::-webkit-slider-thumb,
+.yt-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text);
+    box-shadow: 0 0 0 2px var(--bg), 0 1px 3px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s var(--ease);
+}
+
+.yt-seek-bar::-webkit-slider-thumb:active,
+.yt-volume-slider::-webkit-slider-thumb:active {
+    transform: scale(1.25);
+}
+
+.yt-seek-bar::-moz-range-thumb,
+.yt-volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border: none;
+    border-radius: 50%;
+    background: var(--text);
+    box-shadow: 0 0 0 2px var(--bg);
+}
+
+.yt-seek-bar::-moz-range-progress,
+.yt-volume-slider::-moz-range-progress {
+    background: var(--lime);
+    height: 4px;
+    border-radius: 999px;
+}
+
+/* --- Playback controls row --- */
+.yt-controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+    margin-bottom: 1rem;
+}
+
+.yt-control-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    font-size: 1.4rem;
+    transition: all var(--dur) var(--ease);
+}
+
+.yt-control-btn:hover { color: var(--lime); transform: scale(1.1); }
+
+.yt-control-btn--main {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--lime);
+    color: var(--bg);
+    font-size: 1.4rem;
+    box-shadow: 0 0 16px var(--lime-glow);
+}
+
+.yt-control-btn--main:hover {
+    background: var(--lime-bright);
+    box-shadow: 0 0 24px var(--lime-glow);
+    transform: scale(1.06);
+}
+
+/* --- Volume row --- */
+.yt-volume-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.yt-volume-row i { font-size: 0.95rem; }
+.yt-volume-slider { flex: 1; }
+
+/* --- Queue toggle + list --- */
+.yt-queue-wrap {
+    width: 100%;
+}
+
+.yt-queue-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border);
+    transition: color var(--dur) var(--ease);
+}
+
+.yt-queue-toggle:hover { color: var(--lime); }
+
+.yt-queue-list {
+    margin-top: 0.5rem;
+    max-height: 160px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.yt-queue-item {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.5rem;
+    border-radius: var(--r-sm);
+    text-align: left;
+    transition: background var(--dur) var(--ease);
+}
+
+.yt-queue-item:hover { background: var(--glass-bg-hover); }
+
+.yt-queue-item.active {
+    background: var(--lime-glow);
+}
+
+.yt-queue-item img {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.yt-queue-item span {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.yt-queue-item strong {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-queue-item small {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.yt-queue-item.active strong,
+.yt-queue-item.active small {
+    color: var(--lime);
+}
+
+
 /* ============================================================
    8. ANIMATIONS & SCROLL REVEAL
    ============================================================ */
