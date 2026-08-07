@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head><meta charset="UTF-8"><title>Test 4C - Nav+Hero</title><link rel="stylesheet" href="style.css?v=2"></head>
+<body>
+<!-- ===== NAVIGATION ===== -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
+        <div class="glass-nav">
+            <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
+                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5 magnetic" data-magnetic>
+                    <span class="text-lime-accent font-mono text-sm">{"</span>
+                    <span class="nav-name">Anamol Raj Singh</span>
+                    <span class="text-lime-accent font-mono text-sm">"}</span>
+                </a>
+                <div class="hidden md:flex items-center gap-7">
+                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors magnetic" data-magnetic>Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Interests</a>
+                    <a href="#now" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Currently</a>
+                    <a href="#writings" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Writings</a>
+                    <a href="#contact" class="nav-link text-sm font-medium transition-colors magnetic" data-magnetic>Contact</a>
+                </div>
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs nav-dim-text">
+                        <i class='bx bx-time-five text-sm'></i>
+                        <span id="navClock">--:--:--</span>
+                    </div>
+                    <!-- Vibes Music Widget -->
+                    <div class="vibes-widget" id="vibesWidget">
+                        <button id="vibesToggle" class="vibes-trigger magnetic" data-magnetic aria-label="Open vibes music player">
+                            <span class="vibes-pulse" id="vibesPulse">
+                                <span class="vibes-bar"></span>
+                                <span class="vibes-bar"></span>
+                                <span class="vibes-bar"></span>
+                            </span>
+                            <span class="vibes-label">Vibes</span>
+                        </button>
+                        <div class="vibes-drawer" id="vibesDrawer" aria-hidden="true">
+                            <div class="vibes-tabs">
+                                <button class="vibes-tab active" data-vibes-tab="spotify">
+                                    <i class='bx bxl-spotify'></i> Spotify
+                                </button>
+                                <button class="vibes-tab" data-vibes-tab="ytmusic">
+                                    <i class='bx bx-music'></i> YT Music
+                                </button>
+                                <button class="vibes-tab" data-vibes-tab="ambient">
+                                    <i class='bx bx-wave'></i> Ambient
+                                </button>
+                            </div>
+                            <div class="vibes-content">
+                                <div class="vibes-panel active" data-vibes-panel="spotify">
+                                    <iframe src="https://open.spotify.com/embed/playlist/37i9dQZF1DX4sWSpwq3LiO?utm_source=generator&theme=0" width="100%" height="352" frameborder="0" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+                                </div>
+                                <div class="vibes-panel" data-vibes-panel="ytmusic">
+                                    <iframe src="https://www.youtube.com/embed/jfpeBajrZyg" width="100%" height="352" frameborder="0" loading="lazy" allow="autoplay; encrypted-media; fullscreen></iframe>
+                                </div>
+                                <div class="vibes-panel" data-vibes-panel="ambient">
+                                    <div class="vibes-ambient-info">
+                                        <i class='bx bx-wave text-3xl text-lime-accent mb-3'></i>
+                                        <p class="font-serif text-lg italic mb-2">Layered ambient soundscape</p>
+                                        <p class="text-sm about-text mb-4">Warm chord drone + brown noise + gentle LFO breathing. Tuned to A minor for a calming feel.</p>
+                                        <button id="ambientToggle" class="btn-primary magnetic inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm" data-magnetic>
+                                            <i class='bx bx-play' id="ambientIcon"></i> <span id="ambientLabel">Play Ambient</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="themeToggle" class="theme-toggle-btn magnetic" data-magnetic aria-label="Toggle dark/light theme">
+                        <i class='bx bx-sun' id="themeIcon"></i>
+                    </button>
+                    <button id="menuToggle" class="md:hidden text-2xl transition-colors" aria-label="Toggle menu">
+                        <i class='bx bx-menu' id="menuIcon"></i>
+                    </button>
+                </div>
+            </nav>
+            <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-400" style="max-height: 0;">
+                <div class="px-5 pb-4 flex flex-col gap-3">
+                    <a href="#hero" class="mobile-link text-sm font-medium py-1.5">Home</a>
+                    <a href="#about" class="mobile-link text-sm font-medium py-1.5">About</a>
+                    <a href="#interests" class="mobile-link text-sm font-medium py-1.5">Interests</a>
+                    <a href="#now" class="mobile-link text-sm font-medium py-1.5">Currently</a>
+                    <a href="#writings" class="mobile-link text-sm font-medium py-1.5">Writings</a>
+                    <a href="#contact" class="mobile-link text-sm font-medium py-1.5">Contact</a>
+                    <span class="font-mono text-xs nav-dim-text pt-1"><i class='bx bx-time-five'></i> <span id="navClockMobile">--:--:--</span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== HERO ===== -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-5 sm:px-8 pt-24 pb-16">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="reveal mb-8 inline-flex items-center gap-2.5">
+                <span class="w-6 h-px bg-lime-accent"></span>
+                <span class="font-serif text-sm nav-dim-text italic tracking-wide">Personal Space — 2026</span>
+                <span class="w-6 h-px bg-lime-accent"></span>
+            </div>
+            <h1 class="reveal font-serif breathe-heading text-4xl sm:text-5xl lg:text-7xl tracking-tight leading-[1.1] mb-6">
+                Hello, I'm<br>
+                <span class="hero-name text-lime-accent italic">
+                    <span class="hero-word">Anamol</span> <span class="hero-word">Raj</span> <span class="hero-word">Singh</span>
+                </span>
+            </h1>
+            <p class="reveal text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text">
+                A <span class="font-semibold text-lime-accent">student</span>, <span class="font-semibold text-lime-accent">lifelong learner</span>,
+                and curious mind navigating the intersection of technology, ideas, and intentional living.
+            </p>
+            <p class="reveal text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-12 hero-statement-text">
+                I believe learning isn't a phase — it's a way of being.
+                This is my corner of the internet where I share what I'm exploring,
+                what I'm building, and what I'm becoming.
+            </p>
+            <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="btn-primary magnetic inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm" data-magnetic>
+                    Explore <i class='bx bx-right-arrow-alt'></i>
+                </a>
+                <a href="#contact" class="btn-secondary magnetic inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm" data-magnetic>
+                    <i class='bx bx-envelope'></i> Contact
+                </a>
+            </div>
+        </div>
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 reveal">
+            <i class='bx bx-chevrons-down text-xl nav-dim-text animate-bounce-slow'></i>
+        </div>
+    </section>
+
+    
+<script>document.getElementById('navClock').textContent='NAV_HERO_OK';</script>
+</body></html>
