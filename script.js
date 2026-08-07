@@ -83,66 +83,410 @@
 
     /* ============================================================
        3. MUSIC WIDGET
-       Toggleable drawer with embedded Spotify + YT Music players
+       Apple-Music-style YouTube player with REAL playback control
+       via the YouTube IFrame Player API, plus a simple Spotify
+       "open in app" link-out card (Spotify Web Playback needs
+       Premium + OAuth, so we don't fake in-page playback for it).
        ============================================================ */
     (function initMusicWidget() {
         var toggle = document.getElementById('vibesToggle');
         var drawer = document.getElementById('vibesDrawer');
-        var close = document.getElementById('vibesClose');
-        var player = document.getElementById('vibesPlayer');
+        var closeBtn = document.getElementById('vibesClose');
         var tabs = document.querySelectorAll('.vibes-tab');
-        var currentSource = 'spotify';
+        var spotifyPane = document.getElementById('spotifyPane');
+        var ytPane = document.getElementById('ytPane');
+
+        if (!toggle || !drawer) return; // guard: widget not present on this page
+
         var isOpen = false;
-        
-        // Embed URLs — replace playlist IDs as needed
-        var sources = {
-            spotify: '<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
-            ytmusic: '<iframe style="border-radius:12px;border:0" src="https://www.youtube.com/embed/videoseries?list=PL5o9a3o2B5o7B5o3B5o7B5o3B5o7B5o3" width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media" allowfullscreen="" loading="lazy"></iframe>'
-        };
-        
-        function renderPlayer() {
-            player.innerHTML = sources[currentSource];
+        var currentSource = 'ytmusic';
+
+        /* --------------------------------------------------------
+           PLAYLIST DATA
+           Swap these out any time — just objects with:
+           { title, artist, youtubeVideoId, thumbnailUrl }
+           -------------------------------------------------------- */
+        var tracks = [
+            {
+                title: 'Never Gonna Give You Up',
+                artist: 'Rick Astley',
+                youtubeVideoId: 'dQw4w9WgXcQ',
+                thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
+            },
+            {
+                title: 'Uptown Funk',
+                artist: 'Mark Ronson ft. Bruno Mars',
+                youtubeVideoId: 'OPf0YbXqDm0',
+                thumbnailUrl: 'https://img.youtube.com/vi/OPf0YbXqDm0/hqdefault.jpg'
+            },
+            {
+                title: 'Shape of You',
+                artist: 'Ed Sheeran',
+                youtubeVideoId: 'JGwWNGJdvx8',
+                thumbnailUrl: 'https://img.youtube.com/vi/JGwWNGJdvx8/hqdefault.jpg'
+            },
+            {
+                title: 'Faded',
+                artist: 'Alan Walker',
+                youtubeVideoId: '60ItHLz5WEA',
+                thumbnailUrl: 'https://img.youtube.com/vi/60ItHLz5WEA/hqdefault.jpg'
+            }
+        ];
+        var trackIndex = 0;
+
+        /* --------------------------------------------------------
+           DOM REFS
+           -------------------------------------------------------- */
+        var views = document.getElementById('ytPlayerViews');
+
+        var miniPlayer = document.getElementById('ytMiniPlayer');
+        var miniThumb = document.getElementById('ytMiniThumb');
+        var miniTitle = document.getElementById('ytMiniTitle');
+        var miniArtist = document.getElementById('ytMiniArtist');
+        var miniPlayBtn = document.getElementById('ytMiniPlayPause');
+        var miniPlayIcon = document.getElementById('ytMiniPlayIcon');
+        var miniNextBtn = document.getElementById('ytMiniNext');
+
+        var expandedThumb = document.getElementById('ytExpandedThumb');
+        var expandedTitle = document.getElementById('ytExpandedTitle');
+        var expandedArtist = document.getElementById('ytExpandedArtist');
+        var collapseBtn = document.getElementById('ytCollapseBtn');
+        var favBtn = document.getElementById('ytFavBtn');
+
+        var seekBar = document.getElementById('ytSeekBar');
+        var timeElapsed = document.getElementById('ytTimeElapsed');
+        var timeRemaining = document.getElementById('ytTimeRemaining');
+        var rewindBtn = document.getElementById('ytRewindBtn');
+        var playPauseBtn = document.getElementById('ytPlayPauseBtn');
+        var playIcon = document.getElementById('ytPlayIcon');
+        var forwardBtn = document.getElementById('ytForwardBtn');
+        var volumeSlider = document.getElementById('ytVolumeSlider');
+        var queueBtn = document.getElementById('ytQueueBtn');
+        var queueList = document.getElementById('ytQueueList');
+
+        /* --------------------------------------------------------
+           PLAYER STATE
+           -------------------------------------------------------- */
+        var ytPlayer = null;
+        var ytApiReady = false;
+        var ytApiLoading = false;
+        var isPlayerReady = false;
+        var pendingAutoplay = false;
+        var progressTimer = null;
+        var isScrubbing = false;
+
+        function fmtTime(sec) {
+            if (!isFinite(sec) || sec < 0) sec = 0;
+            var m = Math.floor(sec / 60);
+            var s = Math.floor(sec % 60);
+            return m + ':' + (s < 10 ? '0' : '') + s;
         }
-        
-        function open() {
-            isOpen = true;
-            drawer.classList.add('active');
-            renderPlayer();
+
+        function setPlayIcons(playing) {
+            playIcon.className = playing ? 'bx bx-pause' : 'bx bx-play';
+            miniPlayIcon.className = playing ? 'bx bx-pause' : 'bx bx-play';
+            playPauseBtn.classList.toggle('is-playing', playing);
         }
-        
-        function close_drawer() {
-            isOpen = false;
-            drawer.classList.remove('active');
-            player.innerHTML = ''; // Stop playback when closed
+
+        function renderTrackMeta() {
+            var t = tracks[trackIndex];
+            if (!t) return;
+            miniThumb.src = t.thumbnailUrl;
+            miniThumb.alt = t.title;
+            miniTitle.textContent = t.title;
+            miniArtist.textContent = t.artist;
+            expandedThumb.src = t.thumbnailUrl;
+            expandedThumb.alt = t.title;
+            expandedTitle.textContent = t.title;
+            expandedArtist.textContent = t.artist + ' — YouTube';
         }
-        
-        toggle.addEventListener('click', function () {
-            if (isOpen) { close_drawer(); } else { open(); }
+
+        function renderQueue() {
+            if (!queueList) return;
+            queueList.innerHTML = '';
+            tracks.forEach(function (t, i) {
+                var item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'yt-queue-item' + (i === trackIndex ? ' active' : '');
+                item.innerHTML =
+                    '<img src="' + t.thumbnailUrl + '" alt="">' +
+                    '<span><strong>' + t.title + '</strong><small>' + t.artist + '</small></span>';
+                item.addEventListener('click', function () { loadTrack(i, true); });
+                queueList.appendChild(item);
+            });
+        }
+
+        /* --------------------------------------------------------
+           YOUTUBE IFRAME API — lazy-loaded on first use
+           -------------------------------------------------------- */
+        function ensureYouTubeApi(callback) {
+            if (ytApiReady && window.YT && window.YT.Player) { callback(); return; }
+
+            if (!ytApiLoading) {
+                ytApiLoading = true;
+                window.onYouTubeIframeAPIReady = function () {
+                    ytApiReady = true;
+                    callback();
+                };
+                var tag = document.createElement('script');
+                tag.src = 'https://www.youtube.com/iframe_api';
+                document.head.appendChild(tag);
+            } else {
+                // API script already requested — chain onto whichever callback wins
+                var prevReady = window.onYouTubeIframeAPIReady;
+                window.onYouTubeIframeAPIReady = function () {
+                    if (prevReady) prevReady();
+                    ytApiReady = true;
+                    callback();
+                };
+            }
+        }
+
+        function createPlayer() {
+            ytPlayer = new YT.Player('ytPlayerHost', {
+                height: '1',
+                width: '1',
+                videoId: tracks[trackIndex].youtubeVideoId,
+                playerVars: {
+                    autoplay: 0,
+                    controls: 0,
+                    disablekb: 1,
+                    playsinline: 1,
+                    modestbranding: 1,
+                    rel: 0,
+                    fs: 0
+                },
+                events: {
+                    onReady: onPlayerReady,
+                    onStateChange: onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady() {
+            isPlayerReady = true;
+            ytPlayer.setVolume(parseInt(volumeSlider.value, 10));
+            if (pendingAutoplay) {
+                ytPlayer.playVideo();
+                pendingAutoplay = false;
+            }
+        }
+
+        function onPlayerStateChange(e) {
+            if (e.data === YT.PlayerState.PLAYING) {
+                setPlayIcons(true);
+                startProgressTimer();
+            } else if (e.data === YT.PlayerState.PAUSED) {
+                setPlayIcons(false);
+                stopProgressTimer();
+            } else if (e.data === YT.PlayerState.ENDED) {
+                setPlayIcons(false);
+                stopProgressTimer();
+                nextTrack();
+            }
+        }
+
+        /* --------------------------------------------------------
+           PROGRESS / TIME TRACKING
+           -------------------------------------------------------- */
+        function startProgressTimer() {
+            stopProgressTimer();
+            progressTimer = setInterval(updateProgress, 500);
+            updateProgress();
+        }
+
+        function stopProgressTimer() {
+            if (progressTimer) {
+                clearInterval(progressTimer);
+                progressTimer = null;
+            }
+        }
+
+        function updateProgress() {
+            if (!ytPlayer || isScrubbing || typeof ytPlayer.getCurrentTime !== 'function') return;
+            var cur = ytPlayer.getCurrentTime() || 0;
+            var dur = ytPlayer.getDuration() || 0;
+            seekBar.max = dur || 100;
+            seekBar.value = cur;
+            timeElapsed.textContent = fmtTime(cur);
+            timeRemaining.textContent = '-' + fmtTime(Math.max(dur - cur, 0));
+            var pct = dur ? (cur / dur) * 100 : 0;
+            seekBar.style.setProperty('--yt-fill', pct + '%');
+        }
+
+        /* --------------------------------------------------------
+           PLAYBACK CONTROLS
+           -------------------------------------------------------- */
+        function togglePlayPause() {
+            if (!ytPlayer || !isPlayerReady) {
+                pendingAutoplay = true;
+                ensureYouTubeApi(function () {
+                    if (!ytPlayer) createPlayer();
+                });
+                return;
+            }
+            var state = ytPlayer.getPlayerState();
+            if (state === YT.PlayerState.PLAYING) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
+        function loadTrack(index, autoplay) {
+            trackIndex = (index + tracks.length) % tracks.length;
+            renderTrackMeta();
+            renderQueue();
+            seekBar.value = 0;
+            seekBar.style.setProperty('--yt-fill', '0%');
+            timeElapsed.textContent = '0:00';
+            timeRemaining.textContent = '-0:00';
+
+            if (ytPlayer && isPlayerReady) {
+                if (autoplay) {
+                    ytPlayer.loadVideoById(tracks[trackIndex].youtubeVideoId);
+                } else {
+                    ytPlayer.cueVideoById(tracks[trackIndex].youtubeVideoId);
+                }
+            } else {
+                pendingAutoplay = !!autoplay;
+                ensureYouTubeApi(function () {
+                    if (!ytPlayer) createPlayer();
+                });
+            }
+        }
+
+        function nextTrack() { loadTrack(trackIndex + 1, true); }
+        function prevTrack() { loadTrack(trackIndex - 1, true); }
+
+        function seekRelative(delta) {
+            if (!ytPlayer || !isPlayerReady) return;
+            var cur = ytPlayer.getCurrentTime() || 0;
+            var dur = ytPlayer.getDuration() || 0;
+            var next = Math.min(Math.max(cur + delta, 0), dur);
+            ytPlayer.seekTo(next, true);
+            updateProgress();
+        }
+
+        /* --------------------------------------------------------
+           WIRE UP CONTROLS
+           -------------------------------------------------------- */
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        miniPlayBtn.addEventListener('click', function (e) { e.stopPropagation(); togglePlayPause(); });
+        miniNextBtn.addEventListener('click', function (e) { e.stopPropagation(); nextTrack(); });
+        rewindBtn.addEventListener('click', function () { seekRelative(-10); });
+        forwardBtn.addEventListener('click', function () { seekRelative(10); });
+
+        // Volume — updates player + fill visual in real time
+        volumeSlider.style.setProperty('--yt-fill', volumeSlider.value + '%');
+        volumeSlider.addEventListener('input', function () {
+            var v = parseInt(volumeSlider.value, 10);
+            volumeSlider.style.setProperty('--yt-fill', v + '%');
+            if (ytPlayer && isPlayerReady) ytPlayer.setVolume(v);
         });
-        
-        close.addEventListener('click', close_drawer);
-        
-        // Tab switching
+
+        // Seek bar — drag to scrub, release to commit seekTo()
+        seekBar.addEventListener('pointerdown', function () { isScrubbing = true; });
+        seekBar.addEventListener('input', function () {
+            var max = parseFloat(seekBar.max) || 100;
+            var val = parseFloat(seekBar.value) || 0;
+            var pct = max ? (val / max) * 100 : 0;
+            seekBar.style.setProperty('--yt-fill', pct + '%');
+            timeElapsed.textContent = fmtTime(val);
+            var dur = (ytPlayer && isPlayerReady && ytPlayer.getDuration) ? ytPlayer.getDuration() : max;
+            timeRemaining.textContent = '-' + fmtTime(Math.max(dur - val, 0));
+        });
+        seekBar.addEventListener('change', function () {
+            if (ytPlayer && isPlayerReady) {
+                ytPlayer.seekTo(parseFloat(seekBar.value), true);
+            }
+            isScrubbing = false;
+        });
+
+        // Favorite toggle (visual only)
+        if (favBtn) {
+            favBtn.addEventListener('click', function () {
+                favBtn.classList.toggle('active');
+                var icon = favBtn.querySelector('i');
+                icon.className = favBtn.classList.contains('active') ? 'bx bxs-star' : 'bx bx-star';
+            });
+        }
+
+        // Queue toggle
+        if (queueBtn && queueList) {
+            queueBtn.addEventListener('click', function () {
+                queueList.hidden = !queueList.hidden;
+            });
+        }
+
+        // Expand / collapse between mini and full player
+        miniPlayer.addEventListener('click', function () {
+            views.classList.add('expanded');
+        });
+        collapseBtn.addEventListener('click', function () {
+            views.classList.remove('expanded');
+        });
+
+        /* --------------------------------------------------------
+           TABS — YouTube (real player) vs Spotify (link-out)
+           -------------------------------------------------------- */
+        function activateTab(source) {
+            currentSource = source;
+            tabs.forEach(function (t) {
+                t.classList.toggle('active', t.getAttribute('data-source') === source);
+            });
+            spotifyPane.hidden = source !== 'spotify';
+            ytPane.hidden = source !== 'ytmusic';
+
+            if (source === 'ytmusic') {
+                ensureYouTubeApi(function () {
+                    if (!ytPlayer) createPlayer();
+                });
+            }
+        }
+
         tabs.forEach(function (tab) {
             tab.addEventListener('click', function () {
-                tabs.forEach(function (t) { t.classList.remove('active'); });
-                tab.classList.add('active');
-                currentSource = tab.getAttribute('data-source');
-                renderPlayer();
+                activateTab(tab.getAttribute('data-source'));
             });
         });
-        
-        // Close on outside click
+
+        /* --------------------------------------------------------
+           DRAWER OPEN / CLOSE
+           -------------------------------------------------------- */
+        function openDrawer() {
+            isOpen = true;
+            drawer.classList.add('active');
+            activateTab(currentSource);
+        }
+
+        function closeDrawer() {
+            isOpen = false;
+            drawer.classList.remove('active');
+            // Playback continues in the background when the drawer closes.
+            // Uncomment to pause instead:
+            // if (ytPlayer && isPlayerReady) ytPlayer.pauseVideo();
+        }
+
+        toggle.addEventListener('click', function () {
+            if (isOpen) { closeDrawer(); } else { openDrawer(); }
+        });
+
+        closeBtn.addEventListener('click', closeDrawer);
+
         document.addEventListener('click', function (e) {
             if (isOpen && !drawer.contains(e.target) && !toggle.contains(e.target)) {
-                close_drawer();
+                closeDrawer();
             }
         });
-        
-        // Close on Escape key
+
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && isOpen) { close_drawer(); }
+            if (e.key === 'Escape' && isOpen) { closeDrawer(); }
         });
+
+        // Render initial meta so the mini player shows something before first open
+        renderTrackMeta();
+        renderQueue();
     })();
 
     /* ============================================================
