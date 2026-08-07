@@ -368,6 +368,12 @@
     </div>
 
     <!-- ===== Scripts ===== -->
+    <script>
+        // INLINE JS TEST — does the browser execute any JS at all?
+        var clock = document.getElementById('navClock');
+        if (clock) { clock.textContent = 'INLINE:OK'; }
+        window.__JS_TEST = true;
+    </script>
     <script src="now.js?v=2"></script>
     <script src="posts.js?v=2"></script>
     <script src="script.js?v=2"></script>
