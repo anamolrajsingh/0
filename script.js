@@ -240,18 +240,18 @@
     };
 
     // Load an iframe into a panel (only once)
+    // NOTE: heights are controlled purely via CSS per-panel (see .vibes-panel
+    // rules) so the widget never has a fixed pixel height baked into JS —
+    // this avoids the big blank gap / layout jump between tabs.
     function loadVibesIframe(panelName) {
         if (vibesLoaded[panelName]) return;
         var panel = document.getElementById('vibesPanel' + panelName.charAt(0).toUpperCase() + panelName.slice(1));
         if (!panel) return;
         var iframe = document.createElement('iframe');
         iframe.src = vibesUrls[panelName];
-        iframe.width = '100%';
-        iframe.height = '352';
         iframe.setAttribute('frameborder', '0');
         iframe.setAttribute('loading', 'lazy');
         iframe.setAttribute('allow', 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture');
-        iframe.style.borderRadius = '12px';
         panel.innerHTML = '';
         panel.appendChild(iframe);
         vibesLoaded[panelName] = true;

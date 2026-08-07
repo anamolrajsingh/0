@@ -509,15 +509,19 @@ section, header, footer {
     50% { opacity: 0.7; box-shadow: 0 0 0 5px transparent; }
 }
 
-/* Dropdown drawer */
+/* Dropdown drawer — sizes to content (no fixed pixel height), never
+   overflows the viewport, and has a fully opaque background so nothing
+   bleeds through at the edges. */
 .vibes-drawer {
     position: absolute;
     top: calc(100% + 10px);
     right: 0;
     width: 340px;
-    max-width: calc(100vw - 2rem);
+    max-width: min(92vw, 340px);
+    box-sizing: border-box;
     border-radius: 16px;
     background: var(--bg-elevated);
+    background-clip: padding-box;
     border: 1px solid var(--border-color);
     box-shadow: 0 12px 48px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(20px) saturate(180%);
@@ -536,16 +540,18 @@ section, header, footer {
     transform: translateY(0);
 }
 
-/* Tabs */
+/* Tabs — even flex row, always fill the width, never squished */
 .vibes-tabs {
     display: flex;
     gap: 4px;
     padding: 10px 10px 0;
+    box-sizing: border-box;
 }
 
 .vibes-tab {
-    flex: 1;
-    padding: 8px 12px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 8px 10px;
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 600;
@@ -558,6 +564,7 @@ section, header, footer {
     align-items: center;
     justify-content: center;
     gap: 5px;
+    white-space: nowrap;
 }
 
 .vibes-tab:hover {
@@ -571,9 +578,12 @@ section, header, footer {
     border-color: var(--border-color);
 }
 
-/* Content panels */
+/* Content panels — height is driven by each panel's own content, not a
+   shared fixed pixel value, so switching tabs never leaves a blank gap
+   or causes a layout jump. */
 .vibes-content {
     padding: 10px;
+    box-sizing: border-box;
 }
 
 .vibes-panel {
@@ -585,15 +595,30 @@ section, header, footer {
 }
 
 .vibes-panel iframe {
+    display: block;
     width: 100%;
-    height: 352px;
     border: none;
     border-radius: 12px;
+    background: var(--bg-glass);
+}
+
+/* Spotify: fixed "compact" embed height (Spotify's own recommended size
+   for playlist embeds) — this is the size Spotify actually renders at,
+   so there's no leftover blank space below it. */
+.vibes-panel[data-vibes-panel="spotify"] iframe {
+    height: 152px;
+}
+
+/* YT Music: size by aspect ratio instead of a fixed pixel height, so the
+   video always fills its box cleanly at any card width. */
+.vibes-panel[data-vibes-panel="ytmusic"] iframe {
+    aspect-ratio: 16 / 9;
+    height: auto;
 }
 
 /* Loading placeholder */
 .vibes-loading {
-    height: 352px;
+    height: 152px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -603,12 +628,25 @@ section, header, footer {
     background: var(--bg-glass);
 }
 
-/* Mobile: full width drawer */
+/* Mobile: detach the drawer from the trigger's local position and pin it
+   as a centered, viewport-safe modal card so it can never overflow off
+   the left/right edge of narrow phones (360-420px). */
 @media (max-width: 480px) {
     .vibes-drawer {
-        width: 300px;
+        position: fixed;
+        top: 66px;
+        left: 50%;
+        right: auto;
+        width: calc(100vw - 24px);
+        max-width: 380px;
+        transform: translate(-50%, -8px);
     }
-    .vibes-panel iframe {
-        height: 340px;
+
+    .vibes-drawer.open {
+        transform: translate(-50%, 0);
     }
 }
+
+/* Explore/Contact CTAs below the widget always keep the same spacing
+   whether the drawer is open or closed, since the drawer is an overlay
+   (absolute/fixed) and never participates in normal document flow. */
