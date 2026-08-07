@@ -1,227 +1,273 @@
 /* ================================================================
    Anamol Raj Singh — Personal Website
    script.js — Vanilla JavaScript
-   Handles: theme toggle, live clock, mobile menu, scroll reveal,
-   active nav links, back-to-top, smooth scrolling
+   
+   Handles:
+   1. Theme toggle (dark/light with system detection)
+   2. Live clock (Nepal timezone)
+   3. Music widget (Spotify + YT Music player)
+   4. Navbar scroll effect + active link tracking
+   5. Mobile menu toggle
+   6. Smooth scroll (with navbar offset)
+   7. Scroll reveal animations (IntersectionObserver)
+   8. Back-to-top button
+   
+   No external dependencies. Pure vanilla JS.
    ================================================================ */
 
 (function () {
     'use strict';
 
-    // ============================================================
-    // 1. THEME TOGGLE (dark/light with system detection + localStorage)
-    // ============================================================
-    const root = document.documentElement;
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const STORAGE_KEY = 'ars-theme';
-
-    /**
-     * Determine the initial theme:
-     * 1. Check localStorage for a saved preference
-     * 2. Fall back to system preference (prefers-color-scheme)
-     * 3. Default to dark
-     */
-    function getInitialTheme() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved === 'dark' || saved === 'light') return saved;
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-            return 'light';
-        }
-        return 'dark';
-    }
-
-    /**
-     * Apply a theme and update the toggle icon + meta theme-color
-     */
-    function applyTheme(theme) {
+    /* ============================================================
+       1. THEME TOGGLE
+       Dark/Light with system preference detection + localStorage
+       ============================================================ */
+    (function initTheme() {
+        var root = document.documentElement;
+        var toggle = document.getElementById('themeToggle');
+        var icon = document.getElementById('themeIcon');
+        
+        // Check saved preference, fall back to system preference
+        var saved = localStorage.getItem('theme');
+        var systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = saved || (systemDark ? 'dark' : 'light');
+        
         root.setAttribute('data-theme', theme);
-        if (themeIcon) {
-            themeIcon.className = theme === 'dark' ? 'bx bx-sun' : 'bx bx-moon';
+        updateIcon(theme);
+        
+        function updateIcon(t) {
+            icon.className = t === 'dark' ? 'bx bx-moon text-lg' : 'bx bx-sun text-lg';
+            icon.style.transform = 'rotate(' + (t === 'dark' ? '0deg' : '180deg') + ')';
         }
-        // Update meta theme-color for browser UI
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) {
-            metaTheme.setAttribute('content', theme === 'dark' ? '#0a0b0d' : '#f5f5f3');
-        }
-    }
-
-    // Set initial theme
-    applyTheme(getInitialTheme());
-
-    // Toggle on click
-    themeToggle.addEventListener('click', function () {
-        const current = root.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem(STORAGE_KEY, next);
-    });
-
-    // Listen for system theme changes (only if user hasn't manually set a preference)
-    if (window.matchMedia) {
+        
+        toggle.addEventListener('click', function () {
+            var current = root.getAttribute('data-theme');
+            var next = current === 'dark' ? 'light' : 'dark';
+            root.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+            updateIcon(next);
+        });
+        
+        // React to system theme changes if no manual preference saved
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-            if (!localStorage.getItem(STORAGE_KEY)) {
-                applyTheme(e.matches ? 'dark' : 'light');
+            if (!localStorage.getItem('theme')) {
+                var t = e.matches ? 'dark' : 'light';
+                root.setAttribute('data-theme', t);
+                updateIcon(t);
             }
         });
-    }
+    })();
 
-    // ============================================================
-    // 2. LIVE CLOCK (updates every second)
-    // ============================================================
-    const navClock = document.getElementById('navClock');
-    const navClockMobile = document.getElementById('navClockMobile');
-
-    function updateClock() {
-        const now = new Date();
-        // Format: HH:MM:SS (24-hour)
-        const time = now.toLocaleTimeString('en-US', { hour12: false });
-        if (navClock) navClock.textContent = time;
-        if (navClockMobile) navClockMobile.textContent = time;
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    // ============================================================
-    // 3. MOBILE MENU (hamburger toggle)
-    // ============================================================
-    const menuToggle = document.getElementById('menuToggle');
-    const menuIcon = document.getElementById('menuIcon');
-    const mobileMenu = document.getElementById('mobileMenu');
-    let menuOpen = false;
-
-    function toggleMobileMenu() {
-        menuOpen = !menuOpen;
-        if (menuOpen) {
-            mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
-            menuIcon.className = 'bx bx-x';
-        } else {
-            mobileMenu.style.maxHeight = '0';
-            menuIcon.className = 'bx bx-menu';
+    /* ============================================================
+       2. LIVE CLOCK
+       Updates every second — displays Nepal time (Asia/Kathmandu)
+       ============================================================ */
+    (function initClock() {
+        var el = document.getElementById('navClock');
+        if (!el) return;
+        
+        function tick() {
+            var now = new Date();
+            var time = now.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false,
+                timeZone: 'Asia/Kathmandu'
+            });
+            el.textContent = time;
         }
-    }
+        
+        tick();
+        setInterval(tick, 1000);
+    })();
 
-    menuToggle.addEventListener('click', toggleMobileMenu);
-
-    // Close mobile menu when a link is clicked
-    document.querySelectorAll('.mobile-link').forEach(function (link) {
-        link.addEventListener('click', function () {
-            if (menuOpen) toggleMobileMenu();
+    /* ============================================================
+       3. MUSIC WIDGET
+       Toggleable drawer with embedded Spotify + YT Music players
+       ============================================================ */
+    (function initMusicWidget() {
+        var toggle = document.getElementById('vibesToggle');
+        var drawer = document.getElementById('vibesDrawer');
+        var close = document.getElementById('vibesClose');
+        var player = document.getElementById('vibesPlayer');
+        var tabs = document.querySelectorAll('.vibes-tab');
+        var currentSource = 'spotify';
+        var isOpen = false;
+        
+        // Embed URLs — replace playlist IDs as needed
+        var sources = {
+            spotify: '<iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0" width="100%" height="152" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>',
+            ytmusic: '<iframe style="border-radius:12px;border:0" src="https://www.youtube.com/embed/videoseries?list=PL5o9a3o2B5o7B5o3B5o7B5o3B5o7B5o3" width="100%" height="152" allow="autoplay; clipboard-write; encrypted-media" allowfullscreen="" loading="lazy"></iframe>'
+        };
+        
+        function renderPlayer() {
+            player.innerHTML = sources[currentSource];
+        }
+        
+        function open() {
+            isOpen = true;
+            drawer.classList.add('active');
+            renderPlayer();
+        }
+        
+        function close_drawer() {
+            isOpen = false;
+            drawer.classList.remove('active');
+            player.innerHTML = ''; // Stop playback when closed
+        }
+        
+        toggle.addEventListener('click', function () {
+            if (isOpen) { close_drawer(); } else { open(); }
         });
-    });
+        
+        close.addEventListener('click', close_drawer);
+        
+        // Tab switching
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                tabs.forEach(function (t) { t.classList.remove('active'); });
+                tab.classList.add('active');
+                currentSource = tab.getAttribute('data-source');
+                renderPlayer();
+            });
+        });
+        
+        // Close on outside click
+        document.addEventListener('click', function (e) {
+            if (isOpen && !drawer.contains(e.target) && !toggle.contains(e.target)) {
+                close_drawer();
+            }
+        });
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && isOpen) { close_drawer(); }
+        });
+    })();
 
-    // ============================================================
-    // 4. SCROLL REVEAL (Intersection Observer)
-    // ============================================================
-    const revealElements = document.querySelectorAll('.reveal');
+    /* ============================================================
+       4. NAVBAR SCROLL EFFECT + ACTIVE LINK
+       Adds shadow to nav on scroll, tracks active section
+       ============================================================ */
+    (function initNavScroll() {
+        var navbar = document.getElementById('navbar');
+        var sections = document.querySelectorAll('section[id]');
+        var navLinks = document.querySelectorAll('.nav-link');
+        var backToTop = document.getElementById('backToTop');
+        
+        function onScroll() {
+            var scrollY = window.scrollY;
+            
+            // Nav shadow
+            if (scrollY > 20) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+            
+            // Back-to-top visibility
+            if (backToTop) {
+                backToTop.style.opacity = scrollY > 400 ? '1' : '0';
+                backToTop.style.pointerEvents = scrollY > 400 ? 'auto' : 'none';
+            }
+            
+            // Active nav link based on scroll position
+            var current = '';
+            sections.forEach(function (section) {
+                var top = section.offsetTop - 100;
+                if (scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(function (link) {
+                link.classList.toggle('active',
+                    link.getAttribute('href') === '#' + current);
+            });
+        }
+        
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+        
+        // Back-to-top click
+        if (backToTop) {
+            backToTop.addEventListener('click', function () {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+    })();
 
-    if ('IntersectionObserver' in window) {
-        const revealObserver = new IntersectionObserver(function (entries) {
+    /* ============================================================
+       5. MOBILE MENU TOGGLE
+       Hamburger expand/collapse with icon swap
+       ============================================================ */
+    (function initMobileMenu() {
+        var toggle = document.getElementById('menuToggle');
+        var menu = document.getElementById('mobileMenu');
+        var icon = document.getElementById('menuIcon');
+        if (!toggle || !menu) return;
+        
+        toggle.addEventListener('click', function () {
+            var isOpen = menu.style.maxHeight && menu.style.maxHeight !== '0px';
+            if (isOpen) {
+                menu.style.maxHeight = '0px';
+                icon.className = 'bx bx-menu text-lg';
+            } else {
+                menu.style.maxHeight = menu.scrollHeight + 'px';
+                icon.className = 'bx bx-x text-lg';
+            }
+        });
+        
+        // Close on link click
+        menu.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', function () {
+                menu.style.maxHeight = '0px';
+                icon.className = 'bx bx-menu text-lg';
+            });
+        });
+    })();
+
+    /* ============================================================
+       6. SMOOTH SCROLL
+       Offset for fixed navbar height
+       ============================================================ */
+    (function initSmoothScroll() {
+        var navHeight = 70; // navbar offset in px
+        
+        document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: target.offsetTop - navHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    })();
+
+    /* ============================================================
+       7. SCROLL REVEAL ANIMATIONS
+       IntersectionObserver — staggered fade-in on scroll
+       ============================================================ */
+    (function initScrollReveal() {
+        var reveals = document.querySelectorAll('.reveal');
+        
+        var observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
-                    revealObserver.unobserve(entry.target);
+                    observer.unobserve(entry.target);
                 }
             });
         }, {
             threshold: 0.1,
             rootMargin: '0px 0px -40px 0px'
         });
-
-        revealElements.forEach(function (el) {
-            revealObserver.observe(el);
-        });
-    } else {
-        // Fallback: show all elements if IntersectionObserver isn't supported
-        revealElements.forEach(function (el) {
-            el.classList.add('visible');
-        });
-    }
-
-    // ============================================================
-    // 5. ACTIVE NAV LINK ON SCROLL
-    // ============================================================
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const navbar = document.getElementById('navbar');
-
-    function onScroll() {
-        const scrollY = window.scrollY;
-
-        // Add shadow to navbar when scrolled
-        if (scrollY > 20) {
-            navbar.classList.add('scrolled');
-        } else {
-            navbar.classList.remove('scrolled');
-        }
-
-        // Highlight active section in nav
-        let currentSection = '';
-        sections.forEach(function (section) {
-            const sectionTop = section.offsetTop - 150;
-            if (scrollY >= sectionTop) {
-                currentSection = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(function (link) {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + currentSection) {
-                link.classList.add('active');
-            }
-        });
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // ============================================================
-    // 6. BACK TO TOP BUTTON
-    // ============================================================
-    const backToTop = document.getElementById('backToTop');
-
-    backToTop.addEventListener('click', function () {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // Show/hide back-to-top based on scroll position
-    function toggleBackToTop() {
-        if (window.scrollY > 400) {
-            backToTop.style.opacity = '1';
-            backToTop.style.pointerEvents = 'auto';
-        } else {
-            backToTop.style.opacity = '0.4';
-            backToTop.style.pointerEvents = 'auto';
-        }
-    }
-
-    window.addEventListener('scroll', toggleBackToTop, { passive: true });
-    toggleBackToTop();
-
-    // ============================================================
-    // 7. SMOOTH SCROLL (for browsers that don't support scroll-behavior)
-    // ============================================================
-    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-        anchor.addEventListener('click', function (e) {
-            const targetId = this.getAttribute('href');
-            if (targetId === '#' || targetId.length < 2) return;
-
-            const target = document.querySelector(targetId);
-            if (target) {
-                e.preventDefault();
-                const offset = 80; // account for fixed navbar
-                const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
-
-    // ============================================================
-    // 8. INITIALIZE — run onScroll once on load
-    // ============================================================
-    onScroll();
+        
+        reveals.forEach(function (el) { observer.observe(el); });
+    })();
 
 })();
