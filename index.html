@@ -92,14 +92,82 @@
                         </button>
                         <div class="vibes-drawer" id="vibesDrawer" aria-hidden="true">
                             <div class="vibes-tabs">
-                                <button class="vibes-tab active" data-vibes-tab="spotify" type="button">
+                                <button class="vibes-tab active" data-vibes-tab="youtube" type="button">
+                                    <i class='bx bx-music'></i> Player
+                                </button>
+                                <button class="vibes-tab" data-vibes-tab="spotify" type="button">
                                     <i class='bx bxl-spotify'></i> Spotify
                                 </button>
-
                             </div>
                             <div class="vibes-content">
-                                <div class="vibes-panel active" data-vibes-panel="spotify" id="vibesPanelSpotify"></div>
-
+                                <!-- YouTube Music Player Panel -->
+                                <div class="vibes-panel active" data-vibes-panel="youtube" id="vibesPanelYoutube">
+                                    <div id="ytPlayerHidden"></div>
+                                    <!-- Mini Player -->
+                                    <div class="mp-mini" id="mpMini">
+                                        <img class="mp-mini-thumb" id="mpMiniThumb" src="" alt="">
+                                        <div class="mp-mini-info">
+                                            <div class="mp-mini-title" id="mpMiniTitle">Loading...</div>
+                                            <div class="mp-mini-artist" id="mpMiniArtist">&nbsp;</div>
+                                        </div>
+                                        <div class="mp-mini-controls">
+                                            <button class="mp-btn-icon mp-mini-play" id="mpMiniPlay" aria-label="Play/Pause"><i class='bx bx-play'></i></button>
+                                        </div>
+                                    </div>
+                                    <!-- Expanded Player -->
+                                    <div class="mp-expanded" id="mpExpanded" style="display:none;">
+                                        <div class="mp-chevron" id="mpChevron"><i class='bx bx-chevron-down'></i></div>
+                                        <div class="mp-art-row">
+                                            <img class="mp-art" id="mpArt" src="" alt="">
+                                            <div class="mp-art-overlay">
+                                                <button class="mp-fav" id="mpFav" aria-label="Favorite"><i class='bx bx-heart'></i></button>
+                                                <button class="mp-menu" aria-label="More"><i class='bx bx-dots-horizontal-rounded'></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="mp-track-info">
+                                            <div class="mp-title" id="mpTitle">Loading...</div>
+                                            <div class="mp-artist" id="mpArtist">&nbsp;</div>
+                                        </div>
+                                        <div class="mp-progress-wrap">
+                                            <div class="mp-seek" id="mpSeek">
+                                                <div class="mp-seek-fill" id="mpSeekFill"></div>
+                                                <div class="mp-seek-handle" id="mpSeekHandle"></div>
+                                            </div>
+                                            <div class="mp-time-row">
+                                                <span class="mp-time-elapsed" id="mpElapsed">0:00</span>
+                                                <span class="mp-time-remaining" id="mpRemaining">-0:00</span>
+                                            </div>
+                                        </div>
+                                        <div class="mp-controls">
+                                            <button class="mp-btn-icon mp-btn-sm" id="mpPrev" aria-label="Previous"><i class='bx bx-skip-previous'></i></button>
+                                            <button class="mp-btn-icon" id="mpRewind" aria-label="Rewind 10s"><i class='bx bx-rewind'></i></button>
+                                            <button class="mp-btn-play" id="mpPlay" aria-label="Play/Pause"><i class='bx bx-play'></i></button>
+                                            <button class="mp-btn-icon" id="mpForward" aria-label="Forward 10s"><i class='bx bx-fast-forward'></i></button>
+                                            <button class="mp-btn-icon mp-btn-sm" id="mpNext" aria-label="Next"><i class='bx bx-skip-next'></i></button>
+                                        </div>
+                                        <div class="mp-volume-row">
+                                            <i class='bx bx-volume-low mp-vol-icon'></i>
+                                            <input type="range" class="mp-volume" id="mpVolume" min="0" max="100" value="70">
+                                            <i class='bx bx-volume-full mp-vol-icon'></i>
+                                        </div>
+                                        <div class="mp-queue-row">
+                                            <button class="mp-queue-btn" id="mpQueueBtn"><i class='bx bx-list-ul'></i> Up Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Spotify Link-out Card -->
+                                <div class="vibes-panel" data-vibes-panel="spotify" id="vibesPanelSpotify">
+                                    <div class="spotify-linkout">
+                                        <div class="spotify-linkout-icon"><i class='bx bxl-spotify'></i></div>
+                                        <div class="spotify-linkout-text">
+                                            <div class="spotify-linkout-title">Today's Top Hits</div>
+                                            <div class="spotify-linkout-sub">Opens in Spotify</div>
+                                        </div>
+                                        <a href="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" target="_blank" rel="noopener" class="spotify-linkout-btn">
+                                            Open <i class='bx bx-link-external'></i>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
