@@ -9,6 +9,15 @@
     'use strict';
 
     // ============================================================
+    // 0. GSAP SETUP + REDUCED MOTION CHECK
+    // ============================================================
+    var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var hasGSAP = typeof gsap !== 'undefined';
+    if (hasGSAP && typeof ScrollTrigger !== 'undefined') {
+        gsap.registerPlugin(ScrollTrigger);
+    }
+
+    // ============================================================
     // 1. THEME TOGGLE (dark/light with system detection + localStorage)
     // ============================================================
     const root = document.documentElement;
@@ -619,5 +628,236 @@
             vibesDrawer.setAttribute('aria-hidden', 'true');
         }
     });
+
+
+    // ============================================================
+    // 10. CUSTOM CURSOR (desktop only)
+    // Two-part cursor: 8px dot (fast lerp) + 40px ring (slow lerp)
+    // Uses requestAnimationFrame for smooth interpolation
+    // ============================================================
+    (function initCursor() {
+        // Skip on touch devices
+        if (!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+        var dot = document.getElementById('cursorDot');
+        var ring = document.getElementById('cursorRing');
+        if (!dot || !ring) return;
+
+        // Target positions (where the mouse actually is)
+        var mouseX = 0, mouseY = 0;
+        // Current rendered positions (lerped toward target)
+        var dotX = 0, dotY = 0;
+        var ringX = 0, ringY = 0;
+
+        // Lerp factor — higher = snappier, lower = smoother/more lag
+        // Dot follows faster (0.5), ring trails more (0.15)
+        var dotLerp = 0.5;
+        var ringLerp = 0.15;
+
+        document.addEventListener('mousemove', function (e) {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        // Elements that trigger the hover state on the ring
+        var hoverSelector = 'a, button, .glass-card, .interest-item, .vibes-trigger, input, [role="button"]';
+
+        document.addEventListener('mouseover', function (e) {
+            if (e.target.closest(hoverSelector)) {
+                ring.classList.add('cursor-hover');
+            }
+        });
+        document.addEventListener('mouseout', function (e) {
+            if (e.target.closest(hoverSelector)) {
+                ring.classList.remove('cursor-hover');
+            }
+        });
+
+        // Hide cursor when mouse leaves window
+        document.addEventListener('mouseleave', function () {
+            dot.style.opacity = '0';
+            ring.style.opacity = '0';
+        });
+        document.addEventListener('mouseenter', function () {
+            dot.style.opacity = '1';
+            ring.style.opacity = '1';
+        });
+
+        function animateCursor() {
+            // Lerp current position toward mouse position
+            dotX += (mouseX - dotX) * dotLerp;
+            dotY += (mouseY - dotY) * dotLerp;
+            ringX += (mouseX - ringX) * ringLerp;
+            ringY += (mouseY - ringY) * ringLerp;
+
+            dot.style.transform = 'translate(' + dotX + 'px, ' + dotY + 'px)';
+            ring.style.transform = 'translate(' + ringX + 'px, ' + ringY + 'px)';
+
+            requestAnimationFrame(animateCursor);
+        }
+        requestAnimationFrame(animateCursor);
+    })();
+
+    // ============================================================
+    // 11. SCROLL-DRIVEN TEXT REVEAL
+    // Splits text into word spans, animates with stagger on scroll
+    // ============================================================
+    (function initTextReveal() {
+        // --- Text splitting: wrap each word in a <span class="reveal-word"> ---
+        function splitText(el) {
+            var nodes = Array.from(el.childNodes);
+            nodes.forEach(function (node) {
+                if (node.nodeType === 3) { // Text node only
+                    var words = node.textContent.split(/(\s+)/);
+                    var frag = document.createDocumentFragment();
+                    words.forEach(function (word) {
+                        if (word.trim()) {
+                            var span = document.createElement('span');
+                            span.className = 'reveal-word';
+                            span.textContent = word;
+                            frag.appendChild(span);
+                        } else {
+                            // Preserve whitespace
+                            frag.appendChild(document.createTextNode(word));
+                        }
+                    });
+                    el.replaceChild(frag, node);
+                }
+            });
+        }
+
+        // --- Skip animations for reduced-motion users ---
+        if (prefersReducedMotion) {
+            // Just show everything immediately
+            document.querySelectorAll('.reveal-word').forEach(function (w) {
+                w.style.opacity = '1';
+                w.style.transform = 'none';
+                w.style.filter = 'none';
+            });
+            document.querySelectorAll('[data-reveal]').forEach(function (el) {
+                el.classList.add('is-visible');
+            });
+            return;
+        }
+
+        // --- Split all text in [data-split-text] elements ---
+        document.querySelectorAll('[data-split-text]').forEach(splitText);
+
+        // --- Animate split words with GSAP ScrollTrigger ---
+        if (hasGSAP && typeof ScrollTrigger !== 'undefined') {
+            // Word-level stagger animation
+            document.querySelectorAll('[data-split-text]').forEach(function (el) {
+                var words = el.querySelectorAll('.reveal-word');
+                if (!words.length) return;
+                gsap.fromTo(words,
+                    { opacity: 0, y: 20, filter: 'blur(8px)' },
+                    {
+                        opacity: 1, y: 0, filter: 'blur(0px)',
+                        duration: 0.8,
+                        stagger: 0.04, // 40ms per word
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 85%',
+                            once: true,
+                        }
+                    }
+                );
+            });
+
+            // Card/item-level reveal via [data-reveal]
+            document.querySelectorAll('[data-reveal]').forEach(function (el, i) {
+                // Add stagger index for interest items
+                if (el.classList.contains('interest-item')) {
+                    var siblings = el.parentElement.querySelectorAll('.interest-item');
+                    siblings.forEach(function (s, idx) {
+                        s.style.setProperty('--reveal-index', idx);
+                    });
+                }
+                gsap.fromTo(el,
+                    { opacity: 0, y: 30 },
+                    {
+                        opacity: 1, y: 0,
+                        duration: 0.8,
+                        ease: 'power3.out',
+                        scrollTrigger: {
+                            trigger: el,
+                            start: 'top 88%',
+                            once: true,
+                        }
+                    }
+                );
+            });
+        } else {
+            // Fallback: IntersectionObserver if GSAP not loaded
+            var revealObserver = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+            document.querySelectorAll('[data-reveal]').forEach(function (el) {
+                revealObserver.observe(el);
+            });
+
+            // Word animation fallback with CSS transition
+            document.querySelectorAll('[data-split-text]').forEach(function (el) {
+                var words = el.querySelectorAll('.reveal-word');
+                var wordObserver = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            words.forEach(function (word, idx) {
+                                setTimeout(function () {
+                                    word.style.transition = 'opacity 0.6s ease, transform 0.6s ease, filter 0.6s ease';
+                                    word.style.opacity = '1';
+                                    word.style.transform = 'translateY(0)';
+                                    word.style.filter = 'blur(0)';
+                                }, idx * 40);
+                            });
+                            wordObserver.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+                wordObserver.observe(el);
+            });
+        }
+    })();
+
+    // ============================================================
+    // 12. QUOTE ROTATOR (Reading & Ideas card)
+    // Cycles through quotes every 5 seconds with a fade transition
+    // ============================================================
+    (function initQuoteRotator() {
+        var quotes = [
+            { text: '"The reading of all good books is like a conversation with the finest minds of past centuries."', author: '\u2014 Descartes' },
+            { text: '"A reader lives a thousand lives before he dies. The man who never reads lives only one."', author: '\u2014 George R.R. Martin' },
+            { text: '"Books are a uniquely portable magic."', author: '\u2014 Stephen King' },
+            { text: '"We read to know we\'re not alone."', author: '\u2014 C.S. Lewis' }
+        ];
+
+        var quoteText = document.getElementById('quoteText');
+        var quoteAuthor = document.getElementById('quoteAuthor');
+        var rotator = document.getElementById('quoteRotator');
+        if (!quoteText || !quoteAuthor || !rotator) return;
+
+        var currentIdx = 0;
+
+        function cycleQuote() {
+            rotator.classList.add('quote-fading');
+
+            setTimeout(function () {
+                currentIdx = (currentIdx + 1) % quotes.length;
+                quoteText.textContent = quotes[currentIdx].text;
+                quoteAuthor.textContent = quotes[currentIdx].author;
+                rotator.classList.remove('quote-fading');
+            }, 400); // matches CSS transition duration
+        }
+
+        // Cycle every 5 seconds
+        setInterval(cycleQuote, 5000);
+    })();
 
 })();
