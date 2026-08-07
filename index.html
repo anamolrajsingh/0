@@ -119,23 +119,127 @@
 
     <!-- ================================================================
          MUSIC DRAWER (slides down from nav)
-         Embedded Spotify + YouTube Music players
+         Apple-Music-style YouTube player (real playback via IFrame API)
+         + simple Spotify "open in app" link-out card
          ================================================================ -->
     <div id="vibesDrawer" class="fixed top-20 right-4 sm:right-8 z-50 transition-all duration-500 opacity-0 pointer-events-none translate-y-[-10px]">
-        <div class="glass-card rounded-2xl p-4 w-72 sm:w-80">
+        <div class="glass-card rounded-2xl p-4 w-72 sm:w-80" id="vibesPanel">
             <div class="flex items-center justify-between mb-3">
                 <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">Now Playing</span>
                 <button id="vibesClose" class="text-muted hover:text-lime-accent transition-colors" aria-label="Close player">
                     <i class='bx bx-x text-lg'></i>
                 </button>
             </div>
+
             <!-- Tab switcher -->
             <div class="flex gap-2 mb-3">
-                <button class="vibes-tab active text-xs font-medium px-3 py-1.5 rounded-lg transition-all" data-source="spotify">Spotify</button>
-                <button class="vibes-tab text-xs font-medium px-3 py-1.5 rounded-lg transition-all" data-source="ytmusic">YT Music</button>
+                <button class="vibes-tab active text-xs font-medium px-3 py-1.5 rounded-lg transition-all" data-source="ytmusic">YouTube</button>
+                <button class="vibes-tab text-xs font-medium px-3 py-1.5 rounded-lg transition-all" data-source="spotify">Spotify</button>
             </div>
-            <!-- Player iframe container -->
-            <div id="vibesPlayer" class="rounded-xl overflow-hidden"></div>
+
+            <!-- ===== SPOTIFY: simple link-out card (no in-page playback) ===== -->
+            <div id="spotifyPane" class="vibes-pane" hidden>
+                <a href="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M" target="_blank" rel="noopener" class="spotify-card">
+                    <div class="spotify-art" aria-hidden="true">
+                        <i class='bx bxl-spotify'></i>
+                    </div>
+                    <div class="spotify-info">
+                        <p class="spotify-title">Study Beats</p>
+                        <p class="spotify-sub">Playlist &middot; Spotify</p>
+                    </div>
+                    <span class="spotify-open-chip">
+                        Open <i class='bx bx-link-external'></i>
+                    </span>
+                </a>
+                <p class="spotify-note">Full playback needs Spotify Premium &mdash; this opens the track in the Spotify app or web player.</p>
+            </div>
+
+            <!-- ===== YOUTUBE: Apple-Music-style player with real playback ===== -->
+            <div id="ytPane" class="vibes-pane">
+
+                <!-- Hidden/invisible YouTube IFrame host — audio only, no video frame shown -->
+                <div class="yt-hidden-host" aria-hidden="true">
+                    <div id="ytPlayerHost"></div>
+                </div>
+
+                <div id="ytPlayerViews" class="yt-player-views">
+
+                    <!-- MINI PLAYER (pill bar) -->
+                    <div id="ytMiniPlayer" class="yt-mini-player">
+                        <img id="ytMiniThumb" class="yt-mini-thumb" src="" alt="" loading="lazy">
+                        <div class="yt-mini-info">
+                            <p id="ytMiniTitle" class="yt-mini-title">&mdash;</p>
+                            <p id="ytMiniArtist" class="yt-mini-artist">&mdash;</p>
+                        </div>
+                        <div class="yt-mini-controls">
+                            <button id="ytMiniPlayPause" class="yt-mini-play-btn" aria-label="Play or pause">
+                                <i class='bx bx-play' id="ytMiniPlayIcon"></i>
+                            </button>
+                            <button id="ytMiniNext" class="yt-icon-btn" aria-label="Next track">
+                                <i class='bx bx-skip-next'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- EXPANDED PLAYER -->
+                    <div id="ytExpandedPlayer" class="yt-expanded-player">
+                        <button id="ytCollapseBtn" class="yt-collapse-btn" aria-label="Collapse player">
+                            <i class='bx bx-chevron-down'></i>
+                        </button>
+
+                        <img id="ytExpandedThumb" class="yt-expanded-thumb" src="" alt="" loading="lazy">
+
+                        <div class="yt-expanded-titlerow">
+                            <div class="yt-expanded-titles">
+                                <p id="ytExpandedTitle" class="yt-expanded-title">&mdash;</p>
+                                <p id="ytExpandedArtist" class="yt-expanded-artist">&mdash;</p>
+                            </div>
+                            <div class="yt-expanded-actions">
+                                <button class="yt-icon-btn-sm" id="ytFavBtn" aria-label="Favorite">
+                                    <i class='bx bx-star'></i>
+                                </button>
+                                <button class="yt-icon-btn-sm" id="ytMenuBtn" aria-label="More options">
+                                    <i class='bx bx-dots-horizontal-rounded'></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="yt-progress-wrap">
+                            <input type="range" id="ytSeekBar" class="yt-seek-bar" min="0" max="100" value="0" step="0.1" aria-label="Seek position">
+                            <div class="yt-time-row">
+                                <span id="ytTimeElapsed" class="yt-time font-mono">0:00</span>
+                                <span id="ytTimeRemaining" class="yt-time font-mono">-0:00</span>
+                            </div>
+                        </div>
+
+                        <div class="yt-controls-row">
+                            <button id="ytRewindBtn" class="yt-control-btn" aria-label="Rewind 10 seconds">
+                                <i class='bx bx-rewind'></i>
+                            </button>
+                            <button id="ytPlayPauseBtn" class="yt-control-btn yt-control-btn--main" aria-label="Play or pause">
+                                <i class='bx bx-play' id="ytPlayIcon"></i>
+                            </button>
+                            <button id="ytForwardBtn" class="yt-control-btn" aria-label="Fast-forward 10 seconds">
+                                <i class='bx bx-fast-forward'></i>
+                            </button>
+                        </div>
+
+                        <div class="yt-volume-row">
+                            <i class='bx bx-volume-low text-muted'></i>
+                            <input type="range" id="ytVolumeSlider" class="yt-volume-slider" min="0" max="100" value="70" aria-label="Volume">
+                            <i class='bx bx-volume-full text-muted'></i>
+                        </div>
+
+                        <div class="yt-queue-wrap">
+                            <button id="ytQueueBtn" class="yt-queue-toggle" aria-label="Toggle up-next queue">
+                                <i class='bx bx-list-ul'></i>
+                                <span>Up Next</span>
+                            </button>
+                            <div id="ytQueueList" class="yt-queue-list" hidden></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
