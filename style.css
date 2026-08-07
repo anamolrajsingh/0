@@ -609,13 +609,6 @@ section, header, footer {
     height: 152px;
 }
 
-/* YT Music: size by aspect ratio instead of a fixed pixel height, so the
-   video always fills its box cleanly at any card width. */
-.vibes-panel[data-vibes-panel="ytmusic"] iframe {
-    aspect-ratio: 16 / 9;
-    height: auto;
-}
-
 /* Loading placeholder */
 .vibes-loading {
     height: 152px;
