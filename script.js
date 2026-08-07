@@ -236,7 +236,7 @@
     // Embed URLs (loaded only when drawer opens)
     var vibesUrls = {
         spotify: 'https://open.spotify.com/embed/playlist/37i9dQZF1DXcBWIGoYBM5M?utm_source=generator&theme=0',
-        ytmusic: 'https://www.youtube.com/embed/videoseries'
+        ytmusic: 'https://www.youtube.com/'
     };
 
     // Load an iframe into a panel (only once)
