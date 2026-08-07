@@ -1,589 +1,496 @@
 /* ================================================================
    Anamol Raj Singh — Personal Website
    script.js — Vanilla JavaScript + GSAP
-   Handles: Lenis, theme toggle (3-way), clock, mobile menu, scroll reveal,
-   active nav, back-to-top, smooth scroll, magnetic cursor, particle canvas,
-   magnetic buttons, terminal, Konami code,
-   NEW: GSAP breathing headings, parallax blobs, staggered reveals,
-   cursor-following previews, page transitions, Now widget, Thought Stream,
-   ambient audio (Web Audio API)
+   Clean, robust, null-safe. Every getElementById is guarded.
    ================================================================ */
 
 (function () {
     'use strict';
 
+    // Helper: safe getElementById
+    function $(id) { return document.getElementById(id); }
+    function $all(sel) { return document.querySelectorAll(sel); }
+    function safe(fn) { try { fn(); } catch (e) { if (console && console.warn) console.warn('Section error:', e.message); } }
+
+    var root = document.documentElement;
+    var prefersReduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     // ============================================================
     // 0. LENIS SMOOTH SCROLL
     // ============================================================
-    let lenis = null;
-    if (typeof Lenis !== 'undefined' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        lenis = new Lenis({
-            duration: 1.2,
-            easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
-            smoothWheel: true,
-            smoothTouch: false,
-        });
-        function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
-        requestAnimationFrame(raf);
-        window.__lenis = lenis;
-    }
-
-    // ============================================================
-    // 1. THEME TOGGLE (dark / light / night)
-    // ============================================================
-    const root = document.documentElement;
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-    const STORAGE_KEY = 'ars-theme';
-    const THEMES = ['dark', 'light', 'night'];
-
-    function getInitialTheme() {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved && THEMES.includes(saved)) return saved;
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) return 'light';
-        return 'dark';
-    }
-
-    function applyTheme(theme) {
-        root.setAttribute('data-theme', theme);
-        if (themeIcon) {
-            if (theme === 'dark') themeIcon.className = 'bx bx-sun';
-            else if (theme === 'light') themeIcon.className = 'bx bx-moon';
-            else themeIcon.className = 'bx bx-star';
+    var lenis = null;
+    safe(function () {
+        if (typeof Lenis !== 'undefined' && !prefersReduced) {
+            lenis = new Lenis({
+                duration: 1.2,
+                easing: function (t) { return Math.min(1, 1.001 - Math.pow(2, -10 * t)); },
+                smoothWheel: true,
+                smoothTouch: false
+            });
+            function raf(time) { lenis.raf(time); requestAnimationFrame(raf); }
+            requestAnimationFrame(raf);
+            window.__lenis = lenis;
         }
-        const metaTheme = document.querySelector('meta[name="theme-color"]');
-        if (metaTheme) {
-            const colors = { dark: '#0a0b0d', light: '#f5f5f3', night: '#060608' };
-            metaTheme.setAttribute('content', colors[theme] || '#0a0b0d');
-        }
-    }
-
-    applyTheme(getInitialTheme());
-
-    themeToggle.addEventListener('click', function () {
-        const current = root.getAttribute('data-theme');
-        const idx = THEMES.indexOf(current);
-        const next = THEMES[(idx + 1) % THEMES.length];
-        applyTheme(next);
-        localStorage.setItem(STORAGE_KEY, next);
-        updateThemeLabel(next);
     });
 
-    function updateThemeLabel(theme) {
-        var labels = {
-            'dark': 'Daytime Study',
-            'light': 'Late Night Deep Work',
-            'night': 'Midnight Mode'
-        };
-        if (themeToggle) themeToggle.setAttribute('data-theme-label', labels[theme] || '');
-    }
-    updateThemeLabel(getInitialTheme());
-
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
-            if (!localStorage.getItem(STORAGE_KEY)) applyTheme(e.matches ? 'dark' : 'light');
-        });
-    }
-
     // ============================================================
-    // 2. LIVE CLOCK
+    // 1. THEME TOGGLE (dark / light / night) with labels
     // ============================================================
-    const navClock = document.getElementById('navClock');
-    const navClockMobile = document.getElementById('navClockMobile');
+    safe(function () {
+        var themeToggle = $('themeToggle');
+        var themeIcon = $('themeIcon');
+        var STORAGE_KEY = 'ars-theme';
+        var THEMES = ['dark', 'light', 'night'];
+        var LABELS = { dark: 'Daytime Study', light: 'Late Night Deep Work', night: 'Midnight' };
 
-    function updateClock() {
-        const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-        if (navClock) navClock.textContent = time;
-        if (navClockMobile) navClockMobile.textContent = time;
-    }
-    updateClock();
-    setInterval(updateClock, 1000);
-
-    // ============================================================
-    // 2b. SCROLL PROGRESS INDICATOR
-    // ============================================================
-    const scrollProgressBar = document.querySelector('.scroll-progress-bar');
-    if (scrollProgressBar) {
-        function updateScrollProgress() {
-            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-            const scrolled = window.scrollY / scrollHeight * 100;
-            scrollProgressBar.style.width = Math.min(100, scrolled) + '%';
+        function getInitialTheme() {
+            var saved;
+            try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+            if (saved && THEMES.indexOf(saved) >= 0) return saved;
+            if (window.matchMedia && matchMedia('(prefers-color-scheme: light)').matches) return 'light';
+            return 'dark';
         }
-        window.addEventListener('scroll', updateScrollProgress, { passive: true });
-        updateScrollProgress();
-    }
+
+        function applyTheme(theme) {
+            root.setAttribute('data-theme', theme);
+            if (themeIcon) {
+                if (theme === 'dark') themeIcon.className = 'bx bx-sun';
+                else if (theme === 'light') themeIcon.className = 'bx bx-moon';
+                else themeIcon.className = 'bx bx-star';
+            }
+            var metaTheme = document.querySelector('meta[name="theme-color"]');
+            if (metaTheme) {
+                var colors = { dark: '#0a0b0d', light: '#f5f5f3', night: '#060608' };
+                metaTheme.setAttribute('content', colors[theme] || '#0a0b0d');
+            }
+            if (themeToggle) themeToggle.setAttribute('data-theme-label', LABELS[theme] || '');
+        }
+
+        applyTheme(getInitialTheme());
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', function () {
+                var current = root.getAttribute('data-theme');
+                var idx = THEMES.indexOf(current);
+                var next = THEMES[(idx + 1) % THEMES.length];
+                applyTheme(next);
+                try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+            });
+        }
+
+        if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (e) {
+                var saved;
+                try { saved = localStorage.getItem(STORAGE_KEY); } catch (err) {}
+                if (!saved) applyTheme(e.matches ? 'dark' : 'light');
+            });
+        }
+    });
+
+    // ============================================================
+    // 2. LIVE CLOCK + SCROLL PROGRESS
+    // ============================================================
+    safe(function () {
+        var navClock = $('navClock');
+        var navClockMobile = $('navClockMobile');
+        function updateClock() {
+            var time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            if (navClock) navClock.textContent = time;
+            if (navClockMobile) navClockMobile.textContent = time;
+        }
+        updateClock();
+        setInterval(updateClock, 1000);
+
+        var progressBar = document.querySelector('.scroll-progress-bar');
+        if (progressBar) {
+            function updateProgress() {
+                var h = document.documentElement.scrollHeight - window.innerHeight;
+                var scrolled = h > 0 ? (window.scrollY / h) * 100 : 0;
+                progressBar.style.width = Math.min(100, scrolled) + '%';
+            }
+            window.addEventListener('scroll', updateProgress, { passive: true });
+            updateProgress();
+        }
+    });
 
     // ============================================================
     // 3. MOBILE MENU
     // ============================================================
-    const menuToggle = document.getElementById('menuToggle');
-    const menuIcon = document.getElementById('menuIcon');
-    const mobileMenu = document.getElementById('mobileMenu');
-    let menuOpen = false;
-
-    function toggleMobileMenu() {
-        menuOpen = !menuOpen;
-        if (menuOpen) { mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px'; menuIcon.className = 'bx bx-x'; }
-        else { mobileMenu.style.maxHeight = '0'; menuIcon.className = 'bx bx-menu'; }
-    }
-    menuToggle.addEventListener('click', toggleMobileMenu);
-    document.querySelectorAll('.mobile-link').forEach(function (link) {
-        link.addEventListener('click', function () { if (menuOpen) toggleMobileMenu(); });
+    safe(function () {
+        var menuToggle = $('menuToggle');
+        var menuIcon = $('menuIcon');
+        var mobileMenu = $('mobileMenu');
+        if (!menuToggle || !mobileMenu) return;
+        var menuOpen = false;
+        function toggle() {
+            menuOpen = !menuOpen;
+            if (menuOpen) {
+                mobileMenu.style.maxHeight = mobileMenu.scrollHeight + 'px';
+                if (menuIcon) menuIcon.className = 'bx bx-x';
+            } else {
+                mobileMenu.style.maxHeight = '0';
+                if (menuIcon) menuIcon.className = 'bx bx-menu';
+            }
+        }
+        menuToggle.addEventListener('click', toggle);
+        $all('.mobile-link').forEach(function (link) {
+            link.addEventListener('click', function () { if (menuOpen) toggle(); });
+        });
     });
 
     // ============================================================
-    // 4. SCROLL REVEAL (Intersection Observer — fallback if no GSAP)
+    // 4. SCROLL REVEAL (Intersection Observer)
     // ============================================================
-    const revealElements = document.querySelectorAll('.reveal');
-    if ('IntersectionObserver' in window) {
-        const revealObserver = new IntersectionObserver(function (entries) {
-            entries.forEach(function (entry) {
-                if (entry.isIntersecting) { entry.target.classList.add('visible'); revealObserver.unobserve(entry.target); }
+    safe(function () {
+        var els = $all('.reveal');
+        if ('IntersectionObserver' in window) {
+            var obs = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        obs.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+            els.forEach(function (el) { obs.observe(el); });
+        } else {
+            els.forEach(function (el) { el.classList.add('visible'); });
+        }
+    });
+
+    // ============================================================
+    // 5. ACTIVE NAV LINK + NAVBAR SCROLL STATE
+    // ============================================================
+    safe(function () {
+        var sections = $all('section[id]');
+        var navLinks = $all('.nav-link');
+        var navbar = $('navbar');
+
+        function onScroll() {
+            var scrollY = window.scrollY;
+            if (navbar) navbar.classList.toggle('scrolled', scrollY > 20);
+            var current = '';
+            sections.forEach(function (section) {
+                if (scrollY >= section.offsetTop - 150) current = section.getAttribute('id');
             });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-        revealElements.forEach(function (el) { revealObserver.observe(el); });
-    } else {
-        revealElements.forEach(function (el) { el.classList.add('visible'); });
-    }
-
-    // ============================================================
-    // 5. ACTIVE NAV LINK ON SCROLL
-    // ============================================================
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const navbar = document.getElementById('navbar');
-
-    function onScroll() {
-        const scrollY = window.scrollY;
-        if (scrollY > 20) navbar.classList.add('scrolled');
-        else navbar.classList.remove('scrolled');
-
-        let currentSection = '';
-        sections.forEach(function (section) {
-            if (scrollY >= section.offsetTop - 150) currentSection = section.getAttribute('id');
-        });
-        navLinks.forEach(function (link) {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + currentSection) link.classList.add('active');
-        });
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
+            navLinks.forEach(function (link) {
+                link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+            });
+        }
+        window.addEventListener('scroll', onScroll, { passive: true });
+        onScroll();
+    });
 
     // ============================================================
     // 6. BACK TO TOP
     // ============================================================
-    const backToTop = document.getElementById('backToTop');
-    if (backToTop) {
-        backToTop.addEventListener('click', function () {
+    safe(function () {
+        var btn = $('backToTop');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
             if (lenis) lenis.scrollTo(0);
             else window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        function toggleBackToTop() {
-            if (window.scrollY > 400) { backToTop.style.opacity = '1'; backToTop.style.pointerEvents = 'auto'; }
-            else { backToTop.style.opacity = '0.4'; backToTop.style.pointerEvents = 'auto'; }
+        function toggle() {
+            if (window.scrollY > 400) { btn.style.opacity = '1'; btn.style.pointerEvents = 'auto'; }
+            else { btn.style.opacity = '0.4'; }
         }
-        window.addEventListener('scroll', toggleBackToTop, { passive: true });
-        toggleBackToTop();
-    }
+        window.addEventListener('scroll', toggle, { passive: true });
+        toggle();
+    });
 
     // ============================================================
-    // 7. SMOOTH SCROLL (Lenis-aware)
+    // 7. SMOOTH SCROLL (Lenis-aware anchor links)
     // ============================================================
-    document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
-        anchor.addEventListener('click', function (e) {
-            const targetId = this.getAttribute('href');
-            if (targetId === '#' || targetId.length < 2) return;
-            const target = document.querySelector(targetId);
-            if (target) {
-                e.preventDefault();
-                if (lenis) lenis.scrollTo(target, { offset: -80 });
-                else {
-                    const pos = target.getBoundingClientRect().top + window.scrollY - 80;
-                    window.scrollTo({ top: pos, behavior: 'smooth' });
+    safe(function () {
+        $all('a[href^="#"]').forEach(function (anchor) {
+            anchor.addEventListener('click', function (e) {
+                var targetId = this.getAttribute('href');
+                if (!targetId || targetId === '#' || targetId.length < 2) return;
+                var target = document.querySelector(targetId);
+                if (target) {
+                    e.preventDefault();
+                    if (lenis) lenis.scrollTo(target, { offset: -80 });
+                    else {
+                        var pos = target.getBoundingClientRect().top + window.scrollY - 80;
+                        window.scrollTo({ top: pos, behavior: 'smooth' });
+                    }
                 }
-            }
+            });
         });
     });
 
     // ============================================================
     // 8. CUSTOM MAGNETIC CURSOR
     // ============================================================
-    const cursorDot = document.getElementById('cursorDot');
-    const cursorRing = document.getElementById('cursorRing');
+    safe(function () {
+        var cursorDot = $('cursorDot');
+        var cursorRing = $('cursorRing');
+        if (!cursorDot || !cursorRing) return;
+        if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
 
-    if (cursorDot && cursorRing && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0, dotX = 0, dotY = 0;
-
-        document.addEventListener('mousemove', function (e) { mouseX = e.clientX; mouseY = e.clientY; });
+        var mx = 0, my = 0, rx = 0, ry = 0, dx = 0, dy = 0;
+        document.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
         document.addEventListener('mouseleave', function () { cursorDot.classList.add('cursor-hidden'); cursorRing.classList.add('cursor-hidden'); });
         document.addEventListener('mouseenter', function () { cursorDot.classList.remove('cursor-hidden'); cursorRing.classList.remove('cursor-hidden'); });
 
-        function animateCursor() {
-            dotX += (mouseX - dotX) * 0.5; dotY += (mouseY - dotY) * 0.5;
-            cursorDot.style.transform = 'translate(' + (dotX - 3) + 'px, ' + (dotY - 3) + 'px)';
-            ringX += (mouseX - ringX) * 0.15; ringY += (mouseY - ringY) * 0.15;
-            cursorRing.style.transform = 'translate(' + (ringX - 18) + 'px, ' + (ringY - 18) + 'px)';
-            requestAnimationFrame(animateCursor);
+        function loop() {
+            dx += (mx - dx) * 0.5; dy += (my - dy) * 0.5;
+            rx += (mx - rx) * 0.15; ry += (my - ry) * 0.15;
+            cursorDot.style.transform = 'translate(' + dx + 'px,' + dy + 'px)';
+            cursorRing.style.transform = 'translate(' + rx + 'px,' + ry + 'px)';
+            requestAnimationFrame(loop);
         }
-        animateCursor();
+        loop();
 
-        document.querySelectorAll('a, button, .glass-card, .interactive-card, .post-link, .tag-filter, input, .terminal-hint, .terminal-close, .thought-item, .vibes-trigger, .vibes-tab').forEach(function (el) {
+        $all('a, button, .glass-card, .interactive-card, .post-link, .tag-filter, input, .terminal-hint, .terminal-close, .thought-item, .vibes-trigger, .vibes-tab').forEach(function (el) {
             el.addEventListener('mouseenter', function () { cursorRing.classList.add('cursor-hover'); cursorDot.classList.add('cursor-hover'); });
             el.addEventListener('mouseleave', function () { cursorRing.classList.remove('cursor-hover'); cursorDot.classList.remove('cursor-hover'); });
         });
-    }
+    });
 
     // ============================================================
     // 9. MAGNETIC BUTTONS
     // ============================================================
-    if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        document.querySelectorAll('[data-magnetic]').forEach(function (el) {
+    safe(function () {
+        if (matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+        $all('[data-magnetic]').forEach(function (el) {
             el.addEventListener('mousemove', function (e) {
-                const rect = el.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                el.style.transform = 'translate(' + (x * 0.25) + 'px, ' + (y * 0.25) + 'px)';
+                var rect = el.getBoundingClientRect();
+                var x = e.clientX - rect.left - rect.width / 2;
+                var y = e.clientY - rect.top - rect.height / 2;
+                el.style.transform = 'translate(' + x * 0.2 + 'px,' + y * 0.2 + 'px)';
             });
-            el.addEventListener('mouseleave', function () { el.style.transform = 'translate(0, 0)'; });
+            el.addEventListener('mouseleave', function () { el.style.transform = 'translate(0,0)'; });
         });
-    }
+    });
 
     // ============================================================
-    // 10. PARTICLE CANVAS (interactive grid that warps on mouse)
+    // 10. PARTICLE CANVAS
     // ============================================================
-    const canvas = document.getElementById('particleCanvas');
-    if (canvas && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        const ctx = canvas.getContext('2d');
-        let particles = [], mouseCanvasX = -9999, mouseCanvasY = -9999, animFrameId = null;
+    safe(function () {
+        var canvas = $('particleCanvas');
+        if (!canvas) return;
+        var ctx = canvas.getContext('2d');
+        var particles = [];
+        var mouseX = -1000, mouseY = -1000;
 
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; initParticles(); }
+        function getAccent() {
+            return getComputedStyle(root).getPropertyValue('--accent').trim() || '#C6FF00';
+        }
 
-        function initParticles() {
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; init(); }
+        function init() {
             particles = [];
-            const spacing = 60;
-            const cols = Math.ceil(canvas.width / spacing) + 1;
-            const rows = Math.ceil(canvas.height / spacing) + 1;
-            for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
-                particles.push({ baseX: i * spacing, baseY: j * spacing, x: i * spacing, y: j * spacing, vx: 0, vy: 0 });
+            var count = Math.min(60, Math.floor(canvas.width / 30));
+            for (var i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+                    r: Math.random() * 1.5 + 0.5
+                });
             }
         }
+        window.addEventListener('mousemove', function (e) { mouseX = e.clientX; mouseY = e.clientY; });
+        window.addEventListener('resize', resize);
+        resize();
 
-        function getAccentColor() {
-            const theme = root.getAttribute('data-theme');
-            if (theme === 'light') return [139, 204, 0];
-            return [198, 255, 0];
-        }
-
-        window.addEventListener('mousemove', function (e) { mouseCanvasX = e.clientX; mouseCanvasY = e.clientY; });
-
-        function animate() {
+        function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const [r, g, b] = getAccentColor();
-            const warpRadius = 150, warpStrength = 30;
-
+            var color = getAccent();
             particles.forEach(function (p) {
-                const dx = p.baseX - mouseCanvasX, dy = p.baseY - mouseCanvasY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < warpRadius) {
-                    const force = (1 - dist / warpRadius) * warpStrength;
-                    const angle = Math.atan2(dy, dx);
-                    p.vx += Math.cos(angle) * force * 0.05;
-                    p.vy += Math.sin(angle) * force * 0.05;
-                }
-                p.vx += (p.baseX - p.x) * 0.05; p.vy += (p.baseY - p.y) * 0.05;
-                p.vx *= 0.85; p.vy *= 0.85; p.x += p.vx; p.y += p.vy;
-
-                const distFromMouse = Math.sqrt(Math.pow(p.x - mouseCanvasX, 2) + Math.pow(p.y - mouseCanvasY, 2));
-                const opacity = distFromMouse < 200 ? 0.5 : 0.2;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + opacity + ')'; ctx.fill();
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                var dx = p.x - mouseX, dy = p.y - mouseY;
+                var dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 120) { p.x += dx / dist * 0.8; p.y += dy / dist * 0.8; }
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = color;
+                ctx.globalAlpha = 0.5;
+                ctx.fill();
             });
-
-            for (let i = 0; i < particles.length; i++) {
-                for (let j = i + 1; j < particles.length; j++) {
-                    const dx = particles[i].x - particles[j].x, dy = particles[i].y - particles[j].y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    if (dist < 80) {
+            ctx.globalAlpha = 0.15;
+            for (var i = 0; i < particles.length; i++) {
+                for (var j = i + 1; j < particles.length; j++) {
+                    var d = Math.sqrt(Math.pow(particles[i].x - particles[j].x, 2) + Math.pow(particles[i].y - particles[j].y, 2));
+                    if (d < 120) {
                         ctx.beginPath();
-                        ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y);
-                        ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + ((1 - dist / 80) * 0.15) + ')';
-                        ctx.lineWidth = 0.5; ctx.stroke();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = color;
+                        ctx.lineWidth = 0.5;
+                        ctx.stroke();
                     }
                 }
             }
-            animFrameId = requestAnimationFrame(animate);
+            ctx.globalAlpha = 1;
+            requestAnimationFrame(draw);
         }
-
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) { if (animFrameId) cancelAnimationFrame(animFrameId); animFrameId = null; }
-            else if (!animFrameId) animate();
-        });
-
-        resizeCanvas(); animate();
-        window.addEventListener('resize', resizeCanvas);
-    }
+        draw();
+    });
 
     // ============================================================
-    // 11. GSAP SCROLL ANIMATIONS (breathing headings, parallax, stagger)
+    // 11. GSAP SCROLL ANIMATIONS
     // ============================================================
-    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined' && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    safe(function () {
+        if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined' || prefersReduced) return;
         gsap.registerPlugin(ScrollTrigger);
 
-        // Breathing headings — variable font weight shifts as heading centers in viewport
-        document.querySelectorAll('.breathe-heading').forEach(function (heading) {
-            gsap.fromTo(heading,
-                { fontWeight: 300 },
-                {
-                    fontWeight: 600,
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: heading,
-                        start: 'top 90%',
-                        end: 'center 50%',
-                        scrub: 0.8
-                    }
-                }
-            );
-            gsap.fromTo(heading,
-                { fontWeight: 600 },
-                {
-                    fontWeight: 300,
-                    ease: 'none',
-                    scrollTrigger: {
-                        trigger: heading,
-                        start: 'center 50%',
-                        end: 'bottom 10%',
-                        scrub: 0.8
-                    }
-                }
-            );
+        // Breathing headings
+        $all('.breathe-heading').forEach(function (h) {
+            gsap.fromTo(h, { fontWeight: 300 }, { fontWeight: 600, ease: 'none', scrollTrigger: { trigger: h, start: 'top 90%', end: 'center 50%', scrub: 0.8 } });
+            gsap.fromTo(h, { fontWeight: 600 }, { fontWeight: 300, ease: 'none', scrollTrigger: { trigger: h, start: 'center 50%', end: 'bottom 10%', scrub: 0.8 } });
         });
 
-        // Parallax on background blobs
-        const blob1 = document.getElementById('blob1');
-        const blob2 = document.getElementById('blob2');
-        if (blob1) {
-            gsap.to(blob1, {
-                y: -200, ease: 'none',
-                scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 1 }
-            });
-        }
-        if (blob2) {
-            gsap.to(blob2, {
-                y: 150, ease: 'none',
-                scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 1.5 }
-            });
-        }
+        // Parallax blobs
+        var blob1 = $('blob1'), blob2 = $('blob2');
+        if (blob1) gsap.to(blob1, { y: -200, ease: 'none', scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 1 } });
+        if (blob2) gsap.to(blob2, { y: 150, ease: 'none', scrollTrigger: { trigger: 'body', start: 'top top', end: 'bottom bottom', scrub: 1.5 } });
 
-        // Staggered reveal for grid items (interest cards, now grid)
-        document.querySelectorAll('.interests-grid .interest-card').forEach(function (card, idx) {
-            gsap.fromTo(card,
-                { opacity: 0, y: 40 },
-                {
-                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-                    scrollTrigger: { trigger: card, start: 'top 85%' },
-                    delay: (idx % 3) * 0.1
-                }
-            );
+        // Staggered grid reveals
+        $all('.interests-grid .interest-card').forEach(function (card, idx) {
+            gsap.fromTo(card, { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', scrollTrigger: { trigger: card, start: 'top 85%' }, delay: (idx % 3) * 0.1 });
         });
 
-        // Text reveal mask animation for section headings
-        document.querySelectorAll('.text-reveal-mask').forEach(function (el) {
-            gsap.fromTo(el.querySelector('.reveal-text'),
-                { yPercent: 100 },
-                {
-                    yPercent: 0,
-                    duration: 0.9,
-                    ease: 'power4.out',
-                    scrollTrigger: {
-                        trigger: el,
-                        start: 'top 88%',
-                        toggleActions: 'play none none none'
-                    }
-                }
-            );
+        // Text reveal masks
+        $all('.text-reveal-mask').forEach(function (el) {
+            var inner = el.querySelector('.reveal-text');
+            if (inner) {
+                gsap.fromTo(inner, { yPercent: 100 }, { yPercent: 0, duration: 0.9, ease: 'power4.out', scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none none' } });
+            }
         });
 
-        // Section atmosphere morphing — shift blob colors as user crosses sections
-        const sections = document.querySelectorAll('section[id]');
-        sections.forEach(function (section) {
+        // Section atmosphere morphing
+        $all('section[id]').forEach(function (section) {
             ScrollTrigger.create({
-                trigger: section,
-                start: 'top 50%',
-                end: 'bottom 50%',
+                trigger: section, start: 'top 50%', end: 'bottom 50%',
                 onEnter: function () { setAtmosphere(section.id); },
                 onEnterBack: function () { setAtmosphere(section.id); }
             });
         });
-
-        function setAtmosphere(sectionId) {
-            var body = document.body;
-            var atmospheres = {
-                'hero': 'warm',
-                'about': 'warm',
-                'interests': 'cool',
-                'now': 'cool',
-                'writings': 'deep',
-                'thoughts': 'deep',
-                'contact': 'warm'
-            };
-            body.setAttribute('data-atmosphere', atmospheres[sectionId] || 'warm');
+        function setAtmosphere(id) {
+            var map = { hero: 'warm', about: 'warm', interests: 'cool', now: 'cool', writings: 'deep', thoughts: 'deep', contact: 'warm' };
+            document.body.setAttribute('data-atmosphere', map[id] || 'warm');
         }
 
-        // Hero parallax — name drifts slightly on scroll
-        const heroName = document.querySelector('.hero-name');
+        // Hero parallax
+        var heroName = document.querySelector('.hero-name');
         if (heroName) {
-            gsap.to(heroName, {
-                y: -80,
-                ease: 'none',
-                scrollTrigger: {
-                    trigger: '#hero',
-                    start: 'top top',
-                    end: 'bottom top',
-                    scrub: 1
-                }
-            });
+            gsap.to(heroName, { y: -80, ease: 'none', scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: 1 } });
         }
 
-        // Section number markers — subtle parallax
-        document.querySelectorAll('.section-num').forEach(function (num) {
-            gsap.fromTo(num,
-                { y: 20, opacity: 0 },
-                {
-                    y: 0,
-                    opacity: 0.15,
-                    duration: 1,
-                    ease: 'power3.out',
-                    scrollTrigger: {
-                        trigger: num,
-                        start: 'top 90%'
-                    }
-                }
-            );
+        // Section numbers
+        $all('.section-num').forEach(function (num) {
+            gsap.fromTo(num, { y: 20, opacity: 0 }, { y: 0, opacity: 0.15, duration: 1, ease: 'power3.out', scrollTrigger: { trigger: num, start: 'top 90%' } });
         });
 
-        // Sync ScrollTrigger with Lenis
+        // Sync with Lenis
         if (lenis) {
             lenis.on('scroll', ScrollTrigger.update);
             gsap.ticker.add(function (time) { lenis.raf(time * 1000); });
             gsap.ticker.lagSmoothing(0);
         }
-    }
+    });
 
     // ============================================================
-    // 12. CURSOR-FOLLOWING PREVIEW CARDS (for Interest cards)
+    // 12. CURSOR-FOLLOWING PREVIEW CARDS
     // ============================================================
-    const cursorPreview = document.getElementById('cursorPreview');
-    const previewLabel = document.getElementById('previewLabel');
-    const previewText = document.getElementById('previewText');
-    const previewAmbient = document.getElementById('previewAmbient');
+    safe(function () {
+        var preview = $('cursorPreview');
+        if (!preview || !matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+        var labelEl = $('previewLabel');
+        var textEl = $('previewText');
+        var ambientEl = $('previewAmbient');
+        var px = 0, py = 0, tx = 0, ty = 0;
 
-    if (cursorPreview && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        let previewX = 0, previewY = 0, targetX = 0, targetY = 0;
-
-        document.addEventListener('mousemove', function (e) {
-            targetX = e.clientX; targetY = e.clientY;
-        });
-
-        function animatePreview() {
-            previewX += (targetX - previewX) * 0.12;
-            previewY += (targetY - previewY) * 0.12;
-            cursorPreview.style.left = previewX + 'px';
-            cursorPreview.style.top = previewY + 'px';
-            requestAnimationFrame(animatePreview);
+        document.addEventListener('mousemove', function (e) { tx = e.clientX; ty = e.clientY; });
+        function anim() {
+            px += (tx - px) * 0.12; py += (ty - py) * 0.12;
+            preview.style.left = px + 'px'; preview.style.top = py + 'px';
+            requestAnimationFrame(anim);
         }
-        animatePreview();
+        anim();
 
-        document.querySelectorAll('[data-preview-label]').forEach(function (card) {
+        var gradients = {
+            'Technology': 'linear-gradient(135deg, #C6FF00, #00ff88)',
+            'Reading & Ideas': 'linear-gradient(135deg, #C6FF00, #ffaa00)',
+            'Current Affairs': 'linear-gradient(135deg, #C6FF00, #0088ff)',
+            'Design': 'linear-gradient(135deg, #C6FF00, #ff00aa)',
+            'Philosophy': 'linear-gradient(135deg, #C6FF00, #aa00ff)',
+            'Film & Media': 'linear-gradient(135deg, #C6FF00, #ff4400)'
+        };
+
+        $all('[data-preview-label]').forEach(function (card) {
             card.addEventListener('mouseenter', function () {
-                previewLabel.textContent = card.getAttribute('data-preview-label');
-                previewText.textContent = card.getAttribute('data-preview-text');
-                // Set ambient gradient color based on category
-                const label = card.getAttribute('data-preview-label');
-                const gradients = {
-                    'Technology': 'linear-gradient(135deg, #C6FF00, #00ff88)',
-                    'Reading & Ideas': 'linear-gradient(135deg, #C6FF00, #ffaa00)',
-                    'Current Affairs': 'linear-gradient(135deg, #C6FF00, #0088ff)',
-                    'Design': 'linear-gradient(135deg, #C6FF00, #ff00aa)',
-                    'Philosophy': 'linear-gradient(135deg, #C6FF00, #aa00ff)',
-                    'Film & Media': 'linear-gradient(135deg, #C6FF00, #ff4400)'
-                };
-                if (previewAmbient) previewAmbient.style.background = gradients[label] || 'linear-gradient(135deg, #C6FF00, #C6FF00)';
-                cursorPreview.classList.add('preview-visible');
+                if (labelEl) labelEl.textContent = card.getAttribute('data-preview-label');
+                if (textEl) textEl.textContent = card.getAttribute('data-preview-text');
+                var lbl = card.getAttribute('data-preview-label');
+                if (ambientEl) ambientEl.style.background = gradients[lbl] || 'linear-gradient(135deg, #C6FF00, #C6FF00)';
+                preview.classList.add('preview-visible');
             });
-            card.addEventListener('mouseleave', function () {
-                cursorPreview.classList.remove('preview-visible');
-            });
+            card.addEventListener('mouseleave', function () { preview.classList.remove('preview-visible'); });
         });
-    }
+    });
 
     // ============================================================
     // 13. PAGE TRANSITIONS (curtain reveal)
     // ============================================================
-    const pageTransition = document.getElementById('pageTransition');
-
-    if (pageTransition) {
-        // Animate curtain away on page load
+    safe(function () {
+        var pt = $('pageTransition');
+        if (!pt) return;
         window.addEventListener('pageshow', function () {
             setTimeout(function () {
-                pageTransition.classList.add('curtain-up');
+                pt.classList.add('curtain-up');
                 setTimeout(function () {
-                    pageTransition.classList.add('curtain-down');
-                    setTimeout(function () {
-                        pageTransition.classList.remove('curtain-up', 'curtain-down');
-                    }, 600);
+                    pt.classList.add('curtain-down');
+                    setTimeout(function () { pt.classList.remove('curtain-up', 'curtain-down'); }, 600);
                 }, 100);
             }, 50);
         });
-
-        // Intercept clicks on page links (writings.html)
-        document.querySelectorAll('a.page-link, a[href$=".html"]').forEach(function (link) {
+        $all('a.page-link, a[href$=".html"]').forEach(function (link) {
             link.addEventListener('click', function (e) {
-                const href = this.getAttribute('href');
+                var href = this.getAttribute('href');
                 if (href && !href.startsWith('#') && href.endsWith('.html')) {
                     e.preventDefault();
-                    pageTransition.classList.remove('curtain-down');
-                    pageTransition.classList.add('curtain-up');
+                    pt.classList.remove('curtain-down');
+                    pt.classList.add('curtain-up');
                     setTimeout(function () { window.location.href = href; }, 500);
                 }
             });
         });
-    }
+    });
 
     // ============================================================
     // 14. NOW WIDGET RENDERING
     // ============================================================
-    function renderNowWidget() {
-        const grid = document.getElementById('nowGrid');
-        const updated = document.getElementById('nowUpdated');
+    safe(function () {
+        var grid = $('nowGrid');
+        var updated = $('nowUpdated');
         if (!grid || typeof NOW_DATA === 'undefined') return;
+        var d = NOW_DATA;
 
-        const d = NOW_DATA;
-
-        grid.innerHTML = '' +
-            // Reading card (large)
+        grid.innerHTML =
             '<div class="glass-card now-reading rounded-2xl p-8 reveal">' +
                 '<div class="now-label">Reading</div>' +
                 '<h3 class="now-title font-serif text-2xl">' + d.reading.title + '</h3>' +
                 '<p class="now-author">' + d.reading.author + '</p>' +
-                '<div class="now-progress"><div class="now-progress-bar" style="width: 0%" data-progress="' + d.reading.progress + '"></div></div>' +
+                '<div class="now-progress"><div class="now-progress-bar" style="width:0" data-progress="' + d.reading.progress + '"></div></div>' +
                 '<blockquote class="now-quote">' + d.reading.quote + '</blockquote>' +
                 '<p class="now-note">' + d.reading.note + '</p>' +
             '</div>' +
-            // Exploring card
             '<div class="glass-card rounded-2xl p-7 reveal">' +
                 '<div class="now-label">Exploring</div>' +
                 '<h3 class="now-title font-serif text-xl">' + d.exploring.title + '</h3>' +
                 '<p class="now-note">' + d.exploring.note + '</p>' +
             '</div>' +
-            // Watching card
             '<div class="glass-card rounded-2xl p-7 reveal">' +
                 '<div class="now-label">Watching</div>' +
                 '<h3 class="now-title font-serif text-xl">' + d.watching.title + '</h3>' +
                 '<p class="now-author">' + d.watching.author + '</p>' +
                 '<p class="now-note">' + d.watching.note + '</p>' +
             '</div>' +
-            // Thinking card (wide)
             '<div class="glass-card now-thinking rounded-2xl p-8 reveal">' +
                 '<div class="now-label">Thinking About</div>' +
                 '<p class="now-question font-serif text-xl italic">' + d.thinking.question + '</p>' +
@@ -591,340 +498,252 @@
 
         if (updated) updated.textContent = 'Last updated: ' + d.lastUpdated;
 
-        // Animate progress bar
         setTimeout(function () {
-            const bar = grid.querySelector('[data-progress]');
+            var bar = grid.querySelector('[data-progress]');
             if (bar) bar.style.width = bar.getAttribute('data-progress') + '%';
         }, 500);
 
-        // Observe new reveal elements
-        grid.querySelectorAll('.reveal').forEach(function (el) {
-            if ('IntersectionObserver' in window) {
-                const obs = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (entry) {
-                        if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
-                    });
-                }, { threshold: 0.1 });
-                obs.observe(el);
-            } else { el.classList.add('visible'); }
-        });
-
-        // Register cursor hover for new cards
-        if (cursorDot && cursorRing) {
-            grid.querySelectorAll('.glass-card').forEach(function (el) {
-                el.addEventListener('mouseenter', function () { cursorRing.classList.add('cursor-hover'); cursorDot.classList.add('cursor-hover'); });
-                el.addEventListener('mouseleave', function () { cursorRing.classList.remove('cursor-hover'); cursorDot.classList.remove('cursor-hover'); });
-            });
+        // Re-observe new reveal elements
+        if ('IntersectionObserver' in window) {
+            var obs = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) { entry.target.classList.add('visible'); obs.unobserve(entry.target); }
+                });
+            }, { threshold: 0.1 });
+            grid.querySelectorAll('.reveal').forEach(function (el) { obs.observe(el); });
+        } else {
+            grid.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('visible'); });
         }
-    }
-    renderNowWidget();
+    });
 
     // ============================================================
     // 15. THOUGHT STREAM RENDERING
     // ============================================================
-    function renderThoughtStream() {
-        const container = document.getElementById('thoughtStream');
+    safe(function () {
+        var container = $('thoughtStream');
         if (!container || typeof THOUGHTS === 'undefined') return;
-
-        let html = '';
-        THOUGHTS.forEach(function (thought) {
-            const d = new Date(thought.date);
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            const dateStr = months[d.getMonth()] + ' ' + d.getDate();
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var html = '';
+        THOUGHTS.forEach(function (t) {
+            var d = new Date(t.date);
             html += '<div class="thought-item">' +
-                '<span class="thought-date">' + dateStr + '</span>' +
-                '<span class="thought-text">' + thought.text + '</span>' +
+                '<span class="thought-date">' + months[d.getMonth()] + ' ' + d.getDate() + '</span>' +
+                '<span class="thought-text">' + t.text + '</span>' +
             '</div>';
         });
         container.innerHTML = html;
-    }
-    renderThoughtStream();
+    });
 
     // ============================================================
-    // 16. VIBES MUSIC WIDGET + AMBIENT AUDIO
-    // Pill-shaped glassmorphism trigger with dropdown drawer.
-    // Tabs: Spotify embed, YT Music embed, Ambient soundscape.
+    // 16. VIBES MUSIC WIDGET (simple, robust toggle + tabs)
     // ============================================================
-    
-    // --- 16a. VIBES WIDGET (open/close, tab switching) ---
-    const vibesWidget = document.getElementById('vibesWidget');
-    const vibesToggle = document.getElementById('vibesToggle');
-    const vibesDrawer = document.getElementById('vibesDrawer');
-    let vibesOpen = false;
+    safe(function () {
+        var widget = $('vibesWidget');
+        var toggle = $('vibesToggle');
+        var drawer = $('vibesDrawer');
+        if (!widget || !toggle || !drawer) return;
 
-    if (vibesToggle && vibesDrawer) {
-        vibesToggle.addEventListener('click', function (e) {
+        var open = false;
+        function setOpen(state) {
+            open = state;
+            widget.classList.toggle('open', open);
+            drawer.setAttribute('aria-hidden', String(!open));
+        }
+
+        // Toggle on trigger click
+        toggle.addEventListener('click', function (e) {
             e.stopPropagation();
-            vibesOpen = !vibesOpen;
-            vibesWidget.classList.toggle('open', vibesOpen);
-            vibesDrawer.setAttribute('aria-hidden', !vibesOpen);
+            setOpen(!open);
         });
 
         // Close on outside click
         document.addEventListener('click', function (e) {
-            if (vibesOpen && !vibesWidget.contains(e.target)) {
-                vibesOpen = false;
-                vibesWidget.classList.remove('open');
-                vibesDrawer.setAttribute('aria-hidden', 'true');
-            }
+            if (open && !widget.contains(e.target)) setOpen(false);
         });
 
         // Close on Escape
         document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape' && vibesOpen) {
-                vibesOpen = false;
-                vibesWidget.classList.remove('open');
-                vibesDrawer.setAttribute('aria-hidden', 'true');
-            }
+            if (e.key === 'Escape' && open) setOpen(false);
         });
 
         // Tab switching
-        document.querySelectorAll('.vibes-tab').forEach(function (tab) {
+        $all('.vibes-tab').forEach(function (tab) {
             tab.addEventListener('click', function () {
                 var target = tab.getAttribute('data-vibes-tab');
-                document.querySelectorAll('.vibes-tab').forEach(function (t) { t.classList.remove('active'); });
-                document.querySelectorAll('.vibes-panel').forEach(function (p) { p.classList.remove('active'); });
+                $all('.vibes-tab').forEach(function (t) { t.classList.remove('active'); });
+                $all('.vibes-panel').forEach(function (p) { p.classList.remove('active'); });
                 tab.classList.add('active');
                 var panel = document.querySelector('[data-vibes-panel="' + target + '"]');
                 if (panel) panel.classList.add('active');
             });
         });
-    }
+    });
 
-    // --- 16b. AMBIENT AUDIO (Web Audio API — relaxing soundscape) ---
-    const ambientToggle = document.getElementById('ambientToggle');
-    const ambientIcon = document.getElementById('ambientIcon');
-    const ambientLabel = document.getElementById('ambientLabel');
-    let audioCtx = null, audioMasterGain = null, audioActive = false;
-    let audioNodes = [];
+    // ============================================================
+    // 17. AMBIENT AUDIO (Web Audio API)
+    // ============================================================
+    safe(function () {
+        var btn = $('ambientToggle');
+        var icon = $('ambientIcon');
+        var label = $('ambientLabel');
+        if (!btn) return;
+        var audioCtx = null, masterGain = null, active = false;
 
-    function initAmbientAudio() {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        audioMasterGain = audioCtx.createGain();
-        audioMasterGain.gain.value = 0;
-        audioMasterGain.connect(audioCtx.destination);
+        function init() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            masterGain = audioCtx.createGain();
+            masterGain.gain.value = 0;
+            masterGain.connect(audioCtx.destination);
 
-        // --- Layer 1: Warm chord drone (A2, E3, A3, C4) ---
-        var chordFreqs = [110, 164.81, 220, 261.63];
-        chordFreqs.forEach(function (freq, i) {
-            var osc = audioCtx.createOscillator();
-            var oscGain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-            osc.detune.value = (i - 1.5) * 3;
-            oscGain.gain.value = 0.15 / (i + 1);
-            osc.connect(oscGain);
-            oscGain.connect(audioMasterGain);
-            osc.start();
-            audioNodes.push({ osc: osc, gain: oscGain });
-        });
+            // Warm chord drone (A2, E3, A3, C4)
+            [110, 164.81, 220, 261.63].forEach(function (freq, i) {
+                var osc = audioCtx.createOscillator();
+                var g = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                osc.detune.value = (i - 1.5) * 3;
+                g.gain.value = 0.15 / (i + 1);
+                osc.connect(g); g.connect(masterGain);
+                osc.start();
+            });
 
-        // --- Layer 2: Gentle LFO for "breathing" volume effect ---
-        var lfo = audioCtx.createOscillator();
-        var lfoGain = audioCtx.createGain();
-        lfo.frequency.value = 0.06;
-        lfo.type = 'sine';
-        lfoGain.gain.value = 0.03;
-        lfo.connect(lfoGain);
-        lfoGain.connect(audioMasterGain.gain);
-        lfo.start();
-        audioNodes.push({ osc: lfo, gain: lfoGain });
+            // LFO breathing
+            var lfo = audioCtx.createOscillator();
+            var lfoG = audioCtx.createGain();
+            lfo.frequency.value = 0.06; lfo.type = 'sine'; lfoG.gain.value = 0.03;
+            lfo.connect(lfoG); lfoG.connect(masterGain.gain); lfo.start();
 
-        // --- Layer 3: Brown noise "stream/wind" layer ---
-        var bufferSize = 2 * audioCtx.sampleRate;
-        var noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        var output = noiseBuffer.getChannelData(0);
-        var lastOut = 0;
-        for (var j = 0; j < bufferSize; j++) {
-            var white = Math.random() * 2 - 1;
-            output[j] = (lastOut + 0.02 * white) / 1.02;
-            lastOut = output[j];
-            output[j] *= 3.5;
+            // Brown noise
+            var bufSize = 2 * audioCtx.sampleRate;
+            var buf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+            var data = buf.getChannelData(0);
+            var last = 0;
+            for (var j = 0; j < bufSize; j++) {
+                var white = Math.random() * 2 - 1;
+                data[j] = (last + 0.02 * white) / 1.02;
+                last = data[j];
+                data[j] *= 3.5;
+            }
+            var noise = audioCtx.createBufferSource();
+            noise.buffer = buf; noise.loop = true;
+            var nf = audioCtx.createBiquadFilter();
+            nf.type = 'lowpass'; nf.frequency.value = 400; nf.Q.value = 0.5;
+            var ng = audioCtx.createGain(); ng.gain.value = 0.04;
+            noise.connect(nf); nf.connect(ng); ng.connect(masterGain); noise.start();
+
+            // High shimmer
+            var sh = audioCtx.createOscillator();
+            var shG = audioCtx.createGain();
+            sh.type = 'sine'; sh.frequency.value = 880; shG.gain.value = 0.008;
+            sh.connect(shG); shG.connect(masterGain); sh.start();
+
+            // Master low-pass
+            var mf = audioCtx.createBiquadFilter();
+            mf.type = 'lowpass'; mf.frequency.value = 1200; mf.Q.value = 0.3;
+            masterGain.disconnect(); masterGain.connect(mf); mf.connect(audioCtx.destination);
         }
-        var noise = audioCtx.createBufferSource();
-        noise.buffer = noiseBuffer;
-        noise.loop = true;
-        var noiseFilter = audioCtx.createBiquadFilter();
-        noiseFilter.type = 'lowpass';
-        noiseFilter.frequency.value = 400;
-        noiseFilter.Q.value = 0.5;
-        var noiseGain = audioCtx.createGain();
-        noiseGain.gain.value = 0.04;
-        noise.connect(noiseFilter);
-        noiseFilter.connect(noiseGain);
-        noiseGain.connect(audioMasterGain);
-        noise.start();
-        audioNodes.push({ osc: noise, gain: noiseGain });
 
-        // --- Layer 4: High shimmer (A5, very faint singing bowl) ---
-        var shimmer = audioCtx.createOscillator();
-        var shimmerGain = audioCtx.createGain();
-        shimmer.type = 'sine';
-        shimmer.frequency.value = 880;
-        shimmerGain.gain.value = 0.008;
-        shimmer.connect(shimmerGain);
-        shimmerGain.connect(audioMasterGain);
-        shimmer.start();
-        audioNodes.push({ osc: shimmer, gain: shimmerGain });
-
-        // --- Master low-pass filter for overall warmth ---
-        var masterFilter = audioCtx.createBiquadFilter();
-        masterFilter.type = 'lowpass';
-        masterFilter.frequency.value = 1200;
-        masterFilter.Q.value = 0.3;
-        audioMasterGain.disconnect();
-        audioMasterGain.connect(masterFilter);
-        masterFilter.connect(audioCtx.destination);
-    }
-
-    if (ambientToggle) {
-        ambientToggle.addEventListener('click', function () {
-            if (!audioCtx) initAmbientAudio();
+        btn.addEventListener('click', function () {
+            if (!audioCtx) init();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-
-            if (!audioActive) {
-                audioMasterGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
-                audioActive = true;
-                if (ambientIcon) ambientIcon.className = 'bx bx-pause';
-                if (ambientLabel) ambientLabel.textContent = 'Pause Ambient';
+            if (!active) {
+                masterGain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 3);
+                active = true;
+                if (icon) icon.className = 'bx bx-pause';
+                if (label) label.textContent = 'Pause Ambient';
             } else {
-                audioMasterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
-                audioActive = false;
-                if (ambientIcon) ambientIcon.className = 'bx bx-play';
-                if (ambientLabel) ambientLabel.textContent = 'Play Ambient';
+                masterGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
+                active = false;
+                if (icon) icon.className = 'bx bx-play';
+                if (label) label.textContent = 'Play Ambient';
             }
         });
-    }
+    });
 
     // ============================================================
-    // 17. TERMINAL EASTER EGG
+    // 18. TERMINAL EASTER EGG
     // ============================================================
-    const terminal = document.getElementById('terminal');
-    const terminalBody = document.getElementById('terminalBody');
-    const terminalInput = document.getElementById('terminalInput');
-    const terminalClose = document.getElementById('terminalClose');
-    const terminalHint = document.getElementById('terminalHint');
+    safe(function () {
+        var terminal = $('terminal');
+        var body = $('terminalBody');
+        var input = $('terminalInput');
+        var closeBtn = $('terminalClose');
+        var hint = $('terminalHint');
+        if (!terminal || !input) return;
 
-    const TERMINAL_COMMANDS = {
-        'help': function () {
-            return ['Available commands:', '  help     — show this message', '  about    — who I am', '  quote    — a thought I keep coming back to', '  matrix   — enter the matrix', '  coffee   — current status', '  reading  — what I\'m reading now', '  clear    — clear the terminal', '  exit     — close the terminal'];
-        },
-        'about': function () {
-            return ['Anamol Raj Singh', 'A student and lifelong learner.', 'Curious about technology, philosophy, design, and the spaces in between.', 'This is my personal corner of the internet.'];
-        },
-        'quote': function () {
-            const quotes = [
-                '"The only true wisdom is in knowing you know nothing." — Socrates',
-                '"We are what we repeatedly do. Excellence, then, is not an act, but a habit." — Aristotle',
-                '"The beginning of infinity is the recognition that problems are soluble." — David Deutsch',
-                '"Simplicity is the ultimate sophistication." — Leonardo da Vinci',
-                '"The unexamined life is not worth living." — Socrates'
-            ];
-            return [quotes[Math.floor(Math.random() * quotes.length)]];
-        },
-        'matrix': function () {
-            const chars = '01ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱｺﾏﾁﾒｦｱｲｳｴｵｶｷｸ';
-            let lines = [];
-            for (let i = 0; i < 5; i++) { let line = ''; for (let j = 0; j < 40; j++) line += chars[Math.floor(Math.random() * chars.length)]; lines.push(line); }
-            return lines;
-        },
-        'coffee': function () { return ['☕ Status: Currently caffeinated and curious.', 'Reading, thinking, and building — one cup at a time.']; },
-        'reading': function () { return ['Currently reading:', '  The Beginning of Infinity — David Deutsch', '  (Dense. Every few pages I stop and reconsider something.)']; },
-        'clear': function () { terminalBody.innerHTML = ''; return null; },
-        'exit': function () { closeTerminal(); return null; }
-    };
+        var CMDS = {
+            help: ['Available commands:', '  help    — show this message', '  about   — who I am', '  quote   — a thought', '  matrix  — enter the matrix', '  coffee  — current status', '  reading — what I\'m reading', '  clear   — clear terminal', '  exit    — close'],
+            about: ['Anamol Raj Singh', 'A student and lifelong learner.', 'Curious about technology, philosophy, design, and the spaces in between.'],
+            quote: ['"The beginning of infinity is the recognition that problems are soluble." — David Deutsch'],
+            matrix: (function () { var c = '01ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱｺﾏﾁﾒｦ'; var l = []; for (var i = 0; i < 5; i++) { var s = ''; for (var j = 0; j < 40; j++) s += c[Math.floor(Math.random() * c.length)]; l.push(s); } return l; })(),
+            coffee: ['Status: Currently caffeinated and curious.'],
+            reading: ['Currently reading:', '  The Beginning of Infinity — David Deutsch'],
+            clear: null,
+            exit: null
+        };
 
-    function openTerminal() {
-        if (!terminal) return;
-        terminal.classList.remove('hidden'); terminal.classList.add('terminal-open');
-        setTimeout(function () { if (terminalInput) terminalInput.focus(); }, 400);
-        if (terminalBody && terminalBody.innerHTML === '') {
-            addTerminalLine('Welcome. Type "help" for commands.', 'term-welcome'); addTerminalLine('');
+        function open() {
+            terminal.classList.remove('hidden'); terminal.classList.add('terminal-open');
+            setTimeout(function () { input.focus(); }, 400);
+            if (body && body.innerHTML === '') { addLine('Welcome. Type "help" for commands.', 'term-welcome'); addLine(''); }
         }
-    }
-    function closeTerminal() {
-        if (!terminal) return;
-        terminal.classList.remove('terminal-open');
-        setTimeout(function () { terminal.classList.add('hidden'); }, 500);
-    }
-    function addTerminalLine(text, className) {
-        if (!terminalBody) return;
-        const div = document.createElement('div');
-        div.className = 'term-line' + (className ? ' ' + className : '');
-        div.textContent = text;
-        terminalBody.appendChild(div);
-        terminalBody.scrollTop = terminalBody.scrollHeight;
-    }
-    function addTerminalCommand(cmd) {
-        if (!terminalBody) return;
-        const div = document.createElement('div');
-        div.className = 'term-line';
-        div.innerHTML = '<span class="term-cmd">$ ' + cmd + '</span>';
-        terminalBody.appendChild(div);
-        terminalBody.scrollTop = terminalBody.scrollHeight;
-    }
-    function addTerminalOutput(lines) {
-        if (!terminalBody || !lines) return;
-        lines.forEach(function (line) { const div = document.createElement('div'); div.className = 'term-line term-output'; div.textContent = line; terminalBody.appendChild(div); });
-        terminalBody.scrollTop = terminalBody.scrollHeight;
-    }
+        function close() { terminal.classList.remove('terminal-open'); setTimeout(function () { terminal.classList.add('hidden'); }, 500); }
+        function addLine(text, cls) { if (!body) return; var d = document.createElement('div'); d.className = 'term-line' + (cls ? ' ' + cls : ''); d.textContent = text; body.appendChild(d); body.scrollTop = body.scrollHeight; }
+        function addCmd(cmd) { if (!body) return; var d = document.createElement('div'); d.className = 'term-line'; d.innerHTML = '<span class="term-cmd">$ ' + cmd + '</span>'; body.appendChild(d); body.scrollTop = body.scrollHeight; }
 
-    if (terminalInput) {
-        terminalInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Enter') {
-                const cmd = terminalInput.value.trim().toLowerCase();
-                if (cmd === '') return;
-                addTerminalCommand(cmd); terminalInput.value = '';
-                if (TERMINAL_COMMANDS[cmd]) { const result = TERMINAL_COMMANDS[cmd](); if (result) addTerminalOutput(result); }
-                else addTerminalOutput(['Command not found: ' + cmd + '. Type "help" for available commands.']);
-            } else if (e.key === 'Escape') closeTerminal();
+        input.addEventListener('keydown', function (e) {
+            if (e.key !== 'Enter') return;
+            var cmd = input.value.trim().toLowerCase();
+            if (!cmd) return;
+            addCmd(cmd); input.value = '';
+            if (cmd === 'clear') { body.innerHTML = ''; return; }
+            if (cmd === 'exit') { close(); return; }
+            var result = CMDS[cmd];
+            if (result) { result.forEach(function (l) { addLine(l, 'term-output'); }); }
+            else { addLine('Command not found: ' + cmd, 'term-error'); addLine('Type "help" for available commands.', 'term-welcome'); }
         });
-    }
-    if (terminalClose) terminalClose.addEventListener('click', closeTerminal);
-    if (terminalHint) terminalHint.addEventListener('click', openTerminal);
 
-    document.addEventListener('keydown', function (e) {
-        if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
-        if (e.key === '`' || e.key === '~') { e.preventDefault(); if (terminal.classList.contains('terminal-open')) closeTerminal(); else openTerminal(); }
-        if (e.key === 'Escape' && terminal.classList.contains('terminal-open')) closeTerminal();
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (hint) hint.addEventListener('click', open);
+        document.addEventListener('keydown', function (e) {
+            if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA')) return;
+            if (e.key === '`' || e.key === '~') { e.preventDefault(); if (terminal.classList.contains('terminal-open')) close(); else open(); }
+            if (e.key === 'Escape' && terminal.classList.contains('terminal-open')) close();
+        });
     });
 
     // ============================================================
-    // 18. KONAMI CODE
+    // 19. KONAMI CODE
     // ============================================================
-    const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
-    let konamiIdx = 0;
-
-    document.addEventListener('keydown', function (e) {
-        const key = e.key;
-        if (key === KONAMI[konamiIdx] || key.toLowerCase() === KONAMI[konamiIdx].toLowerCase()) {
-            konamiIdx++;
-            if (konamiIdx === KONAMI.length) { konamiIdx = 0; triggerKonami(); }
-        } else { konamiIdx = 0; }
-    });
-
-    function triggerKonami() {
-        const flash = document.createElement('div');
-        flash.style.cssText = 'position:fixed;inset:0;z-index:9998;background:var(--accent);opacity:0;pointer-events:none;transition:opacity 0.3s ease;';
-        document.body.appendChild(flash);
-        requestAnimationFrame(function () {
-            flash.style.opacity = '0.15';
-            setTimeout(function () { flash.style.opacity = '0'; setTimeout(function () { flash.remove(); }, 500); }, 200);
+    safe(function () {
+        var SEQ = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+        var idx = 0;
+        document.addEventListener('keydown', function (e) {
+            if (e.key === SEQ[idx] || e.key.toLowerCase() === SEQ[idx].toLowerCase()) {
+                idx++;
+                if (idx === SEQ.length) {
+                    idx = 0;
+                    var flash = document.createElement('div');
+                    flash.style.cssText = 'position:fixed;inset:0;z-index:9998;background:var(--accent);opacity:0;pointer-events:none;transition:opacity 0.3s';
+                    document.body.appendChild(flash);
+                    requestAnimationFrame(function () {
+                        flash.style.opacity = '0.15';
+                        setTimeout(function () { flash.style.opacity = '0'; setTimeout(function () { flash.remove(); }, 500); }, 200);
+                    });
+                    var terminal = $('terminal');
+                    if (terminal) {
+                        terminal.classList.remove('hidden'); terminal.classList.add('terminal-open');
+                        var body = $('terminalBody');
+                        if (body) {
+                            setTimeout(function () {
+                                var d = document.createElement('div'); d.className = 'term-line term-cmd'; d.textContent = 'Konami code unlocked. Curiosity is its own reward.'; body.appendChild(d);
+                                body.scrollTop = body.scrollHeight;
+                            }, 400);
+                        }
+                    }
+                }
+            } else { idx = 0; }
         });
-        openTerminal();
-        setTimeout(function () {
-            addTerminalLine(''); addTerminalLine('🔓 Konami code unlocked.', 'term-cmd');
-            addTerminalLine('You found a secret. Curiosity is its own reward.', 'term-welcome');
-            addTerminalLine('—');
-            addTerminalLine('"The illiterate of the 21st century will not be those who cannot read and write,', 'term-welcome');
-            addTerminalLine(' but those who cannot learn, unlearn, and relearn." — Alvin Toffler', 'term-welcome');
-        }, 600);
-    }
-
-    // ============================================================
-    // 19. INIT
-    // ============================================================
-    onScroll();
-
+    });
 
 })();
