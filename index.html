@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+    <!-- ===== META ===== -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Anamol Raj Singh — Student, learner, and builder exploring the Base44 ecosystem. Data-driven personal terminal.">
+    <meta name="description" content="Anamol Raj Singh — Student, lifelong learner, and curious mind exploring technology, ideas, and the spaces in between.">
     <meta name="author" content="Anamol Raj Singh">
     <meta name="theme-color" content="#0a0b0d">
-    <title>Anamol Raj Singh — Personal Terminal</title>
+    <title>Anamol Raj Singh — Student & Lifelong Learner</title>
 
+    <!-- ===== FAVICON ===== -->
     <link rel="shortcut icon" href="https://i.ibb.co/H4VGVf7/download.png" type="image/svg+xml">
 
-    <!-- Tailwind CDN -->
+    <!-- ===== Tailwind CSS (CDN) ===== -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -18,372 +20,390 @@
                 extend: {
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
-                        mono: ['"JetBrains Mono"', 'monospace'],
                         display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
                     },
                 }
             }
         }
     </script>
 
-    <!-- Fonts: Inter + Plus Jakarta Sans + JetBrains Mono -->
+    <!-- ===== Fonts ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Boxicons -->
+    <!-- ===== Boxicons ===== -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+    <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-    <!-- ===== NAVIGATION ===== -->
-    <header id="navbar" class="fixed top-0 left-0 w-full z-50">
-        <div class="nav-glass">
+    <!-- ================================================================
+         BACKGROUND DECORATIVE ELEMENTS
+         Low-opacity abstract shapes for visual depth (purely decorative)
+         ================================================================ -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="bg-blob bg-blob--1"></div>
+        <div class="bg-blob bg-blob--2"></div>
+        <div class="bg-grid"></div>
+    </div>
+
+    <!-- ================================================================
+         NAVIGATION
+         Sticky glass header with: logo, live clock, theme toggle,
+         smooth-scroll links, and mobile hamburger menu
+         ================================================================ -->
+    <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
+        <div class="glass-nav">
             <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
-                <!-- Logo -->
-                <a href="#hero" class="font-display font-bold text-base tracking-tight flex items-center gap-2">
-                    <span class="text-accent font-mono text-xs">ARS</span>
-                    <span class="text-muted hidden sm:inline">/</span>
-                    <span class="text-muted font-mono text-xs hidden sm:inline">terminal</span>
+                
+                <!-- Logo / Name -->
+                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5">
+                    <span class="text-lime-accent font-mono text-sm">{"</span>
+                    <span class="nav-name">Anamol Raj Singh</span>
+                    <span class="text-lime-accent font-mono text-sm">"}</span>
                 </a>
 
-                <!-- Nav Links -->
-                <div class="hidden md:flex items-center gap-8">
-                    <a href="#stats" class="nav-link text-sm font-medium">Metrics</a>
-                    <a href="#works" class="nav-link text-sm font-medium">Explorations</a>
-                    <a href="#timeline" class="nav-link text-sm font-medium">Journey</a>
-                    <a href="#contact" class="nav-link text-sm font-medium">Connect</a>
+                <!-- Desktop Nav Links -->
+                <div class="hidden md:flex items-center gap-7">
+                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors">Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium transition-colors">About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium transition-colors">Interests</a>
+                    <a href="#contact" class="nav-link text-sm font-medium transition-colors">Contact</a>
                 </div>
 
-                <!-- Right: clock + status badge + mobile -->
-                <div class="flex items-center gap-4">
-                    <div class="hidden sm:flex items-center gap-2">
-                        <span class="status-badge">
-                            <span class="status-dot"></span>
-                            Exploring Base44
-                        </span>
-                        <span class="font-mono text-xs text-muted" id="navClock">--:--:--</span>
+                <!-- Right cluster: clock, vibes, theme toggle, mobile menu -->
+                <div class="flex items-center gap-3 sm:gap-4">
+                    <!-- Live Clock -->
+                    <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs nav-dim-text">
+                        <i class='bx bx-time-five text-sm'></i>
+                        <span id="navClock">--:--:--</span>
                     </div>
-                    <button id="menuToggle" class="md:hidden text-xl" aria-label="Menu">
+
+                    <!-- Vibes Music Widget -->
+                    <div class="vibes-widget" id="vibesWidget">
+                        <button id="vibesToggle" class="vibes-trigger" aria-label="Open vibes music player" aria-expanded="false">
+                            <span class="vibes-dot"></span>
+                            <span class="vibes-label">Vibes</span>
+                        </button>
+                        <div class="vibes-drawer" id="vibesDrawer" aria-hidden="true">
+                            <div class="vibes-tabs">
+                                <button class="vibes-tab active" data-vibes-tab="youtube" type="button">
+                                    <i class='bx bx-music'></i> Player
+                                </button>
+                            </div>
+                            <div class="vibes-content">
+                                <!-- YouTube Music Player Panel -->
+                                <div class="vibes-panel active" data-vibes-panel="youtube" id="vibesPanelYoutube">
+                                    <div id="ytPlayerHidden"></div>
+                                    <!-- Mini Player -->
+                                    <div class="mp-mini" id="mpMini">
+                                        <img class="mp-mini-thumb" id="mpMiniThumb" src="" alt="">
+                                        <div class="mp-mini-info">
+                                            <div class="mp-mini-title" id="mpMiniTitle">Loading...</div>
+                                            <div class="mp-mini-artist" id="mpMiniArtist">&nbsp;</div>
+                                        </div>
+                                        <div class="mp-mini-controls">
+                                            <button class="mp-btn-icon mp-mini-play" id="mpMiniPlay" aria-label="Play/Pause"><i class='bx bx-play'></i></button>
+                                        </div>
+                                    </div>
+                                    <!-- Expanded Player -->
+                                    <div class="mp-expanded" id="mpExpanded" style="display:none;">
+                                        <div class="mp-chevron" id="mpChevron"><i class='bx bx-chevron-down'></i></div>
+                                        <div class="mp-art-row">
+                                            <img class="mp-art" id="mpArt" src="" alt="">
+                                            <div class="mp-art-overlay">
+                                                <button class="mp-fav" id="mpFav" aria-label="Favorite"><i class='bx bx-heart'></i></button>
+                                                <button class="mp-menu" aria-label="More"><i class='bx bx-dots-horizontal-rounded'></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="mp-track-info">
+                                            <div class="mp-title" id="mpTitle">Loading...</div>
+                                            <div class="mp-artist" id="mpArtist">&nbsp;</div>
+                                        </div>
+                                        <div class="mp-progress-wrap">
+                                            <div class="mp-seek" id="mpSeek">
+                                                <div class="mp-seek-fill" id="mpSeekFill"></div>
+                                                <div class="mp-seek-handle" id="mpSeekHandle"></div>
+                                            </div>
+                                            <div class="mp-time-row">
+                                                <span class="mp-time-elapsed" id="mpElapsed">0:00</span>
+                                                <span class="mp-time-remaining" id="mpRemaining">-0:00</span>
+                                            </div>
+                                        </div>
+                                        <div class="mp-controls">
+                                            <button class="mp-btn-icon mp-btn-sm" id="mpPrev" aria-label="Previous"><i class='bx bx-skip-previous'></i></button>
+                                            <button class="mp-btn-icon" id="mpRewind" aria-label="Rewind 10s"><i class='bx bx-rewind'></i></button>
+                                            <button class="mp-btn-play" id="mpPlay" aria-label="Play/Pause"><i class='bx bx-play'></i></button>
+                                            <button class="mp-btn-icon" id="mpForward" aria-label="Forward 10s"><i class='bx bx-fast-forward'></i></button>
+                                            <button class="mp-btn-icon mp-btn-sm" id="mpNext" aria-label="Next"><i class='bx bx-skip-next'></i></button>
+                                        </div>
+                                        <div class="mp-volume-row">
+                                            <i class='bx bx-volume-low mp-vol-icon'></i>
+                                            <input type="range" class="mp-volume" id="mpVolume" min="0" max="100" value="70">
+                                            <i class='bx bx-volume-full mp-vol-icon'></i>
+                                        </div>
+                                        <div class="mp-queue-row">
+                                            <button class="mp-queue-btn" id="mpQueueBtn"><i class='bx bx-list-ul'></i> Up Next</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Theme Toggle -->
+                    <button id="themeToggle" class="theme-toggle-btn" aria-label="Toggle dark/light theme">
+                        <i class='bx bx-sun' id="themeIcon"></i>
+                    </button>
+
+                    <!-- Mobile Hamburger -->
+                    <button id="menuToggle" class="md:hidden text-2xl transition-colors" aria-label="Toggle menu">
                         <i class='bx bx-menu' id="menuIcon"></i>
                     </button>
                 </div>
             </nav>
 
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-300" style="max-height:0;">
+            <!-- Mobile Menu (collapsible) -->
+            <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-400" style="max-height: 0;">
                 <div class="px-5 pb-4 flex flex-col gap-3">
-                    <a href="#stats" class="mobile-link text-sm font-medium py-1">Metrics</a>
-                    <a href="#works" class="mobile-link text-sm font-medium py-1">Explorations</a>
-                    <a href="#timeline" class="mobile-link text-sm font-medium py-1">Journey</a>
-                    <a href="#contact" class="mobile-link text-sm font-medium py-1">Connect</a>
-                    <div class="flex items-center gap-2 pt-1">
-                        <span class="status-badge"><span class="status-dot"></span> Exploring Base44</span>
-                    </div>
+                    <a href="#hero" class="mobile-link text-sm font-medium py-1.5 transition-colors">Home</a>
+                    <a href="#about" class="mobile-link text-sm font-medium py-1.5 transition-colors">About</a>
+                    <a href="#interests" class="mobile-link text-sm font-medium py-1.5 transition-colors">Interests</a>
+                    <a href="#contact" class="mobile-link text-sm font-medium py-1.5 transition-colors">Contact</a>
+                    <span class="font-mono text-xs nav-dim-text pt-1"><i class='bx bx-time-five'></i> <span id="navClockMobile">--:--:--</span></span>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- ===== HERO ===== -->
-    <section id="hero" class="relative min-h-screen flex items-center px-5 sm:px-8 pt-24 pb-12">
-        <div class="max-w-5xl mx-auto w-full">
+    <!-- ================================================================
+         HERO SECTION
+         Welcoming headline, personal intro, student/learner statement,
+         two CTA buttons
+         ================================================================ -->
+    <section id="hero" class="relative min-h-screen flex items-center justify-center px-5 sm:px-8 pt-24 pb-16">
+        <div class="max-w-4xl mx-auto text-center">
 
             <!-- Eyebrow -->
-            <div class="reveal mb-8 flex items-center gap-3">
-                <span class="w-8 h-px bg-accent"></span>
-                <span class="font-mono text-xs text-muted uppercase tracking-[0.2em]">Personal Terminal — 2026</span>
+            <div class="reveal mb-8 inline-flex items-center gap-2.5">
+                <span class="w-6 h-px bg-lime-accent"></span>
+                <span class="font-mono text-xs nav-dim-text uppercase tracking-widest">Personal Space — 2026</span>
+                <span class="w-6 h-px bg-lime-accent"></span>
             </div>
 
             <!-- Headline -->
-            <h1 class="reveal font-display text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-[-0.03em] leading-[0.95] mb-8">
-                Student.<br>
-                Learner.<br>
-                <span class="text-accent">Builder.</span>
+            <h1 class="reveal font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+                Hello, I'm<br>
+                <span class="text-lime-accent">Anamol Raj Singh</span>
             </h1>
 
-            <!-- Subtitle -->
-            <p class="reveal text-lg sm:text-xl text-secondary max-w-2xl mb-10 leading-relaxed">
-                Exploring the <span class="text-accent font-medium">Base44 ecosystem</span> — building, experimenting, and documenting the journey of a curious mind at the intersection of technology and intentional living.
+            <!-- Personal Introduction -->
+            <p class="reveal text-lg sm:text-xl text-opacity-70 leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text">
+                A <span class="font-semibold text-lime-accent">student</span>, <span class="font-semibold text-lime-accent">lifelong learner</span>,
+                and curious mind navigating the intersection of technology, ideas, and intentional living.
             </p>
 
-            <!-- CTAs -->
-            <div class="reveal flex flex-col sm:flex-row gap-4 mb-16">
-                <a href="#works" class="btn-primary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm">
-                    Explore Explorations
+            <!-- Short Statement -->
+            <p class="reveal text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-12 hero-statement-text">
+                I believe learning isn't a phase — it's a way of being.
+                This is my corner of the internet where I share what I'm exploring,
+                what I'm building, and what I'm becoming.
+            </p>
+
+            <!-- CTA Buttons -->
+            <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="btn-primary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                    Explore
                     <i class='bx bx-right-arrow-alt'></i>
                 </a>
-                <a href="#stats" class="btn-secondary inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm">
-                    <i class='bx bx-bar-chart-alt-2'></i>
-                    View Learning List
+                <a href="#contact" class="btn-secondary inline-flex items-center gap-2 px-8 py-3.5 rounded-xl font-semibold text-sm">
+                    <i class='bx bx-envelope'></i>
+                    Contact
                 </a>
             </div>
 
-            <!-- Attention Ticker -->
-            <div class="reveal ticker-wrap">
-                <div class="ticker-label">
-                    <i class='bx bx-pulse'></i> LIVE METRICS
-                </div>
-                <div class="ticker-track" id="tickerTrack">
-                    <!-- Filled by JS — duplicated for seamless loop -->
-                </div>
-                <div class="ticker-fade-left"></div>
-                <div class="ticker-fade-right"></div>
+        </div>
+
+        <!-- Scroll hint -->
+        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 reveal">
+            <i class='bx bx-chevrons-down text-xl nav-dim-text animate-bounce-slow'></i>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         ABOUT SECTION
+         A warm, personal section introducing who the user is as a
+         student and learner. Modular — easy to extend or replace.
+         ================================================================ -->
+    <section id="about" class="relative py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="reveal mb-14">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">01 / About</span>
+            </div>
+
+            <div class="reveal glass-card rounded-2xl p-8 sm:p-12">
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+                    Who I am
+                </h2>
+                <p class="text-lg leading-relaxed mb-4 about-text">
+                    I'm a student in the truest sense — not just enrolled somewhere, but genuinely
+                    <span class="text-lime-accent font-medium">curious</span> about how things work and why they matter.
+                    Some days that means diving into code, other days it's philosophy, design, or a conversation
+                    that changes how I see the world.
+                </p>
+                <p class="text-lg leading-relaxed about-text">
+                    I created this space to document the journey — the ideas I'm exploring,
+                    the things I'm learning, and the questions I haven't answered yet.
+                    If any of that resonates, I'd love to connect.
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- ===== STATS DASHBOARD ===== -->
-    <section id="stats" class="relative py-24 sm:py-32 px-5 sm:px-8">
+    <!-- ================================================================
+         INTERESTS SECTION
+         What the user enjoys learning. Cards with glass styling.
+         Modular — easily editable or expandable.
+         ================================================================ -->
+    <section id="interests" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-5xl mx-auto">
             <div class="reveal mb-14">
-                <span class="font-mono text-xs text-accent uppercase tracking-[0.2em]">01 / Metrics</span>
-                <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-3">Quantified Curiosity</h2>
-                <p class="text-secondary mt-3 max-w-lg">A data-driven snapshot of the learning journey — every number tells a story.</p>
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">02 / Interests</span>
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                    What I enjoy learning
+                </h2>
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="1247" data-suffix="h">0</div>
-                    <div class="stat-label">Study Hours</div>
-                    <div class="stat-meta font-mono">↑ 12% this quarter</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Card 1 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-code-alt text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Technology</h3>
+                    <p class="text-sm leading-relaxed card-text">Exploring how software shapes the world — from web development to systems thinking and everything in between.</p>
                 </div>
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="38" data-suffix="">0</div>
-                    <div class="stat-label">Side Experiments</div>
-                    <div class="stat-meta font-mono">avg 3.2 / month</div>
-                </div>
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="156" data-suffix="">0</div>
-                    <div class="stat-label">Concepts Mastered</div>
-                    <div class="stat-meta font-mono">across 7 domains</div>
-                </div>
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="94" data-suffix="%">0</div>
-                    <div class="stat-label">Curiosity Index</div>
-                    <div class="stat-meta font-mono">self-assessed</div>
-                </div>
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="42" data-suffix="">0</div>
-                    <div class="stat-label">Books Read</div>
-                    <div class="stat-meta font-mono">non-fiction heavy</div>
-                </div>
-                <div class="stat-card reveal">
-                    <div class="stat-number font-mono" data-target="215" data-suffix="">0</div>
-                    <div class="stat-label">Coding Puzzles</div>
-                    <div class="stat-meta font-mono">solved &amp; documented</div>
-                </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- ===== SELECTED WORKS ===== -->
-    <section id="works" class="relative py-24 sm:py-32 px-5 sm:px-8">
-        <div class="max-w-5xl mx-auto">
-            <div class="reveal mb-14">
-                <span class="font-mono text-xs text-accent uppercase tracking-[0.2em]">02 / Explorations</span>
-                <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-3">Selected Works</h2>
-                <p class="text-secondary mt-3 max-w-lg">Projects and experiments built while exploring the Base44 platform and beyond.</p>
-            </div>
-
-            <div class="works-grid">
-                <!-- Project 1 -->
-                <article class="work-card reveal">
-                    <div class="work-preview work-preview--1">
-                        <span class="work-preview-label font-mono">BASE44</span>
+                <!-- Card 2 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-book-open text-xl text-lime-accent'></i>
                     </div>
-                    <div class="work-body">
-                        <h3 class="work-title">Agent Playground</h3>
-                        <p class="work-desc">An interactive sandbox for testing Base44 AI agent workflows, tool chaining, and multi-step automations.</p>
-                        <div class="work-tags">
-                            <span class="tag">TypeScript</span>
-                            <span class="tag">Base44 SDK</span>
-                            <span class="tag">AI Agents</span>
-                        </div>
-                        <div class="work-metric font-mono">
-                            <i class='bx bx-check-circle text-accent'></i> 14 agent templates shipped
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Project 2 -->
-                <article class="work-card reveal">
-                    <div class="work-preview work-preview--2">
-                        <span class="work-preview-label font-mono">VIZ</span>
-                    </div>
-                    <div class="work-body">
-                        <h3 class="work-title">Learning Path Visualizer</h3>
-                        <p class="work-desc">An interactive curriculum map showing dependency chains between concepts — built to optimize study order.</p>
-                        <div class="work-tags">
-                            <span class="tag">D3.js</span>
-                            <span class="tag">Graph Theory</span>
-                            <span class="tag">React</span>
-                        </div>
-                        <div class="work-metric font-mono">
-                            <i class='bx bx-git-branch text-accent'></i> 156 nodes mapped
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Project 3 -->
-                <article class="work-card reveal">
-                    <div class="work-preview work-preview--3">
-                        <span class="work-preview-label font-mono">AUDIO</span>
-                    </div>
-                    <div class="work-body">
-                        <h3 class="work-title">Ambient Study Companion</h3>
-                        <p class="work-desc">A Web Audio API lofi player with binaural beats and a Pomodoro timer — designed for deep focus sessions.</p>
-                        <div class="work-tags">
-                            <span class="tag">Web Audio API</span>
-                            <span class="tag">Vanilla JS</span>
-                            <span class="tag">PWA</span>
-                        </div>
-                        <div class="work-metric font-mono">
-                            <i class='bx bx-headphone text-accent'></i> 2.1k sessions logged
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Project 4 -->
-                <article class="work-card reveal">
-                    <div class="work-preview work-preview--4">
-                        <span class="work-preview-label font-mono">NOTES</span>
-                    </div>
-                    <div class="work-body">
-                        <h3 class="work-title">Reading Journal</h3>
-                        <p class="work-desc">A personal knowledge base with Markdown notes, tag-based search, and spaced-repetition flashcards.</p>
-                        <div class="work-tags">
-                            <span class="tag">Markdown</span>
-                            <span class="tag">LocalStorage</span>
-                            <span class="tag">IndexedDB</span>
-                        </div>
-                        <div class="work-metric font-mono">
-                            <i class='bx bx-book text-accent'></i> 340 notes archived
-                        </div>
-                    </div>
-                </article>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== TIMELINE ===== -->
-    <section id="timeline" class="relative py-24 sm:py-32 px-5 sm:px-8">
-        <div class="max-w-3xl mx-auto">
-            <div class="reveal mb-14">
-                <span class="font-mono text-xs text-accent uppercase tracking-[0.2em]">03 / Journey</span>
-                <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-3">Experience Timeline</h2>
-            </div>
-
-            <div class="timeline">
-                <div class="timeline-item reveal">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-date font-mono">2026 — Present</span>
-                        <h3 class="timeline-title">Exploring Base44 Ecosystem</h3>
-                        <p class="timeline-desc">Diving deep into the Base44 platform — building AI agents, automations, and exploring the intersection of no-code and traditional development.</p>
-                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Reading & Ideas</h3>
+                    <p class="text-sm leading-relaxed card-text">Books, essays, and long-form thinking. I'm drawn to writing that challenges how I see things.</p>
                 </div>
-                <div class="timeline-item reveal">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-date font-mono">2025</span>
-                        <h3 class="timeline-title">Web Development Deep Dive</h3>
-                        <p class="timeline-desc">Systematic study of frontend architecture, animation libraries, and performance optimization. Shipped 12 projects to production.</p>
+
+                <!-- Card 3 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-planet text-xl text-lime-accent'></i>
                     </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Current Affairs</h3>
+                    <p class="text-sm leading-relaxed card-text">Staying informed about the world — politics, culture, and the conversations shaping our future.</p>
                 </div>
-                <div class="timeline-item reveal">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-date font-mono">2024</span>
-                        <h3 class="timeline-title">Self-Directed Learning Phase</h3>
-                        <p class="timeline-desc">Began structured self-education — books, courses, and daily coding practice. Established the curiosity-index methodology.</p>
+
+                <!-- Card 4 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-palette text-xl text-lime-accent'></i>
                     </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Design</h3>
+                    <p class="text-sm leading-relaxed card-text">The intersection of aesthetics and function. How good design makes things feel effortless.</p>
                 </div>
-                <div class="timeline-item reveal">
-                    <div class="timeline-dot"></div>
-                    <div class="timeline-content">
-                        <span class="timeline-date font-mono">2023</span>
-                        <h3 class="timeline-title">First Lines of Code</h3>
-                        <p class="timeline-desc">Discovered programming through a school project. Built a simple calculator, fell in love with the craft of building things from nothing.</p>
+
+                <!-- Card 5 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-brain text-xl text-lime-accent'></i>
                     </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Philosophy</h3>
+                    <p class="text-sm leading-relaxed card-text">Questions without easy answers. What it means to live well, think clearly, and stay open.</p>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="reveal glass-card rounded-2xl p-7 group">
+                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
+                        <i class='bx bx-movie-play text-xl text-lime-accent'></i>
+                    </div>
+                    <h3 class="font-display text-lg font-semibold mb-2">Film & Media</h3>
+                    <p class="text-sm leading-relaxed card-text">Stories told well. Cinema, documentaries, and the craft behind meaningful visual storytelling.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ===== CONTACT ===== -->
+    <!-- ================================================================
+         CONTACT SECTION
+         A simple, elegant contact prompt with social links.
+         ================================================================ -->
     <section id="contact" class="relative py-24 sm:py-32 px-5 sm:px-8">
-        <div class="max-w-3xl mx-auto">
-            <div class="reveal mb-14">
-                <span class="font-mono text-xs text-accent uppercase tracking-[0.2em]">04 / Connect</span>
-                <h2 class="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-3">Let's Build Together</h2>
-                <p class="text-secondary mt-3 max-w-lg">Whether it's a shared interest, a collaboration, or just a hello — the terminal is always open.</p>
+        <div class="max-w-3xl mx-auto text-center">
+            <div class="reveal mb-10">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Contact</span>
             </div>
 
-            <div class="contact-layout">
-                <!-- Form -->
-                <form class="contact-form reveal" id="contactForm">
-                    <div class="form-field">
-                        <label class="form-label font-mono" for="name">NAME</label>
-                        <input type="text" id="name" name="name" class="form-input" placeholder="Your name" required>
-                    </div>
-                    <div class="form-field">
-                        <label class="form-label font-mono" for="email">EMAIL</label>
-                        <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required>
-                    </div>
-                    <div class="form-field">
-                        <label class="form-label font-mono" for="message">MESSAGE</label>
-                        <textarea id="message" name="message" class="form-input form-textarea" rows="4" placeholder="What's on your mind?" required></textarea>
-                    </div>
-                    <button type="submit" class="btn-primary w-full inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-semibold text-sm">
-                        Send Message
-                        <i class='bx bx-paper-plane'></i>
-                    </button>
-                    <p class="form-status font-mono text-xs" id="formStatus"></p>
-                </form>
+            <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5">
+                Let's connect.
+            </h2>
+            <p class="reveal text-lg leading-relaxed mb-10 about-text max-w-lg mx-auto">
+                Whether it's a shared interest, a question, or just a hello —
+                my inbox is always open.
+            </p>
 
-                <!-- Social Links -->
-                <div class="contact-socials reveal">
-                    <h3 class="contact-socials-title font-mono">DIRECT CHANNELS</h3>
-                    <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-link">
-                        <i class='bx bxl-github'></i>
-                        <span>GitHub</span>
-                        <i class='bx bx-link-external social-link-arrow'></i>
-                    </a>
-                    <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-link">
-                        <i class='bx bxl-linkedin-square'></i>
-                        <span>LinkedIn</span>
-                        <i class='bx bx-link-external social-link-arrow'></i>
-                    </a>
-                    <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-link">
-                        <i class='bx bxl-twitter'></i>
-                        <span>Twitter / X</span>
-                        <i class='bx bx-link-external social-link-arrow'></i>
-                    </a>
-                    <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-link">
-                        <i class='bx bxl-youtube'></i>
-                        <span>YouTube</span>
-                        <i class='bx bx-link-external social-link-arrow'></i>
-                    </a>
-                </div>
+            <!-- Social links -->
+            <div class="reveal flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-github text-lg'></i>
+                    <span>GitHub</span>
+                </a>
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-linkedin-square text-lg'></i>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-twitter text-lg'></i>
+                    <span>Twitter</span>
+                </a>
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-pill glass-card rounded-xl px-5 py-3.5 flex items-center gap-2.5 text-sm font-medium transition-all duration-300">
+                    <i class='bx bxl-youtube text-lg'></i>
+                    <span>YouTube</span>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- ===== FOOTER ===== -->
-    <footer class="relative py-10 px-5 sm:px-8 border-t border-subtle" id="footer">
-        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p class="font-mono text-xs text-muted text-center sm:text-left">
-                © 2026 Anamol Raj Singh — Personal Terminal
+    <!-- ================================================================
+         FOOTER
+         Copyright, social links, back-to-top button
+         ================================================================ -->
+    <footer class="relative py-10 px-5 sm:px-8 border-t" id="footer">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+            <!-- Copyright -->
+            <p class="font-mono text-xs nav-dim-text text-center sm:text-left">
+                © 2026 Anamol Raj Singh — All rights reserved.
             </p>
-            <button id="backToTop" class="back-to-top" aria-label="Back to top">
+
+            <!-- Social mini links -->
+            <div class="flex items-center gap-3">
+                <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="GitHub"><i class='bx bxl-github'></i></a>
+                <a href="https://www.linkedin.com/in/anamolrajsingh/" target="_blank" rel="noopener" class="social-mini" aria-label="LinkedIn"><i class='bx bxl-linkedin-square'></i></a>
+                <a href="https://www.x.com/anamolrajsingh" target="_blank" rel="noopener" class="social-mini" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                <a href="https://www.youtube.com/channel/UC70bYQ7RFpNQt_nYXicoL-A" target="_blank" rel="noopener" class="social-mini" aria-label="YouTube"><i class='bx bxl-youtube'></i></a>
+            </div>
+
+            <!-- Back to top -->
+            <button id="backToTop" class="back-to-top-btn" aria-label="Back to top">
                 <i class='bx bx-up-arrow-alt'></i>
             </button>
         </div>
     </footer>
 
+    <!-- ===== JavaScript ===== -->
     <script src="script.js"></script>
 </body>
 </html>
