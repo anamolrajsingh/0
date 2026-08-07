@@ -6,9 +6,6 @@
 
 (function () {
     'use strict';
-    document.title = 'JS:LOADED';
-    var navClockEl = document.getElementById('navClock');
-    if (navClockEl) navClockEl.textContent = 'JS:OK';
 
     // Helper: safe getElementById
     function $(id) { return document.getElementById(id); }
