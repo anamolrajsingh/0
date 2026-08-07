@@ -888,58 +888,6 @@ section, header, footer {
     border-color: var(--border-hover);
 }
 
-/* Spotify Link-out Card */
-.spotify-linkout {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 16px;
-    border-radius: 14px;
-    background: var(--bg-glass);
-    border: 1px solid var(--border-color);
-}
-.spotify-linkout-icon {
-    width: 44px; height: 44px;
-    border-radius: 10px;
-    background: rgba(30, 215, 96, 0.12);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: #1ed760;
-    flex-shrink: 0;
-}
-.spotify-linkout-text {
-    flex: 1; min-width: 0;
-}
-.spotify-linkout-title {
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-.spotify-linkout-sub {
-    font-size: 0.72rem;
-    color: var(--text-dim);
-}
-.spotify-linkout-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    background: #1ed760;
-    color: #000;
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-decoration: none;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
-}
-.spotify-linkout-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(30, 215, 96, 0.35);
-}
-
 /* Mobile: detach the drawer from the trigger's local position and pin it
    as a centered, viewport-safe modal card so it can never overflow off
    the left/right edge of narrow phones (360-420px). */
