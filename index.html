@@ -36,6 +36,10 @@
     <!-- ===== Boxicons ===== -->
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+    <!-- ===== GSAP + ScrollTrigger ===== -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
     <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -51,6 +55,10 @@
         <div class="bg-blob bg-blob--2"></div>
         <div class="bg-grid"></div>
     </div>
+
+    <!-- Custom Cursor (desktop only, hidden on touch) -->
+    <div class="cursor-dot" id="cursorDot"></div>
+    <div class="cursor-ring" id="cursorRing"></div>
 
     <!-- ================================================================
          NAVIGATION
@@ -197,19 +205,19 @@
             </div>
 
             <!-- Headline -->
-            <h1 class="reveal font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6">
+            <h1 class="reveal font-display text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6" data-split-text>
                 Hello, I'm<br>
                 <span class="text-lime-accent">Anamol Raj Singh</span>
             </h1>
 
             <!-- Personal Introduction -->
-            <p class="reveal text-lg sm:text-xl text-opacity-70 leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text">
+            <p class="reveal text-lg sm:text-xl text-opacity-70 leading-relaxed max-w-2xl mx-auto mb-3 hero-intro-text" data-split-text>
                 A <span class="font-semibold text-lime-accent">student</span>, <span class="font-semibold text-lime-accent">lifelong learner</span>,
                 and curious mind navigating the intersection of technology, ideas, and intentional living.
             </p>
 
             <!-- Short Statement -->
-            <p class="reveal text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-12 hero-statement-text">
+            <p class="reveal text-base sm:text-lg leading-relaxed max-w-xl mx-auto mb-12 hero-statement-text" data-split-text>
                 I believe learning isn't a phase — it's a way of being.
                 This is my corner of the internet where I share what I'm exploring,
                 what I'm building, and what I'm becoming.
@@ -247,16 +255,16 @@
             </div>
 
             <div class="reveal glass-card rounded-2xl p-8 sm:p-12">
-                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mb-6" data-split-text>
                     Who I am
                 </h2>
-                <p class="text-lg leading-relaxed mb-4 about-text">
+                <p class="text-lg leading-relaxed mb-4 about-text" data-split-text>
                     I'm a student in the truest sense — not just enrolled somewhere, but genuinely
                     <span class="text-lime-accent font-medium">curious</span> about how things work and why they matter.
                     Some days that means diving into code, other days it's philosophy, design, or a conversation
                     that changes how I see the world.
                 </p>
-                <p class="text-lg leading-relaxed about-text">
+                <p class="text-lg leading-relaxed about-text" data-split-text>
                     I created this space to document the journey — the ideas I'm exploring,
                     the things I'm learning, and the questions I haven't answered yet.
                     If any of that resonates, I'd love to connect.
@@ -267,75 +275,79 @@
 
     <!-- ================================================================
          INTERESTS SECTION
-         What the user enjoys learning. Cards with glass styling.
-         Modular — easily editable or expandable.
+         Varied visual treatments per item — no uniform grid
          ================================================================ -->
     <section id="interests" class="relative py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-5xl mx-auto">
-            <div class="reveal mb-14">
+            <div class="mb-14" data-reveal>
                 <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">02 / Interests</span>
-                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3">
+                <h2 class="font-display text-3xl sm:text-4xl font-bold tracking-tight mt-3" data-split-text>
                     What I enjoy learning
                 </h2>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-                <!-- Card 1 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
-                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
-                        <i class='bx bx-code-alt text-xl text-lime-accent'></i>
-                    </div>
-                    <h3 class="font-display text-lg font-semibold mb-2">Technology</h3>
-                    <p class="text-sm leading-relaxed card-text">Exploring how software shapes the world — from web development to systems thinking and everything in between.</p>
+            <div class="interests-grid">
+                <!-- Technology: bold typography, no card -->
+                <div class="interest-item interest-tech" data-reveal>
+                    <h3 class="interest-tech-title">Technology</h3>
+                    <p class="interest-tech-desc">Exploring how software shapes the world — from web development to systems thinking and everything in between.</p>
                 </div>
 
-                <!-- Card 2 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <!-- Reading & Ideas: small card + rotating quotes -->
+                <div class="interest-item interest-reading glass-card rounded-2xl p-7" data-reveal>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-book-open text-xl text-lime-accent'></i>
                     </div>
-                    <h3 class="font-display text-lg font-semibold mb-2">Reading & Ideas</h3>
-                    <p class="text-sm leading-relaxed card-text">Books, essays, and long-form thinking. I'm drawn to writing that challenges how I see things.</p>
-                </div>
-
-                <!-- Card 3 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
-                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
-                        <i class='bx bx-planet text-xl text-lime-accent'></i>
+                    <h3 class="font-display text-lg font-semibold mb-2">Reading &amp; Ideas</h3>
+                    <p class="text-sm leading-relaxed card-text mb-4">Books, essays, and long-form thinking. Drawn to writing that challenges how I see things.</p>
+                    <div class="quote-rotator" id="quoteRotator">
+                        <p class="quote-text" id="quoteText">"The reading of all good books is like a conversation with the finest minds of past centuries."</p>
+                        <p class="quote-author" id="quoteAuthor">&mdash; Descartes</p>
                     </div>
-                    <h3 class="font-display text-lg font-semibold mb-2">Current Affairs</h3>
-                    <p class="text-sm leading-relaxed card-text">Staying informed about the world — politics, culture, and the conversations shaping our future.</p>
                 </div>
 
-                <!-- Card 4 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <!-- Current Affairs: full-bleed muted texture -->
+                <div class="interest-item interest-affairs" data-reveal>
+                    <div class="interest-affairs-bg"></div>
+                    <div class="interest-affairs-content">
+                        <h3 class="interest-affairs-title">Current Affairs</h3>
+                        <p class="interest-affairs-desc">Staying informed about the world — politics, culture, and the conversations shaping our future.</p>
+                    </div>
+                </div>
+
+                <!-- Design: card with hover annotation -->
+                <div class="interest-item interest-design glass-card rounded-2xl p-7" data-reveal>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-palette text-xl text-lime-accent'></i>
                     </div>
                     <h3 class="font-display text-lg font-semibold mb-2">Design</h3>
                     <p class="text-sm leading-relaxed card-text">The intersection of aesthetics and function. How good design makes things feel effortless.</p>
-                </div>
-
-                <!-- Card 5 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
-                    <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
-                        <i class='bx bx-brain text-xl text-lime-accent'></i>
+                    <div class="design-annotation">
+                        <span class="design-annotation-line"></span>
+                        <p class="design-annotation-text">Good design is as little design as possible. &mdash; Dieter Rams</p>
                     </div>
-                    <h3 class="font-display text-lg font-semibold mb-2">Philosophy</h3>
-                    <p class="text-sm leading-relaxed card-text">Questions without easy answers. What it means to live well, think clearly, and stay open.</p>
                 </div>
 
-                <!-- Card 6 -->
-                <div class="reveal glass-card rounded-2xl p-7 group">
+                <!-- Philosophy: text-only, centered, larger line-height -->
+                <div class="interest-item interest-philosophy" data-reveal>
+                    <h3 class="interest-philosophy-title">Philosophy</h3>
+                    <p class="interest-philosophy-desc">Questions without easy answers. What it means to live well, think clearly, and stay open.</p>
+                </div>
+
+                <!-- Film & Media: card with hover image reveal -->
+                <div class="interest-item interest-film glass-card rounded-2xl p-7 overflow-hidden" data-reveal>
                     <div class="w-11 h-11 rounded-xl glass-icon-wrap flex items-center justify-center mb-5">
                         <i class='bx bx-movie-play text-xl text-lime-accent'></i>
                     </div>
-                    <h3 class="font-display text-lg font-semibold mb-2">Film & Media</h3>
+                    <h3 class="font-display text-lg font-semibold mb-2">Film &amp; Media</h3>
                     <p class="text-sm leading-relaxed card-text">Stories told well. Cinema, documentaries, and the craft behind meaningful visual storytelling.</p>
+                    <div class="film-hover-image">
+                        <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&q=80" alt="Cinema" loading="lazy">
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+        </section>
 
     <!-- ================================================================
          CONTACT SECTION
@@ -347,7 +359,7 @@
                 <span class="font-mono text-xs text-lime-accent uppercase tracking-widest">03 / Contact</span>
             </div>
 
-            <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5">
+            <h2 class="reveal font-display text-3xl sm:text-5xl font-extrabold tracking-tight mb-5" data-split-text>
                 Let's connect.
             </h2>
             <p class="reveal text-lg leading-relaxed mb-10 about-text max-w-lg mx-auto">
