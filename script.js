@@ -258,7 +258,8 @@
                 },
                 events: {
                     onReady: onPlayerReady,
-                    onStateChange: onPlayerStateChange
+                    onStateChange: onPlayerStateChange,
+                    onError: onPlayerError
                 }
             });
         }
@@ -276,6 +277,7 @@
             if (e.data === YT.PlayerState.PLAYING) {
                 setPlayIcons(true);
                 startProgressTimer();
+                skipAttempts = 0; // reset — this track loaded fine
             } else if (e.data === YT.PlayerState.PAUSED) {
                 setPlayIcons(false);
                 stopProgressTimer();
@@ -283,6 +285,23 @@
                 setPlayIcons(false);
                 stopProgressTimer();
                 nextTrack();
+            }
+        }
+
+        // Some videos disable embedding on third-party sites (a permission
+        // the uploader/label sets, not something the player controls) —
+        // error codes 101/150 mean "embedding not allowed". Skip forward
+        // automatically instead of getting stuck on a dead track. Guarded
+        // so we don't infinite-loop if every track in the list is broken.
+        var skipAttempts = 0;
+        function onPlayerError(e) {
+            stopProgressTimer();
+            setPlayIcons(false);
+            skipAttempts++;
+            if (skipAttempts < tracks.length) {
+                nextTrack();
+            } else {
+                skipAttempts = 0;
             }
         }
 
