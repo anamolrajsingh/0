@@ -223,7 +223,6 @@
             ytPlayer = new YT.Player('ytPlayerHost', {
                 height: '1',
                 width: '1',
-                videoId: undefined,
                 playerVars: {
                     listType: 'playlist',
                     list: vibesPlaylistId,
@@ -233,7 +232,8 @@
                     playsinline: 1,
                     modestbranding: 1,
                     rel: 0,
-                    fs: 0
+                    fs: 0,
+                    origin: window.location.origin
                 },
                 events: {
                     onReady: onPlayerReady,
@@ -248,8 +248,8 @@
             ytPlayer.setVolume(parseInt(volumeSlider.value, 10));
             if (ytPlayer && typeof ytPlayer.cuePlaylist === 'function') {
                 ytPlayer.cuePlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });
+                setTimeout(function () { syncYouTubeTrackMeta(0); }, 800);
             }
-            syncYouTubeTrackMeta(0);
             if (pendingAutoplay) {
                 ytPlayer.playVideo();
                 pendingAutoplay = false;
@@ -280,8 +280,12 @@
             renderQueue();
         }
         function onPlayerStateChange(e) {
+            if (e.data === 5) {
+                syncYouTubeTrackMeta(0);
+                return;
+            }
             if (e.data === YT.PlayerState.PLAYING) {
-                syncYouTubeTrackMeta();
+                syncYouTubeTrackMeta(0);
                 setPlayIcons(true);
                 startProgressTimer();
                 skipAttempts = 0; // reset — this track loaded fine
