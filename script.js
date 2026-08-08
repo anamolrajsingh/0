@@ -162,7 +162,15 @@
 
         function renderTrackMeta() {
             var t = tracks[trackIndex];
-            if (!t) return;
+            if (!t) {
+                miniThumb.removeAttribute('src');
+                expandedThumb.removeAttribute('src');
+                miniTitle.textContent = 'YouTube Playlist';
+                miniArtist.textContent = 'Your Vibes playlist';
+                expandedTitle.textContent = 'YouTube Playlist';
+                expandedArtist.textContent = 'Your Vibes playlist';
+                return;
+            }
             miniThumb.src = t.thumbnailUrl;
             miniThumb.alt = t.title;
             miniTitle.textContent = t.title;
@@ -237,21 +245,27 @@
 
         function onPlayerReady() {
             isPlayerReady = true;
-            if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
-                ytPlayer.loadPlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });
-            }
             ytPlayer.setVolume(parseInt(volumeSlider.value, 10));
+            if (ytPlayer && typeof ytPlayer.cuePlaylist === 'function') {
+                ytPlayer.cuePlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });
+            }
+            syncYouTubeTrackMeta(0);
             if (pendingAutoplay) {
                 ytPlayer.playVideo();
                 pendingAutoplay = false;
             }
         }
 
-        function syncYouTubeTrackMeta() {
+        function syncYouTubeTrackMeta(attempt) {
             if (!ytPlayer || typeof ytPlayer.getVideoData !== 'function') return;
             var data = ytPlayer.getVideoData() || {};
             var id = data.video_id;
-            if (!id) return;
+            if (!id) {
+                if ((attempt || 0) < 8) {
+                    setTimeout(function () { syncYouTubeTrackMeta((attempt || 0) + 1); }, 400);
+                }
+                return;
+            }
             var title = data.title || 'Now Playing';
             var author = data.author || 'YouTube';
             var current = {
@@ -263,8 +277,8 @@
             tracks = [current];
             trackIndex = 0;
             renderTrackMeta();
+            renderQueue();
         }
-
         function onPlayerStateChange(e) {
             if (e.data === YT.PlayerState.PLAYING) {
                 syncYouTubeTrackMeta();
@@ -291,7 +305,7 @@
             stopProgressTimer();
             setPlayIcons(false);
             skipAttempts++;
-            if (skipAttempts < tracks.length) {
+            if (skipAttempts < 20) {
                 nextTrack();
             } else {
                 skipAttempts = 0;
