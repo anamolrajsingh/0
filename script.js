@@ -106,7 +106,7 @@
            Swap these out any time — just objects with:
            { title, artist, youtubeVideoId, thumbnailUrl }
            -------------------------------------------------------- */
-        var tracks = [
+        var defaultTracks = [
             {
                 title: 'Never Gonna Give You Up',
                 artist: 'Rick Astley',
@@ -132,6 +132,9 @@
                 thumbnailUrl: 'https://img.youtube.com/vi/60ItHLz5WEA/hqdefault.jpg'
             }
         ];
+        var tracks = Array.isArray(window.VIBES_TRACKS) && window.VIBES_TRACKS.length
+            ? window.VIBES_TRACKS
+            : defaultTracks;
         var trackIndex = 0;
 
         /* --------------------------------------------------------
@@ -168,8 +171,9 @@
            PLAYER STATE
            -------------------------------------------------------- */
         var ytPlayer = null;
-        var ytApiReady = false;
+        var ytApiReady = !!(window.YT && window.YT.Player);
         var ytApiLoading = false;
+        var ytApiCallbacks = [];
         var isPlayerReady = false;
         var pendingAutoplay = false;
         var progressTimer = null;
@@ -222,23 +226,20 @@
         function ensureYouTubeApi(callback) {
             if (ytApiReady && window.YT && window.YT.Player) { callback(); return; }
 
+            ytApiCallbacks.push(callback);
+
             if (!ytApiLoading) {
                 ytApiLoading = true;
+                var previousReady = window.onYouTubeIframeAPIReady;
                 window.onYouTubeIframeAPIReady = function () {
+                    if (typeof previousReady === 'function') previousReady();
                     ytApiReady = true;
-                    callback();
+                    ytApiCallbacks.splice(0).forEach(function (cb) { cb(); });
                 };
                 var tag = document.createElement('script');
                 tag.src = 'https://www.youtube.com/iframe_api';
+                tag.async = true;
                 document.head.appendChild(tag);
-            } else {
-                // API script already requested — chain onto whichever callback wins
-                var prevReady = window.onYouTubeIframeAPIReady;
-                window.onYouTubeIframeAPIReady = function () {
-                    if (prevReady) prevReady();
-                    ytApiReady = true;
-                    callback();
-                };
             }
         }
 
@@ -360,6 +361,7 @@
             seekBar.style.setProperty('--yt-fill', '0%');
             timeElapsed.textContent = '0:00';
             timeRemaining.textContent = '-0:00';
+            setPlayIcons(false);
 
             if (ytPlayer && isPlayerReady) {
                 if (autoplay) {
@@ -502,6 +504,13 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && isOpen) { closeDrawer(); }
         });
+
+        // Expose a tiny hook for future playlist swaps without editing the widget internals.
+        window.setVibesTracks = function (nextTracks) {
+            if (!Array.isArray(nextTracks) || !nextTracks.length) return;
+            tracks = nextTracks;
+            loadTrack(0, false);
+        };
 
         // Render initial meta so the mini player shows something before first open
         renderTrackMeta();
