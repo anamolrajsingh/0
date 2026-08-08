@@ -1,0 +1,52 @@
+name: Fix YouTube IFrame player viewport
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix YouTube player requirements
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          js = Path('script.js')
+          s = js.read_text()
+
+          # YouTube requires an embedded player viewport of at least 200x200.
+          s = s.replace("                height: '1',\n                width: '1',\n                videoId: undefined,\n", "                height: '200',\n                width: '200',\n")
+          s = s.replace("                    fs: 0\n", "                    fs: 0,\n                    origin: window.location.origin\n")
+
+          old_ready = """            if (ytPlayer && typeof ytPlayer.cuePlaylist === 'function') {\n                ytPlayer.cuePlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });\n            }\n            syncYouTubeTrackMeta(0);\n"""
+          new_ready = """            if (ytPlayer && typeof ytPlayer.cuePlaylist === 'function') {\n                ytPlayer.cuePlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });\n                setTimeout(function () { syncYouTubeTrackMeta(0); }, 800);\n            }\n"""
+          if old_ready in s:
+              s = s.replace(old_ready, new_ready, 1)
+
+          old_state = """        function onPlayerStateChange(e) {\n            if (e.data === YT.PlayerState.PLAYING) {\n                syncYouTubeTrackMeta();\n                setPlayIcons(true);\n"""
+          new_state = """        function onPlayerStateChange(e) {\n            if (e.data === 5) {\n                syncYouTubeTrackMeta(0);\n                return;\n            }\n            if (e.data === YT.PlayerState.PLAYING) {\n                syncYouTubeTrackMeta(0);\n                setPlayIcons(true);\n"""
+          if old_state in s:
+              s = s.replace(old_state, new_state, 1)
+
+          js.write_text(s)
+
+          css = Path('style.css')
+          c = css.read_text()
+          marker = '/* Vibes YouTube IFrame API viewport fix */'
+          if marker not in c:
+              c += """\n\n/* Vibes YouTube IFrame API viewport fix */\n.yt-hidden-host {\n    position: absolute;\n    width: 200px;\n    height: 200px;\n    overflow: hidden;\n    opacity: 0;\n    pointer-events: none;\n    left: -10000px;\n    top: 0;\n}\n.yt-hidden-host iframe {\n    width: 200px !important;\n    height: 200px !important;\n    display: block;\n}\n"""
+              css.write_text(c)
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add script.js style.css
+          git commit -m 'Fix YouTube Vibes player viewport and playlist loading' || exit 0
+          git push
