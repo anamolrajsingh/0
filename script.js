@@ -84,22 +84,17 @@
     /* ============================================================
        3. MUSIC WIDGET
        Apple-Music-style YouTube player with REAL playback control
-       via the YouTube IFrame Player API, plus a simple Spotify
-       "open in app" link-out card (Spotify Web Playback needs
-       Premium + OAuth, so we don't fake in-page playback for it).
+       via the YouTube IFrame Player API.
        ============================================================ */
     (function initMusicWidget() {
         var toggle = document.getElementById('vibesToggle');
         var drawer = document.getElementById('vibesDrawer');
         var closeBtn = document.getElementById('vibesClose');
-        var tabs = document.querySelectorAll('.vibes-tab');
-        var spotifyPane = document.getElementById('spotifyPane');
         var ytPane = document.getElementById('ytPane');
 
         if (!toggle || !drawer) return; // guard: widget not present on this page
 
         var isOpen = false;
-        var currentSource = 'ytmusic';
 
         /* --------------------------------------------------------
            PLAYLIST DATA
@@ -449,36 +444,14 @@
         });
 
         /* --------------------------------------------------------
-           TABS — YouTube (real player) vs Spotify (link-out)
-           -------------------------------------------------------- */
-        function activateTab(source) {
-            currentSource = source;
-            tabs.forEach(function (t) {
-                t.classList.toggle('active', t.getAttribute('data-source') === source);
-            });
-            spotifyPane.hidden = source !== 'spotify';
-            ytPane.hidden = source !== 'ytmusic';
-
-            if (source === 'ytmusic') {
-                ensureYouTubeApi(function () {
-                    if (!ytPlayer) createPlayer();
-                });
-            }
-        }
-
-        tabs.forEach(function (tab) {
-            tab.addEventListener('click', function () {
-                activateTab(tab.getAttribute('data-source'));
-            });
-        });
-
-        /* --------------------------------------------------------
            DRAWER OPEN / CLOSE
            -------------------------------------------------------- */
         function openDrawer() {
             isOpen = true;
             drawer.classList.add('active');
-            activateTab(currentSource);
+            ensureYouTubeApi(function () {
+                if (!ytPlayer) createPlayer();
+            });
         }
 
         function closeDrawer() {
