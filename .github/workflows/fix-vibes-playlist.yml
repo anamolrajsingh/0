@@ -1,0 +1,56 @@
+name: Fix Vibes playlist initialization
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix playlist player
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('script.js')
+          s = p.read_text()
+
+          old = """        function renderTrackMeta() {\n            var t = tracks[trackIndex];\n            if (!t) return;\n            miniThumb.src = t.thumbnailUrl;\n            miniThumb.alt = t.title;\n            miniTitle.textContent = t.title;\n            miniArtist.textContent = t.artist;\n            expandedThumb.src = t.thumbnailUrl;\n            expandedThumb.alt = t.title;\n            expandedTitle.textContent = t.title;\n            expandedArtist.textContent = t.artist + ' — YouTube';\n        }"""
+          new = """        function renderTrackMeta() {\n            var t = tracks[trackIndex];\n            if (!t) {\n                miniThumb.removeAttribute('src');\n                expandedThumb.removeAttribute('src');\n                miniTitle.textContent = 'YouTube Playlist';\n                miniArtist.textContent = 'Your Vibes playlist';\n                expandedTitle.textContent = 'YouTube Playlist';\n                expandedArtist.textContent = 'Your Vibes playlist';\n                return;\n            }\n            miniThumb.src = t.thumbnailUrl;\n            miniThumb.alt = t.title;\n            miniTitle.textContent = t.title;\n            miniArtist.textContent = t.artist;\n            expandedThumb.src = t.thumbnailUrl;\n            expandedThumb.alt = t.title;\n            expandedTitle.textContent = t.title;\n            expandedArtist.textContent = t.artist + ' — YouTube';\n        }"""
+          if old not in s:
+              raise SystemExit('renderTrackMeta block not found')
+          s = s.replace(old, new, 1)
+
+          old = """        function onPlayerReady() {\n            isPlayerReady = true;\n            if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {\n                ytPlayer.loadPlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });\n            }\n            ytPlayer.setVolume(parseInt(volumeSlider.value, 10));\n            if (pendingAutoplay) {\n                ytPlayer.playVideo();\n                pendingAutoplay = false;\n            }\n        }"""
+          new = """        function onPlayerReady() {\n            isPlayerReady = true;\n            ytPlayer.setVolume(parseInt(volumeSlider.value, 10));\n            if (ytPlayer && typeof ytPlayer.cuePlaylist === 'function') {\n                ytPlayer.cuePlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });\n            }\n            syncYouTubeTrackMeta(0);\n            if (pendingAutoplay) {\n                ytPlayer.playVideo();\n                pendingAutoplay = false;\n            }\n        }"""
+          if old not in s:
+              raise SystemExit('onPlayerReady block not found')
+          s = s.replace(old, new, 1)
+
+          start = s.index('        function syncYouTubeTrackMeta() {')
+          end = s.index('\n        function onPlayerStateChange(e) {', start)
+          new_sync = """        function syncYouTubeTrackMeta(attempt) {\n            if (!ytPlayer || typeof ytPlayer.getVideoData !== 'function') return;\n            var data = ytPlayer.getVideoData() || {};\n            var id = data.video_id;\n            if (!id) {\n                if ((attempt || 0) < 8) {\n                    setTimeout(function () { syncYouTubeTrackMeta((attempt || 0) + 1); }, 400);\n                }\n                return;\n            }\n            var title = data.title || 'Now Playing';\n            var author = data.author || 'YouTube';\n            var current = {\n                title: title,\n                artist: author,\n                youtubeVideoId: id,\n                thumbnailUrl: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'\n            };\n            tracks = [current];\n            trackIndex = 0;\n            renderTrackMeta();\n            renderQueue();\n        }\n"""
+          s = s[:start] + new_sync + s[end+1:]
+
+          s = s.replace("            if (skipAttempts < tracks.length) {\n                nextTrack();\n            } else {", "            if (skipAttempts < 20) {\n                nextTrack();\n            } else {")
+
+          p.write_text(s)
+          PY
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add script.js
+          git commit -m 'Fix Vibes playlist loading and track metadata' || true
+          git push
+
+          rm -f .github/workflows/fix-vibes-playlist.yml
+          git add .github/workflows/fix-vibes-playlist.yml
+          git commit -m 'Remove temporary playlist fix workflow' || true
+          git push
