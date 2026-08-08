@@ -1,0 +1,64 @@
+name: Remove Vibes demo songs
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove demo music data and stale Spotify references
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          # JS: remove the hard-coded demo playlist and make the YouTube playlist authoritative.
+          p = Path('script.js')
+          s = p.read_text()
+          s = re.sub(r"\n\s*var defaultTracks\s*=\s*\[.*?\n\s*\];\n\s*var tracks\s*=\s*Array\.isArray\(window\.VIBES_TRACKS\).*?\n\s*\s*:\s*defaultTracks;", "\n        var tracks = Array.isArray(window.VIBES_TRACKS) ? window.VIBES_TRACKS : [];", s, count=1, flags=re.S)
+          s = s.replace('Music widget (Spotify + YT Music player)', 'Music widget (YouTube playlist player)')
+          # Keep the playlist-driven player from calling demo-track methods when no local track data exists.
+          s = s.replace("            if (!t) return;\n            miniThumb.src", "            if (!t) return;\n            miniThumb.src")
+          # Add current YouTube metadata syncing.
+          marker = "        function onPlayerStateChange(e) {"
+          helper = """        function syncYouTubeTrackMeta() {\n            if (!ytPlayer || typeof ytPlayer.getVideoData !== 'function') return;\n            var data = ytPlayer.getVideoData() || {};\n            var id = data.video_id;\n            if (!id) return;\n            var title = data.title || 'Now Playing';\n            var author = data.author || 'YouTube';\n            var current = {\n                title: title,\n                artist: author,\n                youtubeVideoId: id,\n                thumbnailUrl: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'\n            };\n            tracks = [current];\n            trackIndex = 0;\n            renderTrackMeta();\n        }\n\n"""
+          if helper not in s:
+              s = s.replace(marker, helper + marker, 1)
+          s = s.replace("                setPlayIcons(true);\n                startProgressTimer();", "                syncYouTubeTrackMeta();\n                setPlayIcons(true);\n                startProgressTimer();", 1)
+          # Do not use the removed local demo array for playlist navigation.
+          s = re.sub(r"        function nextTrack\(\) \{.*?\n        function prevTrack\(\) \{.*?\n        \}", """        function nextTrack() {\n            if (ytPlayer && isPlayerReady && typeof ytPlayer.nextVideo === 'function') {\n                ytPlayer.nextVideo();\n            }\n        }\n        function prevTrack() {\n            if (ytPlayer && isPlayerReady && typeof ytPlayer.previousVideo === 'function') {\n                ytPlayer.previousVideo();\n            }\n        }""", s, count=1, flags=re.S)
+          # loadTrack is no longer needed for a hard-coded local catalog; queue clicks are disabled until playlist metadata exists.
+          s = s.replace("item.addEventListener('click', function () { loadTrack(i, true); });", "item.addEventListener('click', function () { if (ytPlayer && isPlayerReady) ytPlayer.playVideoAt(i); });")
+          p.write_text(s)
+
+          # HTML: remove stale Spotify wording/comments without changing the player markup.
+          p = Path('index.html')
+          s = p.read_text()
+          s = re.sub(r"\n\s*\+ simple Spotify \"open in app\" link-out card", "", s, flags=re.I)
+          s = re.sub(r"\n\s*<!--[^>]*Spotify[^>]*-->", "", s, flags=re.I)
+          p.write_text(s)
+
+          # CSS: remove obsolete Spotify-specific blocks/comments if present.
+          p = Path('style.css')
+          s = p.read_text()
+          s = re.sub(r"/\*[^*]*Spotify[^*]*\*/", "", s, flags=re.I)
+          s = re.sub(r"[^{}]*spotify[^{}]*\{[^{}]*\}", "", s, flags=re.I)
+          p.write_text(s)
+          PY
+
+          # Ensure no demo-song names remain in the three requested frontend files.
+          ! grep -Eiq 'Never Gonna Give You Up|Uptown Funk|Shape of You|Alan Walker|Rick Astley|Mark Ronson|Bruno Mars|Ed Sheeran' index.html style.css script.js
+
+          rm -f .github/workflows/remove-vibes-demo-songs.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html style.css script.js .github/workflows/remove-vibes-demo-songs.yml
+          git commit -m 'Remove demo songs from Vibes player' || exit 0
+          git push
