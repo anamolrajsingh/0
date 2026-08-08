@@ -5,7 +5,7 @@
    Handles:
    1. Theme toggle (dark/light with system detection)
    2. Live clock (Nepal timezone)
-   3. Music widget (Spotify + YT Music player)
+   3. Music widget (YouTube playlist player)
    4. Navbar scroll effect + active link tracking
    5. Mobile menu toggle
    6. Smooth scroll (with navbar offset)
@@ -102,35 +102,7 @@
            Swap these out any time — just objects with:
            { title, artist, youtubeVideoId, thumbnailUrl }
            -------------------------------------------------------- */
-        var defaultTracks = [
-            {
-                title: 'Never Gonna Give You Up',
-                artist: 'Rick Astley',
-                youtubeVideoId: 'dQw4w9WgXcQ',
-                thumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg'
-            },
-            {
-                title: 'Uptown Funk',
-                artist: 'Mark Ronson ft. Bruno Mars',
-                youtubeVideoId: 'OPf0YbXqDm0',
-                thumbnailUrl: 'https://img.youtube.com/vi/OPf0YbXqDm0/hqdefault.jpg'
-            },
-            {
-                title: 'Shape of You',
-                artist: 'Ed Sheeran',
-                youtubeVideoId: 'JGwWNGJdvx8',
-                thumbnailUrl: 'https://img.youtube.com/vi/JGwWNGJdvx8/hqdefault.jpg'
-            },
-            {
-                title: 'Faded',
-                artist: 'Alan Walker',
-                youtubeVideoId: '60ItHLz5WEA',
-                thumbnailUrl: 'https://img.youtube.com/vi/60ItHLz5WEA/hqdefault.jpg'
-            }
-        ];
-        var tracks = Array.isArray(window.VIBES_TRACKS) && window.VIBES_TRACKS.length
-            ? window.VIBES_TRACKS
-            : defaultTracks;
+        var tracks = Array.isArray(window.VIBES_TRACKS) ? window.VIBES_TRACKS : [];
         var trackIndex = 0;
 
         /* --------------------------------------------------------
@@ -211,7 +183,7 @@
                 item.innerHTML =
                     '<img src="' + t.thumbnailUrl + '" alt="">' +
                     '<span><strong>' + t.title + '</strong><small>' + t.artist + '</small></span>';
-                item.addEventListener('click', function () { loadTrack(i, true); });
+                item.addEventListener('click', function () { if (ytPlayer && isPlayerReady) ytPlayer.playVideoAt(i); });
                 queueList.appendChild(item);
             });
         }
@@ -275,8 +247,27 @@
             }
         }
 
+        function syncYouTubeTrackMeta() {
+            if (!ytPlayer || typeof ytPlayer.getVideoData !== 'function') return;
+            var data = ytPlayer.getVideoData() || {};
+            var id = data.video_id;
+            if (!id) return;
+            var title = data.title || 'Now Playing';
+            var author = data.author || 'YouTube';
+            var current = {
+                title: title,
+                artist: author,
+                youtubeVideoId: id,
+                thumbnailUrl: 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'
+            };
+            tracks = [current];
+            trackIndex = 0;
+            renderTrackMeta();
+        }
+
         function onPlayerStateChange(e) {
             if (e.data === YT.PlayerState.PLAYING) {
+                syncYouTubeTrackMeta();
                 setPlayIcons(true);
                 startProgressTimer();
                 skipAttempts = 0; // reset — this track loaded fine
@@ -381,16 +372,12 @@
         function nextTrack() {
             if (ytPlayer && isPlayerReady && typeof ytPlayer.nextVideo === 'function') {
                 ytPlayer.nextVideo();
-                return;
             }
-            loadTrack(trackIndex + 1, true);
         }
         function prevTrack() {
             if (ytPlayer && isPlayerReady && typeof ytPlayer.previousVideo === 'function') {
                 ytPlayer.previousVideo();
-                return;
             }
-            loadTrack(trackIndex - 1, true);
         }
 
         function seekRelative(delta) {

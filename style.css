@@ -432,79 +432,8 @@ body {
     border-color: var(--lime);
 }
 
-/* --- Vibes pane visibility (Spotify vs YouTube tab) --- */
+
 .vibes-pane[hidden] { display: none; }
-
-/* ============================================================
-   7a. SPOTIFY LINK-OUT CARD
-   Simple "open in app" card — no in-page playback (needs Premium)
-   ============================================================ */
-.spotify-card {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    transition: all var(--dur) var(--ease);
-    cursor: pointer;
-}
-
-.spotify-card:hover {
-    border-color: var(--lime);
-    background: var(--glass-bg-hover);
-}
-
-.spotify-art {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-    border-radius: var(--r-sm);
-    background: linear-gradient(135deg, #1db954, #14532d);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-size: 1.25rem;
-}
-
-.spotify-info {
-    flex: 1;
-    min-width: 0;
-}
-
-.spotify-title {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.spotify-sub {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-.spotify-open-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--lime);
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-
-.spotify-note {
-    margin-top: 0.75rem;
-    font-size: 0.7rem;
-    color: var(--text-dim);
-    line-height: 1.5;
-}
 
 /* ============================================================
    7b. YOUTUBE PLAYER — HIDDEN IFRAME HOST
