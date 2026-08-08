@@ -83,7 +83,7 @@
 
     /* ============================================================
        3. MUSIC WIDGET
-       Apple-Music-style YouTube player with REAL playback control
+       Apple-Music-style YouTube playlist player with REAL playback control
        via the YouTube IFrame Player API.
        ============================================================ */
     (function initMusicWidget() {
@@ -95,6 +95,7 @@
         if (!toggle || !drawer) return; // guard: widget not present on this page
 
         var isOpen = false;
+        var vibesPlaylistId = 'PLNyNAs0WPlfU';
 
         /* --------------------------------------------------------
            PLAYLIST DATA
@@ -242,8 +243,10 @@
             ytPlayer = new YT.Player('ytPlayerHost', {
                 height: '1',
                 width: '1',
-                videoId: tracks[trackIndex].youtubeVideoId,
+                videoId: undefined,
                 playerVars: {
+                    listType: 'playlist',
+                    list: vibesPlaylistId,
                     autoplay: 0,
                     controls: 0,
                     disablekb: 1,
@@ -262,6 +265,9 @@
 
         function onPlayerReady() {
             isPlayerReady = true;
+            if (ytPlayer && typeof ytPlayer.loadPlaylist === 'function') {
+                ytPlayer.loadPlaylist({ listType: 'playlist', list: vibesPlaylistId, index: 0 });
+            }
             ytPlayer.setVolume(parseInt(volumeSlider.value, 10));
             if (pendingAutoplay) {
                 ytPlayer.playVideo();
@@ -372,8 +378,20 @@
             }
         }
 
-        function nextTrack() { loadTrack(trackIndex + 1, true); }
-        function prevTrack() { loadTrack(trackIndex - 1, true); }
+        function nextTrack() {
+            if (ytPlayer && isPlayerReady && typeof ytPlayer.nextVideo === 'function') {
+                ytPlayer.nextVideo();
+                return;
+            }
+            loadTrack(trackIndex + 1, true);
+        }
+        function prevTrack() {
+            if (ytPlayer && isPlayerReady && typeof ytPlayer.previousVideo === 'function') {
+                ytPlayer.previousVideo();
+                return;
+            }
+            loadTrack(trackIndex - 1, true);
+        }
 
         function seekRelative(delta) {
             if (!ytPlayer || !isPlayerReady) return;
