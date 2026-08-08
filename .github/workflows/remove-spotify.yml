@@ -1,0 +1,42 @@
+name: Remove Spotify from Vibes
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove Spotify integration
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          index = Path('index.html')
+          s = index.read_text()
+          s = re.sub(r'\n\s*<!-- Tab switcher -->.*?\n\s*<!-- ===== YOUTUBE:', '\n\n            <!-- ===== YOUTUBE:', s, count=1, flags=re.S)
+          index.write_text(s)
+
+          js = Path('script.js')
+          s = js.read_text()
+          s = s.replace('       3. Music widget (Spotify + YT Music player)', '       3. Music widget (YT Music player)')
+          s = s.replace('       via the YouTube IFrame Player API, plus a simple Spotify\n       "open in app" link-out card (Spotify Web Playback needs\n       Premium + OAuth, so we don\'t fake in-page playback for it).', '       via the YouTube IFrame Player API.')
+          s = s.replace("        var tabs = document.querySelectorAll('.vibes-tab');\n        var spotifyPane = document.getElementById('spotifyPane');\n", '')
+          s = s.replace("        var currentSource = 'ytmusic';\n", '')
+          s = re.sub(r'\n        /\* --------------------------------------------------------\n           TABS — YouTube \(real player\) vs Spotify \(link-out\)\n           -------------------------------------------------------- \*/.*?\n        /\* --------------------------------------------------------\n           DRAWER OPEN / CLOSE', '\n        /* --------------------------------------------------------\n           DRAWER OPEN / CLOSE', s, count=1, flags=re.S)
+          s = s.replace('            activateTab(currentSource);\n', '            ensureYouTubeApi(function () {\n                if (!ytPlayer) createPlayer();\n            });\n')
+          js.write_text(s)
+          PY
+
+          rm -f .github/workflows/remove-spotify.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html script.js .github/workflows/remove-spotify.yml
+          git commit -m 'Remove Spotify link from Vibes section' || exit 0
+          git push
