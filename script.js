@@ -150,6 +150,8 @@
     var queueList = document.getElementById('ytQueueList');
     var collapseBtn = document.getElementById('ytCollapseBtn');
     var isScrubbing = false;
+    var errorRetryCount = 0;
+    var MAX_ERROR_RETRIES = 3;
 
     function fmt(sec) {
         sec = Math.max(0, Math.floor(Number(sec) || 0));
@@ -222,13 +224,22 @@
                     if (state === YT.PlayerState.CUED || state === YT.PlayerState.PLAYING || state === YT.PlayerState.PAUSED) {
                         setTimeout(refreshMeta, 100);
                     }
-                    if (state === YT.PlayerState.PLAYING) { setPlaying(true); startProgress(); }
+                    if (state === YT.PlayerState.PLAYING) { setPlaying(true); startProgress(); errorRetryCount = 0; }
                     else if (state === YT.PlayerState.PAUSED) { setPlaying(false); stopProgress(); }
                     else if (state === YT.PlayerState.ENDED) { setPlaying(false); stopProgress(); player.nextVideo(); }
                 },
                 onError: function () {
                     setPlaying(false);
-                    text(expandedTitle, 'Unable to play this video');
+                    errorRetryCount++;
+                    if (errorRetryCount > MAX_ERROR_RETRIES) {
+                        text(expandedTitle, 'Playlist unavailable');
+                        text(expandedArtist, 'Please try again later');
+                        text(miniTitle, 'Playlist unavailable');
+                        text(miniArtist, 'Error');
+                        stopProgress();
+                        return;
+                    }
+                    text(expandedTitle, 'Skipping unavailable track…');
                     text(expandedArtist, 'YouTube');
                     setTimeout(function () { if (player) player.nextVideo(); }, 600);
                 }
