@@ -37,6 +37,8 @@
     --glass-bg: rgba(255, 255, 255, 0.03);
     --glass-bg-hover: rgba(255, 255, 255, 0.06);
     --glass-blur: 16px;
+    --player-bg: rgba(17, 18, 20, 0.78);
+    --player-bg-hover: rgba(25, 26, 30, 0.85);
     --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.4);
     
@@ -63,9 +65,11 @@
     --text-dim: #a1a1aa;
     --border: rgba(0, 0, 0, 0.08);
     --border-strong: rgba(0, 0, 0, 0.14);
-    --glass-bg: rgba(255, 255, 255, 0.5);
-    --glass-bg-hover: rgba(255, 255, 255, 0.7);
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-bg-hover: rgba(255, 255, 255, 0.85);
     --glass-blur: 20px;
+    --player-bg: rgba(255, 255, 255, 0.82);
+    --player-bg-hover: rgba(255, 255, 255, 0.92);
     --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
     --lime: #65a30d;
@@ -440,15 +444,6 @@ body {
    Audio-only experience — the actual <iframe> is invisible;
    only the thumbnail image is shown as the visual.
    ============================================================ */
-.yt-hidden-host {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    top: -9999px;
-    left: -9999px;
-}
-
 /* ============================================================
    7c. PLAYER VIEWS CONTAINER (mini <-> expanded)
    ============================================================ */
@@ -462,7 +457,7 @@ body {
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem;
-    background: rgba(17, 18, 20, 0.72);
+    background: var(--player-bg);
     backdrop-filter: blur(18px) saturate(1.4);
     -webkit-backdrop-filter: blur(18px) saturate(1.4);
     border: 1px solid var(--border);
@@ -474,7 +469,7 @@ body {
 
 .yt-mini-player:hover {
     border-color: var(--border-strong);
-    background: var(--glass-bg-hover);
+    background: var(--player-bg-hover);
 }
 
 .yt-mini-thumb {
@@ -484,6 +479,11 @@ body {
     object-fit: cover;
     flex-shrink: 0;
     background: var(--bg-elevated);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+}
+.yt-mini-thumb.is-loaded {
+    opacity: 1;
 }
 
 .yt-mini-info {
@@ -591,6 +591,11 @@ body {
     background: var(--bg-elevated);
     box-shadow: var(--shadow-lg);
     margin-bottom: 1rem;
+    opacity: 0;
+    transition: opacity 0.3s var(--ease);
+}
+.yt-expanded-thumb.is-loaded {
+    opacity: 1;
 }
 
 .yt-expanded-titlerow {
@@ -809,6 +814,11 @@ body {
     border-radius: 6px;
     object-fit: cover;
     flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease);
+}
+.yt-queue-item img.is-loaded {
+    opacity: 1;
 }
 
 .yt-queue-item span {

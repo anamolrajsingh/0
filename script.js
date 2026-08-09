@@ -203,8 +203,14 @@
             var t = tracks[index];
             if (!t) return;
             var img = t.thumbnailUrl || thumbUrl(t.youtubeVideoId);
-            if (expandedThumb) { expandedThumb.src = img; expandedThumb.alt = t.title; }
-            if (miniThumb) { miniThumb.src = img; miniThumb.alt = t.title; }
+            [expandedThumb, miniThumb].forEach(function (el) {
+                if (!el) return;
+                el.classList.remove('is-loaded');
+                el.onload = function () { el.classList.add('is-loaded'); };
+                el.onerror = function () { el.classList.remove('is-loaded'); };
+                el.src = img;
+                el.alt = t.title;
+            });
             setText(expandedTitle, t.title);
             setText(miniTitle, t.title);
             setText(expandedArtist, t.artist + ' — YouTube');
@@ -331,9 +337,11 @@
                 item.className = 'yt-queue-item' + (i === trackIndex ? ' active' : '');
                 item.setAttribute('data-index', i);
                 var img = document.createElement('img');
-                img.src = t.thumbnailUrl || thumbUrl(t.youtubeVideoId);
                 img.alt = t.title;
                 img.loading = 'lazy';
+                img.classList.add('yt-queue-img');
+                img.onload = function () { this.classList.add('is-loaded'); };
+                img.src = t.thumbnailUrl || thumbUrl(t.youtubeVideoId);
                 var span = document.createElement('span');
                 var strong = document.createElement('strong');
                 strong.textContent = t.title;
