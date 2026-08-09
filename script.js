@@ -75,18 +75,23 @@
 
     /* ---------------- SCROLL REVEAL ---------------- */
     var revealItems = document.querySelectorAll('.reveal');
+    function revealAll() {
+        revealItems.forEach(function (el) { el.classList.add('visible'); });
+    }
     if ('IntersectionObserver' in window) {
         var observer = new IntersectionObserver(function (entries, obs) {
             entries.forEach(function (entry) {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('revealed');
+                    entry.target.classList.add('visible');
                     obs.unobserve(entry.target);
                 }
             });
         }, { threshold: 0.08 });
         revealItems.forEach(function (el) { observer.observe(el); });
+        /* Safety fallback: never leave the entire page hidden if the observer is blocked. */
+        setTimeout(revealAll, 1500);
     } else {
-        revealItems.forEach(function (el) { el.classList.add('revealed'); });
+        revealAll();
     }
 
     /* ---------------- SMOOTH SCROLL ---------------- */
