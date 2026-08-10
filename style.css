@@ -108,6 +108,34 @@ body {
 .text-muted\/70 { color: var(--text-dim); }
 .border-border { border-color: var(--border); }
 
+
+/* ============================================================
+   SAFE-AREA SUPPORT (notched / rounded-corner phones)
+   Ensures content isn't obscured by iOS notches, Android
+   punch-holes, or home-indicator bars.
+   ============================================================ */
+
+/* Header: push glass-nav below notch/punch-hole */
+#navbar {
+    padding-top: env(safe-area-inset-top);
+}
+
+/* Vibes drawer: offset from notch (top) and rounded edge (right) */
+#vibesDrawer {
+    top: calc(5rem + env(safe-area-inset-top)) !important;
+    right: calc(1rem + env(safe-area-inset-right)) !important;
+}
+
+/* Footer: add bottom safe-area for home indicator */
+footer {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom)) !important;
+}
+
+/* Mobile menu: account for safe-area top already on #navbar */
+#mobileMenu {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
 /* ============================================================
    3. BACKGROUND DECORATION
    Subtle blob shapes + grid pattern for depth
@@ -879,17 +907,22 @@ body {
    9. RESPONSIVE ADJUSTMENTS
    ============================================================ */
 
-/* --- Tablet & below --- */
+/* --- Tablet & below (768px) --- */
 @media (max-width: 768px) {
     .bg-blob { filter: blur(60px); }
     
     .bg-grid {
         background-size: 40px 40px;
     }
+
+    /* Ensure music drawer doesn't overflow on tablets in portrait */
+    #vibesDrawer {
+        max-width: calc(100vw - 2rem - env(safe-area-inset-right));
+    }
 }
 
-/* --- Mobile --- */
-@media (max-width: 480px) {
+/* --- Small phones (430px and below: modern iPhones) --- */
+@media (max-width: 430px) {
     .bg-blob--1 {
         width: 300px;
         height: 300px;
@@ -900,8 +933,63 @@ body {
         height: 250px;
     }
     
-    /* Tighter hero on small screens */
     #hero { min-height: 100vh; }
+
+    /* Slightly narrower music drawer to prevent edge overflow */
+    #vibesPanel {
+        width: calc(100vw - 2rem - env(safe-area-inset-right));
+        max-width: 20rem;
+    }
+}
+
+/* --- Very small phones (375px: iPhone SE) --- */
+@media (max-width: 375px) {
+    /* Tighten hero spacing */
+    #hero h1 {
+        font-size: 2rem;
+        line-height: 1.15;
+    }
+    
+    /* Compact music drawer further */
+    #vibesPanel {
+        width: calc(100vw - 1.5rem - env(safe-area-inset-right));
+        max-width: 18rem;
+    }
+}
+
+/* --- Budget Android phones (360px) --- */
+@media (max-width: 360px) {
+    /* Prevent nav bar overflow: hide clock on very small screens */
+    #navClock { display: none !important; }
+    
+    /* Tighter hero */
+    #hero h1 {
+        font-size: 1.85rem;
+    }
+    
+    /* Tighter section padding */
+    #about, #interests, #contact {
+        padding-top: 4rem;
+        padding-bottom: 4rem;
+    }
+    
+    /* Music drawer uses almost full width */
+    #vibesPanel {
+        width: calc(100vw - 1rem - env(safe-area-inset-right));
+        max-width: 17rem;
+    }
+}
+
+/* --- Large laptops (1366px+): keep content centered --- */
+@media (min-width: 1366px) {
+    .bg-blob { filter: blur(100px); }
+}
+
+/* --- Ultra-wide desktops (1920px+): prevent stretching --- */
+@media (min-width: 1920px) {
+    .bg-grid {
+        background-size: 80px 80px;
+    }
 }
 
 /* ============================================================
