@@ -109,6 +109,32 @@ body {
 .border-border { border-color: var(--border); }
 
 
+
+/* ============================================================
+   HERO BACKGROUND
+   Dark olive-green radial gradient — soft centered spotlight
+   glow that fades to near-black at the edges. Scoped to #hero
+   only; other sections keep the global bg-decoration.
+   ============================================================ */
+
+#hero {
+    background: radial-gradient(ellipse 70% 60% at 50% 45%,
+        rgba(38, 48, 18, 0.55) 0%,
+        rgba(20, 26, 10, 0.35) 35%,
+        rgba(10, 11, 13, 0.92) 75%,
+        var(--bg) 100%
+    );
+}
+
+[data-theme="light"] #hero {
+    background: radial-gradient(ellipse 70% 60% at 50% 45%,
+        rgba(132, 204, 22, 0.12) 0%,
+        rgba(101, 163, 13, 0.06) 35%,
+        rgba(248, 248, 247, 0.9) 75%,
+        var(--bg) 100%
+    );
+}
+
 /* ============================================================
    SAFE-AREA SUPPORT (notched / rounded-corner phones)
    Ensures content isn't obscured by iOS notches, Android
