@@ -269,6 +269,9 @@
             if (playIcon) playIcon.className = playing ? 'bx bx-pause' : 'bx bx-play';
             if (miniPlayIcon) miniPlayIcon.className = playing ? 'bx bx-pause' : 'bx bx-play';
             if (playBtn) playBtn.classList.toggle('is-playing', playing);
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.playbackState = playing ? 'playing' : 'paused';
+            }
         }
 
         /* --- Display track metadata from our tracks array --- */
@@ -288,6 +291,18 @@
             setText(miniTitle, t.title);
             setText(expandedArtist, t.artist + ' — YouTube');
             setText(miniArtist, t.artist);
+
+            /* Register Media Session metadata for lock-screen / notification controls */
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: t.title,
+                    artist: t.artist,
+                    album: 'anamolrajsingh.com.np',
+                    artwork: [
+                        { src: thumbUrl(t.youtubeVideoId), sizes: '480x360', type: 'image/jpeg' }
+                    ]
+                });
+            }
         }
 
         /* --- Update seek bar + time labels --- */
@@ -315,6 +330,27 @@
         /* --------------------------------------------------------
            YOUTUBE IFRAME API
            -------------------------------------------------------- */
+        /* --------------------------------------------------------
+           MEDIA SESSION API
+           Registers OS-level media controls (lock-screen, notification,
+           Bluetooth, headset) so playback survives backgrounding.
+           -------------------------------------------------------- */
+        function setupMediaSession() {
+            if (!('mediaSession' in navigator) || !player) return;
+            navigator.mediaSession.setActionHandler('play', function () { player.playVideo(); });
+            navigator.mediaSession.setActionHandler('pause', function () { player.pauseVideo(); });
+            navigator.mediaSession.setActionHandler('previoustrack', function () {
+                player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+            });
+            navigator.mediaSession.setActionHandler('nexttrack', function () { player.nextVideo(); });
+            navigator.mediaSession.setActionHandler('seekbackward', function () {
+                player.seekTo(Math.max(0, player.getCurrentTime() - 10), true);
+            });
+            navigator.mediaSession.setActionHandler('seekforward', function () {
+                player.seekTo(player.getCurrentTime() + 10, true);
+            });
+        }
+
         function createPlayer() {
             if (player || !host || !window.YT || !YT.Player) return;
             var first = tracks[trackIndex] || {};
@@ -331,6 +367,7 @@
                         if (volumeSlider) player.setVolume(Number(volumeSlider.value) || 70);
                         player.cueVideoById(first.youtubeVideoId);
                         showTrack(trackIndex);
+                        setupMediaSession();
                         if (pendingPlay) { pendingPlay = false; player.playVideo(); }
                     },
                     onStateChange: function (e) {
