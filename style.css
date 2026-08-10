@@ -118,10 +118,11 @@ body {
    ============================================================ */
 
 #hero {
-    background: radial-gradient(ellipse 70% 60% at 50% 45%,
-        #263012 0%,
-        #161c0a 35%,
-        #0a0b0d 75%,
+    background: radial-gradient(ellipse 90% 80% at 50% 45%,
+        #4a5c1f 0%,
+        #364512 30%,
+        #212b0c 55%,
+        #121608 80%,
         #0a0b0d 100%
     );
 }
