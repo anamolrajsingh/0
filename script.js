@@ -133,7 +133,6 @@
            { title, artist, youtubeVideoId, thumbnailUrl? }
            -------------------------------------------------------- */
         var tracks = [
-            { title: 'Secret Forest 🍃 Chill Lofi Beats', artist: 'YouTube', youtubeVideoId: 'NvftPSb5Xtw' },
             { title: 'Oxygen', artist: 'YouTube', youtubeVideoId: '1Vd_JEBOkkY' },
             { title: 'Rainy Streets', artist: 'YouTube', youtubeVideoId: 'ikbFbkkLfZo' },
             { title: 'I\'m Yours', artist: 'YouTube', youtubeVideoId: 'N-v8uJOnEIs' },
@@ -206,6 +205,34 @@
             { title: 'Neon Nights', artist: 'YouTube', youtubeVideoId: '-ZuPdNjuxck' },
             { title: 'gemini', artist: 'YouTube', youtubeVideoId: 'sckHN082KEk' },
             { title: 'Dreaming', artist: 'YouTube', youtubeVideoId: '78ALoYgjQo0' },
+            { title: 'String Rapsody', artist: 'YouTube', youtubeVideoId: '3_94JBaF3kY' },
+            { title: 'Gumpen', artist: 'YouTube', youtubeVideoId: '7MrEt15sVas' },
+            { title: 'back to the gates', artist: 'YouTube', youtubeVideoId: 'g2oZ6FSl9TU' },
+            { title: 'faces', artist: 'YouTube', youtubeVideoId: 'S8p0crahq3A' },
+            { title: 'Saudade', artist: 'YouTube', youtubeVideoId: 'EcHhTnHOzAk' },
+            { title: 'Tokyo Music Walker - Way Home', artist: 'YouTube', youtubeVideoId: 'DDmCxcLdzqQ' },
+            { title: 'Music For Lo Fi Gaming', artist: 'YouTube', youtubeVideoId: 'YXldjL9Ll-k' },
+            { title: 'Inspirational Cinematic Romantic by Infraction [No Copyright Music] / Your Dream', artist: 'YouTube', youtubeVideoId: '2y48T5b4cJ4' },
+            { title: 'Calm', artist: 'YouTube', youtubeVideoId: 'ZTEwgVmCCwY' },
+            { title: 'Ruck P - Soul Food', artist: 'YouTube', youtubeVideoId: 'vSyPzZ_wsgg' },
+            { title: 'Eyes On The Prize', artist: 'YouTube', youtubeVideoId: 'dB8dlcZdSIE' },
+            { title: 'TWO LANES - Transcend (Official Music Video)', artist: 'YouTube', youtubeVideoId: 'Xv01XtyS07k' },
+            { title: 'bird', artist: 'YouTube', youtubeVideoId: 'mdLHiPX0hDs' },
+            { title: 'Vanilla - Star', artist: 'YouTube', youtubeVideoId: 'N0C-snrKr-0' },
+            { title: 'LoFi Study Success', artist: 'YouTube', youtubeVideoId: 'p1S1YHmVXoQ' },
+            { title: 'MAISON ROYALE - Let Your Body Fly (visual)', artist: 'YouTube', youtubeVideoId: 'z930vGyT5LI' },
+            { title: 'Coffee Break', artist: 'YouTube', youtubeVideoId: 'CUEHRYaTM1k' },
+            { title: '[no copyright music] \'In Dreamland \' background music', artist: 'YouTube', youtubeVideoId: 'DSWYAclv2I8' },
+            { title: 'Cinematic Dramatic Documentary by Infraction [No Copyright Music] / A New Dawn', artist: 'YouTube', youtubeVideoId: 'B0KD2ESTsOI' },
+            { title: 'Vanilla - Coffee', artist: 'YouTube', youtubeVideoId: '8U7ewTH0npo' },
+            { title: 'RŮDE - Eternal Youth', artist: 'YouTube', youtubeVideoId: 'W6hasdx4a1I' },
+            { title: 'Fireplace', artist: 'YouTube', youtubeVideoId: 'IsLFK8TkaVw' },
+            { title: 'lukrembo - butter', artist: 'YouTube', youtubeVideoId: 'Ua7Qfc1xu90' },
+            { title: 'Styles Davis, Venuz Beats - Pivot', artist: 'YouTube', youtubeVideoId: 'DQF0Mat3hQc' },
+            { title: '"Far Away" - Vibey Guitar Beat (Prod. Pacific)', artist: 'YouTube', youtubeVideoId: 'rPEhdesY6uw' },
+            { title: 'lonnex - losing', artist: 'YouTube', youtubeVideoId: 'BgBNLX_3afs' },
+            { title: 'loop.holes - Hold On', artist: 'YouTube', youtubeVideoId: 'o0E25elhZe8' },
+            { title: 'star - it\'s_cold_here', artist: 'YouTube', youtubeVideoId: 'KXGiwLhsASc' }
         ];
 
         var drawer = document.getElementById('vibesDrawer');
