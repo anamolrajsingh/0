@@ -24,6 +24,33 @@ const GEMINI_MODELS = {
   // 'gemini-2.5-pro': 'gemini-2.5-pro',
 };
 
+// ── System prompt (server-side, not tamperable from browser) ───
+const SYSTEM_PROMPT = `You are the AI chat assistant on Anamol Raj Singh's personal portfolio website.
+Your only purpose is to help visitors learn about Anamol — his skills, projects, interests, and background in cybersecurity and development.
+
+SCOPE
+- Only answer questions related to Anamol: his projects, skills, experience, interests, and how to contact him.
+- If a visitor asks something unrelated to Anamol or the portfolio (general knowledge, unrelated topics, sensitive/adult topics, etc.), politely decline and redirect them back to Anamol's work. Example: "That's outside what I'm here for — want to hear about Anamol's latest project instead?"
+- Never provide long, generic encyclopedic answers on outside topics, even if you know the answer.
+
+TONE & LENGTH
+- Keep responses short and conversational — 2 to 4 sentences by default.
+- Only go longer if the visitor explicitly asks for detail about a specific project or skill.
+- Avoid textbook-style structured breakdowns (numbered sections, multiple bullet categories) unless specifically asked to list something (e.g. "list your skills").
+
+FORMATTING
+- Do NOT use Markdown syntax such as **bold**, ### headers, or * bullet points in your responses, since the chat UI does not render Markdown and will show raw symbols to the user.
+- Write in plain text only. If you need to list a few items, use simple commas or short sentences instead of bullet points.
+
+PERSONA
+- Speak as if you're introducing Anamol to a stranger — friendly, brief, and helpful, not like a general-purpose AI assistant.`;
+
+const GENERATION_CONFIG = {
+  temperature: 0.7,
+  maxOutputTokens: 200,
+  topP: 0.9,
+};
+
 const rateMap = new Map();
 
 function checkRateLimit(ip) {
@@ -60,7 +87,10 @@ async function callGemini(env, model, messages) {
   const apiKey = env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY is not set. Run: wrangler secret put GEMINI_API_KEY');
 
-  const contents = messages.map(m => ({
+  // Strip any client-side system messages — the server-side prompt is authoritative
+  const filtered = messages.filter(m => m.role !== 'system');
+
+  const contents = filtered.map(m => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }));
@@ -69,7 +99,11 @@ async function callGemini(env, model, messages) {
   const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ contents }),
+    body: JSON.stringify({
+      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents,
+      generationConfig: GENERATION_CONFIG,
+    }),
   });
 
   if (!resp.ok) {
