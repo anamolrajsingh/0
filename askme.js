@@ -130,14 +130,19 @@
     var navMatch = t.match(/\b(take me to|show me|go to|scroll to|navigate to|bring me to|jump to)\s+(.*)/);
     if (navMatch) return { action: 'navigate', value: navMatch[2].trim() };
 
-    if (/\b(about|who (you |he )?(is|are))\b/.test(t) && t.length < 30)
-      return { action: 'navigate', value: 'about' };
-    if (/\b(interests?|what (you |he )?(like|enjoy))\b/.test(t) && t.length < 30)
-      return { action: 'navigate', value: 'interests' };
-    if (/\b(contact|reach|email|get in touch|connect)\b/.test(t) && t.length < 25)
-      return { action: 'navigate', value: 'contact' };
-    if (/\b(home|top|back to (top|home)|start)\b/.test(t) && t.length < 20)
-      return { action: 'navigate', value: 'hero' };
+    // Only match bare section names (very short, no question words)
+    // Don't treat questions like "What are Anamol's interests?" as navigation
+    var isQuestion = /^(what|who|where|when|why|how|tell|explain|describe|can you|do you|are you|is anamol|does anamol)\b/.test(t);
+    if (!isQuestion) {
+      if (/^about$/.test(t) || /^show (me )?about$/.test(t) || /^about section$/.test(t))
+        return { action: 'navigate', value: 'about' };
+      if (/^interests?$/.test(t) || /^show (me )?interests?$/.test(t) || /^interests? section$/.test(t))
+        return { action: 'navigate', value: 'interests' };
+      if (/^contact$/.test(t) || /^show (me )?contact$/.test(t) || /^contact section$/.test(t))
+        return { action: 'navigate', value: 'contact' };
+      if (/^(home|top|back to top)$/.test(t))
+        return { action: 'navigate', value: 'hero' };
+    }
 
     return null;
   }
