@@ -418,51 +418,33 @@
                 A small AI chat assistant. Ask about my interests, projects, or just say hi.
             </p>
 
-            <!-- Chat Widget -->
-            <div class="reveal glass-card rounded-2xl overflow-hidden" id="chatWidget">
+            <!-- Chat CTA — opens the floating AI assistant -->
+            <div class="reveal">
+                <button id="askmeCTA" class="btn-primary group">
+                    <i class='bx bx-chat text-lg'></i>
+                    Chat with AI
+                    <i class='bx bx-right-arrow-alt text-lg group-hover:translate-x-1 transition-transform'></i>
+                </button>
+            </div>
 
-                <!-- Chat header -->
-                <div class="chat-header flex items-center gap-2 px-5 py-3 border-b border-border">
-                    <span class="status-dot"></span>
-                    <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">AI</span>
+            <!-- Feature highlights -->
+            <div class="reveal mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-xl">
+                <div class="glass-card rounded-xl p-4 flex items-center gap-3">
+                    <i class='bx bx-palette text-xl text-lime-accent'></i>
+                    <span class="text-sm text-muted">Toggle dark / light theme</span>
                 </div>
-
-                <!-- Message list -->
-                <div id="chatMessages" class="chat-messages">
-                    <!-- Welcome bubble -->
-                    <div class="chat-bubble chat-bubble-ai">
-                        <p>Hey! I'm a small AI assistant on Anamol's site. Ask me anything about his interests, projects, or whatever comes to mind.</p>
-                    </div>
+                <div class="glass-card rounded-xl p-4 flex items-center gap-3">
+                    <i class='bx bx-music text-xl text-lime-accent'></i>
+                    <span class="text-sm text-muted">Control the music player</span>
                 </div>
-
-                <!-- Typing indicator -->
-                <div id="chatTyping" class="chat-typing" hidden>
-                    <div class="chat-bubble chat-bubble-ai">
-                        <div class="chat-dots">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-                    </div>
+                <div class="glass-card rounded-xl p-4 flex items-center gap-3">
+                    <i class='bx bx-time-five text-xl text-lime-accent'></i>
+                    <span class="text-sm text-muted">Ask the current time</span>
                 </div>
-
-                <!-- Input row -->
-                <div class="chat-input-row">
-                    <input
-                        type="text"
-                        id="chatInput"
-                        class="chat-input"
-                        placeholder="Type your message..."
-                        autocomplete="off"
-                        maxlength="500"
-                    >
-                    <button id="chatSend" class="chat-send-btn" aria-label="Send message">
-                        <i class='bx bx-send'></i>
-                    </button>
+                <div class="glass-card rounded-xl p-4 flex items-center gap-3">
+                    <i class='bx bx-navigation text-xl text-lime-accent'></i>
+                    <span class="text-sm text-muted">Navigate to any section</span>
                 </div>
-
-                <!-- Rate limit notice -->
-                <div id="chatRateNotice" class="chat-rate-notice" hidden></div>
             </div>
 
         </div>
@@ -529,9 +511,17 @@
                 <i class='bx bx-up-arrow-alt text-lg text-lime-accent'></i>
             </button>
         </div>
+
+        <!-- Privacy disclosure -->
+        <div class="max-w-6xl mx-auto mt-6 pt-6 border-t border-border">
+            <p class="text-xs text-dim text-center font-mono">
+                Approximate visitor location is logged for site analytics. No personal data is stored.
+            </p>
+        </div>
     </footer>
 
     <!-- ===== Custom JavaScript ===== -->
     <script src="script.js"></script>
+    <script src="askme.js"></script>
 </body>
 </html>
