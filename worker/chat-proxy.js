@@ -1,14 +1,13 @@
 /**
  * Chat Proxy — Cloudflare Worker
  *
- * Proxies chat requests from anamolrajsingh.com.np to AI providers.
+ * Proxies chat requests from anamolrajsingh.com.np to OpenRouter.
  * The API key is stored as an encrypted Cloudflare Worker secret
- * (GEMINI_API_KEY) — never shipped to the browser.
+ * (OPENROUTER_API_KEY) — never shipped to the browser.
  *
  * Deploy:
- *   1. wrangler secret put GEMINI_API_KEY   (paste your Gemini API key)
+ *   1. wrangler secret put OPENROUTER_API_KEY   (paste your OpenRouter API key)
  *   2. wrangler deploy
- *   3. Update CHAT_PROXY_URL in script.js to the worker URL
  *
  * Rate limit: 10 messages per hour per visitor (by IP).
  * CORS: only https://anamolrajsingh.com.np
@@ -18,46 +17,9 @@ const ORIGIN = 'https://anamolrajsingh.com.np';
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 3600;
 
-const GEMINI_MODELS = {
-  'gemini-flash-latest': 'gemini-flash-latest',
-  'gemini-2.5-flash-lite': 'gemini-2.5-flash-lite',
-  // 'gemini-2.5-pro': 'gemini-2.5-pro',
-};
-
-// ── System prompt (server-side, not tamperable from browser) ───
-const SYSTEM_PROMPT = `You are the AI assistant featured on Anamol Raj Singh's personal site — a multi-purpose assistant built to think and converse broadly, not a narrow FAQ bot. You can discuss technology, current events, philosophy, design, books, film, and general knowledge, while reflecting Anamol's own curiosity and areas of interest.
-
-SCOPE
-- You are a general-purpose knowledge assistant. Engage with any reasonable topic the visitor brings up — technical, current affairs, philosophical, creative, or casual.
-- Draw naturally on these areas of interest when relevant or when a visitor asks what you/Anamol are into:
-  - Technology: how things work under the hood, from web development to systems thinking, and staying current on what's new in the field
-  - Reading & Ideas: books, essays, and long-form writing that challenge perspective
-  - Current Affairs: geopolitics, economics, and the forces shaping the world
-  - Design: where aesthetics meets function, and how design shapes experience
-  - Philosophy: questioning assumptions and exploring open-ended questions
-  - Film & Media: cinema, documentaries, and how storytelling shapes culture
-- You can still answer questions about Anamol specifically (projects, skills, background) — treat that as one topic among many, not the only one.
-- For anything you're unsure about or that may have changed recently (news, releases, current events), say so honestly rather than guessing.
-- Decline only genuinely inappropriate topics (explicit content, harmful instructions, etc.) — redirect politely rather than lecturing.
-
-TONE & DEPTH
-- Be conversational and clear, like a well-read, curious person talking with a friend — not a textbook or a search engine dump.
-- Default to concise answers (a few sentences to a short paragraph). Go deeper only when the visitor asks for more detail or nuance.
-- Where a topic has more than one reasonable perspective (current affairs, philosophy, design opinions), present the range fairly rather than pushing one view as fact.
-
-FORMATTING
-- Never use Markdown symbols in your output — no ** for bold, no ## for headers, no numbered lists with periods, no dashes for bullets.
-- Write every answer as plain prose sentences, even when listing multiple items (e.g. "Vg can mean a few things: video games in gaming slang, 'very good' in texting, vegetable glycerin in e-liquids, or Verdens Gang, a Norwegian newspaper.").
-- If you are about to output a symbol like * or #, replace it with plain words instead.
-
-PERSONA
-- Speak as a capable, thoughtful assistant — curious and well-informed, with a personality shaped by Anamol's own interests, but able to hold a real conversation on essentially anything a visitor brings up.`
-
-const GENERATION_CONFIG = {
-  temperature: 0.7,
-  maxOutputTokens: 200,
-  topP: 0.9,
-};
+const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
+const SITE_URL = 'https://anamolrajsingh.com.np';
+const SITE_NAME = 'Anamol Raj Singh';
 
 const rateMap = new Map();
 
@@ -89,99 +51,67 @@ function json(data, status = 200) {
   });
 }
 
-// ── Provider: Gemini ───────────────────────────────────────────
-async function callGemini(env, model, messages) {
-  const modelName = GEMINI_MODELS[model] || GEMINI_MODELS['gemini-2.5-flash'];
-  const apiKey = env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error('GEMINI_API_KEY is not set. Run: wrangler secret put GEMINI_API_KEY');
+async function callOpenRouter(env, model, messages) {
+  const apiKey = env.OPENROUTER_API_KEY;
+  if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set. Run: wrangler secret put OPENROUTER_API_KEY');
 
-  // Strip any client-side system messages — the server-side prompt is authoritative
-  const filtered = messages.filter(m => m.role !== 'system');
-
-  const contents = filtered.map(m => ({
-    role: m.role === 'assistant' ? 'model' : 'user',
-    parts: [{ text: m.content }],
-  }));
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-  const resp = await fetch(url, {
+  const resp = await fetch(OPENROUTER_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+      'HTTP-Referer': SITE_URL,
+      'X-Title': SITE_NAME,
+    },
     body: JSON.stringify({
-      systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-      contents,
-      generationConfig: GENERATION_CONFIG,
+      model: model || 'openai/gpt-4o',
+      messages: messages.map(m => ({ role: m.role, content: m.content })),
     }),
   });
 
   if (!resp.ok) {
     const err = await resp.text();
-    throw new Error(`Gemini API error (${resp.status}): ${err}`);
+    throw new Error(`OpenRouter API error (${resp.status}): ${err}`);
   }
 
   const data = await resp.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Gemini returned an empty response.');
+  const text = data?.choices?.[0]?.message?.content;
+  if (!text) throw new Error('OpenRouter returned an empty response.');
   return text;
 }
 
-// ── Provider: OpenAI (DISABLED) ────────────────────────────────
-// Disabled: no free tier as of 2026, requires billing enabled.
-// Uncomment and add OPENAI_API_KEY as a secret to enable.
-//
-// async function callOpenAI(env, model, messages) {
-//   const apiKey = env.OPENAI_API_KEY;
-//   if (!apiKey) throw new Error('OPENAI_API_KEY is not set. Run: wrangler secret put OPENAI_API_KEY');
-//   const resp = await fetch('https://api.openai.com/v1/chat/completions', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-//     body: JSON.stringify({ model: model || 'gpt-4o-mini', messages: messages.map(m => ({ role: m.role, content: m.content })) }),
-//   });
-//   if (!resp.ok) { const err = await resp.text(); throw new Error(`OpenAI API error (${resp.status}): ${err}`); }
-//   const data = await resp.json();
-//   const text = data?.choices?.[0]?.message?.content;
-//   if (!text) throw new Error('OpenAI returned an empty response.');
-//   return text;
-// }
-
-// ── Provider: Anthropic (DISABLED) ──────────────────────────────
-// Disabled: no free tier as of 2026, requires billing enabled.
-// Uncomment and add ANTHROPIC_API_KEY as a secret to enable.
-//
-// async function callAnthropic(env, model, messages) {
-//   const apiKey = env.ANTHROPIC_API_KEY;
-//   if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not set. Run: wrangler secret put ANTHROPIC_API_KEY');
-//   const resp = await fetch('https://api.anthropic.com/v1/messages', {
-//     method: 'POST',
-//     headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-//     body: JSON.stringify({ model: model || 'claude-3-5-haiku-latest', max_tokens: 1024, messages: messages.map(m => ({ role: m.role, content: m.content })) }),
-//   });
-//   if (!resp.ok) { const err = await resp.text(); throw new Error(`Anthropic API error (${resp.status}): ${err}`); }
-//   const data = await resp.json();
-//   const text = data?.content?.[0]?.text;
-//   if (!text) throw new Error('Anthropic returned an empty response.');
-//   return text;
-// }
-
 export default {
   async fetch(request, env) {
-    if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
-    if (request.method !== 'POST') return json({ error: 'Method not allowed. Use POST.' }, 405);
+    if (request.method === 'OPTIONS') {
+      return new Response(null, { headers: corsHeaders });
+    }
+
+    if (request.method !== 'POST') {
+      return json({ error: 'Method not allowed. Use POST.' }, 405);
+    }
 
     const reqOrigin = request.headers.get('Origin');
-    if (reqOrigin !== ORIGIN) return json({ error: 'Origin not allowed.' }, 403);
+    if (reqOrigin !== ORIGIN) {
+      return json({ error: 'Origin not allowed.' }, 403);
+    }
 
     const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
     const rl = checkRateLimit(ip);
     if (!rl.allowed) {
-      return json({ error: 'Rate limit reached. You can send up to 10 messages per hour. Please try again later.', rateLimited: true }, 429);
+      return json({
+        error: 'Rate limit reached. You can send up to 10 messages per hour. Please try again later.',
+        rateLimited: true,
+      }, 429);
     }
 
     let body;
-    try { body = await request.json(); } catch { return json({ error: 'Invalid JSON body.' }, 400); }
+    try {
+      body = await request.json();
+    } catch {
+      return json({ error: 'Invalid JSON body.' }, 400);
+    }
 
-    const provider = body.provider || 'gemini';
-    const model = body.model || DEFAULT_MODEL;
+    const model = body.model || 'openai/gpt-4o';
     const messages = body.messages;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
@@ -189,25 +119,18 @@ export default {
     }
 
     try {
-      let reply;
-      switch (provider) {
-        case 'gemini':
-          reply = await callGemini(env, model, messages);
-          break;
-        // Disabled: no free tier as of 2026, requires billing enabled.
-        // Uncomment and add the API key as a secret to enable.
-        // case 'openai':
-        //   reply = await callOpenAI(env, model, messages);
-        //   break;
-        // case 'anthropic':
-        //   reply = await callAnthropic(env, model, messages);
-        //   break;
-        default:
-          return json({ error: `Unknown provider: ${provider}. Available: gemini` }, 400);
-      }
-      return json({ reply, provider, model, rateRemaining: rl.remaining });
+      const reply = await callOpenRouter(env, model, messages);
+
+      return json({
+        reply,
+        model,
+        rateRemaining: rl.remaining,
+      });
+
     } catch (err) {
-      return json({ error: err.message || 'An unexpected error occurred.', provider }, 502);
+      return json({
+        error: err.message || 'An unexpected error occurred.',
+      }, 502);
     }
   },
 };

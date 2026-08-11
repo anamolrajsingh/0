@@ -655,9 +655,7 @@
 
     /* ============================================================
        CHAT WIDGET
-       AI chat assistant powered by Gemini via serverless proxy.
-       Provider-agnostic request shape { provider, messages }
-       so a model-switcher dropdown can be added later.
+       AI chat assistant powered by OpenRouter via serverless proxy.
        ============================================================ */
     (function chatWidget() {
         var chatMessages = document.getElementById('chatMessages');
@@ -672,8 +670,7 @@
         /* Cloudflare Worker proxy — deployed at chat.anamolrajsingh.com.np */
         var CHAT_PROXY_URL = 'https://chat.anamolrajsingh.com.np';
 
-        var PROVIDER = 'gemini';
-        var MODEL    = 'gemini-flash-latest';
+        var MODEL = 'openai/gpt-4o';
 
         /* System prompt sent as first message — the worker also has a
            server-side copy that overrides any client-side system messages,
@@ -765,7 +762,6 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    provider: PROVIDER,
                     model: MODEL,
                     messages: [{ role: 'system', content: SYSTEM_PROMPT }].concat(conversation)
                 })
