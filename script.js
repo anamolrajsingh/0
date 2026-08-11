@@ -653,5 +653,151 @@
     })();
 
 
+    /* ============================================================
+       CHAT WIDGET
+       AI chat assistant powered by Gemini via serverless proxy.
+       Provider-agnostic request shape { provider, messages }
+       so a model-switcher dropdown can be added later.
+       ============================================================ */
+    (function chatWidget() {
+        var chatMessages = document.getElementById('chatMessages');
+        var chatInput    = document.getElementById('chatInput');
+        var chatSend     = document.getElementById('chatSend');
+        var chatTyping   = document.getElementById('chatTyping');
+        var chatRateNotice = document.getElementById('chatRateNotice');
+
+        if (!chatMessages || !chatInput || !chatSend) return;
+
+        /* ---- CONFIG ---- */
+        /* Update this URL after deploying the Cloudflare Worker.
+           See worker/chat-proxy.js and worker/wrangler.toml.        */
+        var CHAT_PROXY_URL = 'https://chat-proxy.anamolrajsingh.workers.dev';
+
+        var PROVIDER = 'gemini';
+        var MODEL    = 'gemini-2.5-flash';
+
+        /* Conversation history sent with each request */
+        var conversation = [];
+
+        var isSending = false;
+
+        /* ---- Helpers ---- */
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addBubble(text, cls) {
+            var div = document.createElement('div');
+            div.className = 'chat-bubble ' + cls;
+            var p = document.createElement('p');
+            p.textContent = text;
+            div.appendChild(p);
+            chatMessages.appendChild(div);
+            scrollToBottom();
+            return div;
+        }
+
+        function setError(msg) {
+            addBubble(msg, 'chat-bubble-error');
+        }
+
+        function setLoading(on) {
+            isSending = on;
+            chatSend.disabled = on;
+            chatInput.disabled = on;
+            if (chatTyping) chatTyping.hidden = !on;
+            if (on) scrollToBottom();
+            if (!on) {
+                chatInput.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        /* ---- Send message ---- */
+        function send() {
+            var text = chatInput.value.trim();
+            if (!text || isSending) return;
+
+            /* Hide rate notice on new send */
+            if (chatRateNotice) chatRateNotice.hidden = true;
+
+            /* Clear input */
+            chatInput.value = '';
+
+            /* Add user bubble */
+            addBubble(text, 'chat-bubble-user');
+
+            /* Track conversation */
+            conversation.push({ role: 'user', content: text });
+
+            setLoading(true);
+
+            fetch(CHAT_PROXY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    provider: PROVIDER,
+                    model: MODEL,
+                    messages: conversation
+                })
+            })
+            .then(function(resp) {
+                return resp.json().then(function(data) {
+                    return { status: resp.status, data: data };
+                });
+            })
+            .then(function(result) {
+                var data = result.data;
+
+                /* Rate limited */
+                if (result.status === 429 || data.rateLimited) {
+                    if (chatRateNotice) {
+                        chatRateNotice.textContent = data.error || 'Rate limit reached. Try again later.';
+                        chatRateNotice.hidden = false;
+                    }
+                    setError(data.error || 'Rate limit reached. Try again later.');
+                    /* Remove the last user message from conversation since it wasn't processed */
+                    conversation.pop();
+                    return;
+                }
+
+                /* Other errors */
+                if (data.error) {
+                    setError(data.error);
+                    conversation.pop();
+                    return;
+                }
+
+                /* Success */
+                var reply = data.reply || 'No response received.';
+                addBubble(reply, 'chat-bubble-ai');
+                conversation.push({ role: 'assistant', content: reply });
+
+                /* Show remaining rate budget if provided */
+                if (chatRateNotice && typeof data.rateRemaining === 'number' && data.rateRemaining <= 3) {
+                    chatRateNotice.textContent = data.rateRemaining + ' messages remaining this hour.';
+                    chatRateNotice.hidden = false;
+                }
+            })
+            .catch(function(err) {
+                setError('Network error — could not reach the chat server. Please try again.');
+                /* Remove the last user message from conversation since it failed */
+                conversation.pop();
+            })
+            .finally(function() {
+                setLoading(false);
+            });
+        }
+
+        /* ---- Event listeners ---- */
+        chatSend.addEventListener('click', send);
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+            }
+        });
+    })();
+
 })();
 
