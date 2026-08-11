@@ -654,31 +654,30 @@
 
 
     /* ============================================================
-       CHAT WIDGET
-       AI chat assistant powered by Gemini via serverless proxy.
-       Provider-agnostic request shape { provider, messages }
-       so a model-switcher dropdown can be added later.
+       CHAT WIDGET — Landing page redesign
+       AI chat assistant with landing page UI (orb, greeting,
+       example cards) that transitions to conversation mode.
+       Powered by Gemini via Cloudflare Worker proxy.
        ============================================================ */
     (function chatWidget() {
-        var chatMessages = document.getElementById('chatMessages');
-        var chatInput    = document.getElementById('chatInput');
-        var chatSend     = document.getElementById('chatSend');
-        var chatTyping   = document.getElementById('chatTyping');
-        var chatRateNotice = document.getElementById('chatRateNotice');
+        var chatLanding      = document.getElementById('chatLanding');
+        var chatConversation = document.getElementById('chatConversation');
+        var chatMessages     = document.getElementById('chatMessages');
+        var chatInput        = document.getElementById('chatInput');
+        var chatSend         = document.getElementById('chatSend');
+        var chatTyping       = document.getElementById('chatTyping');
+        var chatRateNotice   = document.getElementById('chatRateNotice');
+        var chatExamples     = document.getElementById('chatExamples');
+        var greetingText     = document.getElementById('greetingText');
+        var exampleCards     = document.querySelectorAll('.chat-example-card');
 
-        if (!chatMessages || !chatInput || !chatSend) return;
+        if (!chatInput || !chatSend) return;
 
         /* ---- CONFIG ---- */
-        /* Cloudflare Worker proxy — deployed at chat.anamolrajsingh.com.np */
         var CHAT_PROXY_URL = 'https://chat.anamolrajsingh.com.np';
-
         var PROVIDER = 'gemini';
         var MODEL    = 'gemini-flash-latest';
 
-        /* System prompt sent as first message — the worker also has a
-           server-side copy that overrides any client-side system messages,
-           but we include it here so the prompt is applied even before
-           the worker is redeployed. */
         var SYSTEM_PROMPT =
             'You are the AI assistant featured on Anamol Raj Singh\'s personal ' +
             'site — a multi-purpose assistant built to think and converse ' +
@@ -695,17 +694,50 @@
             'TONE & DEPTH: Be conversational and clear, like a well-read, ' +
             'curious person talking with a friend. Default to concise answers, ' +
             'go deeper only when asked. Present multiple perspectives fairly.\n\n' +
-            'FORMATTING: Plain text only — no Markdown (no **bold**, ### headers, ' +
-            'or * bullets). Use short sentences or commas for lists.\n\n' +
+            'FORMATTING: Never use Markdown symbols in your output — no ** for ' +
+            'bold, no ## for headers, no numbered lists with periods, no dashes ' +
+            'for bullets. Write every answer as plain prose sentences, even ' +
+            'when listing multiple items. For example, instead of a bulleted ' +
+            'list, write items separated by commas in a flowing sentence. If ' +
+            'you are about to output a symbol like * or #, replace it with ' +
+            'plain words instead.\n\n' +
             'PERSONA: A capable, thoughtful assistant — curious and ' +
             'well-informed, shaped by Anamol\'s interests, able to hold a ' +
             'real conversation on essentially anything.';
 
-        /* Conversation history sent with each request.
-           System message is prepended on every request. */
         var conversation = [];
-
         var isSending = false;
+        var hasStarted = false;
+
+        /* ---- Time-based greeting ---- */
+        function setGreeting() {
+            if (!greetingText) return;
+            var h = new Date().getHours();
+            var greeting;
+            if (h >= 5 && h < 12) greeting = 'Good Morning';
+            else if (h >= 12 && h < 17) greeting = 'Good Afternoon';
+            else if (h >= 17 && h < 21) greeting = 'Good Evening';
+            else greeting = 'Good Night';
+            greetingText.textContent = greeting;
+        }
+        setGreeting();
+
+        /* ---- Example card click → fill input ---- */
+        exampleCards.forEach(function(card) {
+            card.addEventListener('click', function() {
+                chatInput.value = card.getAttribute('data-prompt');
+                chatInput.focus();
+            });
+        });
+
+        /* ---- Transition from landing to chat mode ---- */
+        function startChat() {
+            if (hasStarted) return;
+            hasStarted = true;
+            if (chatLanding) chatLanding.classList.add('chat-hidden');
+            if (chatExamples) chatExamples.classList.add('chat-hidden');
+            if (chatConversation) chatConversation.hidden = false;
+        }
 
         /* ---- Helpers ---- */
         function scrollToBottom() {
@@ -744,18 +776,13 @@
             var text = chatInput.value.trim();
             if (!text || isSending) return;
 
-            /* Hide rate notice on new send */
-            if (chatRateNotice) chatRateNotice.hidden = true;
+            startChat();
 
-            /* Clear input */
+            if (chatRateNotice) chatRateNotice.hidden = true;
             chatInput.value = '';
 
-            /* Add user bubble */
             addBubble(text, 'chat-bubble-user');
-
-            /* Track conversation */
             conversation.push({ role: 'user', content: text });
-
             setLoading(true);
 
             fetch(CHAT_PROXY_URL, {
@@ -775,31 +802,26 @@
             .then(function(result) {
                 var data = result.data;
 
-                /* Rate limited */
                 if (result.status === 429 || data.rateLimited) {
                     if (chatRateNotice) {
                         chatRateNotice.textContent = data.error || 'Rate limit reached. Try again later.';
                         chatRateNotice.hidden = false;
                     }
                     setError(data.error || 'Rate limit reached. Try again later.');
-                    /* Remove the last user message from conversation since it wasn't processed */
                     conversation.pop();
                     return;
                 }
 
-                /* Other errors */
                 if (data.error) {
                     setError(data.error);
                     conversation.pop();
                     return;
                 }
 
-                /* Success */
                 var reply = data.reply || 'No response received.';
                 addBubble(reply, 'chat-bubble-ai');
                 conversation.push({ role: 'assistant', content: reply });
 
-                /* Show remaining rate budget if provided */
                 if (chatRateNotice && typeof data.rateRemaining === 'number' && data.rateRemaining <= 3) {
                     chatRateNotice.textContent = data.rateRemaining + ' messages remaining this hour.';
                     chatRateNotice.hidden = false;
@@ -807,7 +829,6 @@
             })
             .catch(function(err) {
                 setError('Network error — could not reach the chat server. Please try again.');
-                /* Remove the last user message from conversation since it failed */
                 conversation.pop();
             })
             .finally(function() {
