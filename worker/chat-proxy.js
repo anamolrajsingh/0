@@ -19,7 +19,7 @@ const RATE_LIMIT = 10;
 const RATE_WINDOW = 3600;
 
 const GEMINI_MODELS = {
-  'gemini-2.5-flash': 'gemini-2.5-flash',
+  'gemini-flash-latest': 'gemini-flash-latest',
   'gemini-2.5-flash-lite': 'gemini-2.5-flash-lite',
   // 'gemini-2.5-pro': 'gemini-2.5-pro',
 };
@@ -139,7 +139,7 @@ export default {
     try { body = await request.json(); } catch { return json({ error: 'Invalid JSON body.' }, 400); }
 
     const provider = body.provider || 'gemini';
-    const model = body.model || 'gemini-2.5-flash';
+    const model = body.model || DEFAULT_MODEL;
     const messages = body.messages;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {

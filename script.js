@@ -671,10 +671,10 @@
         /* ---- CONFIG ---- */
         /* Update this URL after deploying the Cloudflare Worker.
            See worker/chat-proxy.js and worker/wrangler.toml.        */
-        var CHAT_PROXY_URL = 'https://chat-proxy.anamolrajsingh.workers.dev';
+        var CHAT_PROXY_URL = 'https://solas-6a809f2b.base44.app/functions/chatProxy';
 
         var PROVIDER = 'gemini';
-        var MODEL    = 'gemini-2.5-flash';
+        var MODEL    = 'gemini-flash-latest';
 
         /* Conversation history sent with each request */
         var conversation = [];
