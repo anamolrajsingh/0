@@ -667,8 +667,8 @@
         if (!chatMessages || !chatInput || !chatSend) return;
 
         /* ---- CONFIG ---- */
-        /* Cloudflare Worker proxy — deployed at chat.anamolrajsingh.com.np */
-        var CHAT_PROXY_URL = 'https://chat.anamolrajsingh.com.np';
+        /* Base44 backend function proxy */
+        var CHAT_PROXY_URL = 'https://solas-6a809f2b.base44.app/functions/chatProxy';
 
         var MODEL = 'openai/gpt-4o';
 
