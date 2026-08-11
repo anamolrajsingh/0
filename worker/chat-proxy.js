@@ -65,6 +65,7 @@ async function callOpenRouter(env, model, messages) {
     },
     body: JSON.stringify({
       model: model || 'openai/gpt-4o',
+      max_tokens: 1024,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
     }),
   });

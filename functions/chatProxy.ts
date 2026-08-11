@@ -70,6 +70,7 @@ async function callOpenRouter(apiKey: string, model: string, messages: ChatMessa
     },
     body: JSON.stringify({
       model: model || DEFAULT_MODEL,
+      max_tokens: 1024,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
     }),
   });
