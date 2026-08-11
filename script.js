@@ -5,6 +5,55 @@
 (function () {
     'use strict';
 
+    /* ---------------- PRELOADER ---------------- */
+    (function preloader() {
+        var el = document.getElementById('preloader');
+        if (!el) return;
+
+        var countEl = document.getElementById('preloaderCount');
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* Lock scroll while preloader is visible */
+        document.documentElement.style.overflow = 'hidden';
+
+        function done() {
+            el.classList.add('is-hidden');
+            document.documentElement.style.overflow = '';
+            el.addEventListener('transitionend', function handler(e) {
+                if (e.propertyName !== 'opacity') return;
+                el.removeEventListener('transitionend', handler);
+                el.style.display = 'none';
+            });
+        }
+
+        if (reduced) {
+            /* Skip counting, fade out quickly */
+            if (countEl) countEl.textContent = '100%';
+            setTimeout(done, 150);
+            return;
+        }
+
+        /* requestAnimationFrame ease-out counter 0 → 100 */
+        var duration = 1200 + Math.random() * 600; /* 1.2–1.8s */
+        var startTs = null;
+
+        function tick(ts) {
+            if (startTs === null) startTs = ts;
+            var elapsed = ts - startTs;
+            var progress = Math.min(elapsed / duration, 1);
+            /* ease-out cubic */
+            var eased = 1 - Math.pow(1 - progress, 3);
+            var pct = Math.round(eased * 100);
+            if (countEl) countEl.textContent = pct + '%';
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                setTimeout(done, 200);
+            }
+        }
+        requestAnimationFrame(tick);
+    })();
+
     /* ---------------- THEME ---------------- */
     var root = document.documentElement;
     var themeToggle = document.getElementById('themeToggle');
