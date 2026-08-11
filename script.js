@@ -669,9 +669,8 @@
         if (!chatMessages || !chatInput || !chatSend) return;
 
         /* ---- CONFIG ---- */
-        /* Update this URL after deploying the Cloudflare Worker.
-           See worker/chat-proxy.js and worker/wrangler.toml.        */
-        var CHAT_PROXY_URL = 'https://solas-6a809f2b.base44.app/functions/chatProxy';
+        /* Cloudflare Worker proxy — deployed at chat.anamolrajsingh.com.np */
+        var CHAT_PROXY_URL = 'https://chat.anamolrajsingh.com.np';
 
         var PROVIDER = 'gemini';
         var MODEL    = 'gemini-flash-latest';
