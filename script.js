@@ -69,6 +69,15 @@
             }
         }
         requestAnimationFrame(tick);
+
+        /* Fallback: ensure preloader hides even if rAF stalls */
+        setTimeout(function() {
+            if (!el.classList.contains('is-hidden')) {
+                if (countEl) countEl.textContent = '100%';
+                if (labelEl) labelEl.textContent = 'READY';
+                done();
+            }
+        }, 2500);
     })();
 
     /* ---------------- THEME ---------------- */
