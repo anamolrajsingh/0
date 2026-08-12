@@ -375,6 +375,7 @@
     }
 
 
+    /* ============================================================
        3. MUSIC WIDGET
        Apple-Music-style YouTube player with REAL playback control
        via the YouTube IFrame Player API.
