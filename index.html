@@ -7,50 +7,28 @@
     <meta name="description" content="Anamol Raj Singh — Student, lifelong learner, and curious mind navigating the intersection of technology, ideas, and intentional living.">
     <meta name="author" content="Anamol Raj Singh">
     <meta name="theme-color" content="#0a0b0d">
-    <title>Anamol Raj Singh — Digital Garden</title>
+    <title>Anamol Raj Singh — Student & Lifelong Learner</title>
 
-    <!-- ===== Favicon ===== -->
+    <!-- ===== FAVICON ===== -->
     <link rel="shortcut icon" href="assets/favicon.png" type="image/png">
 
-    <!-- ===== Tailwind Play CDN (with inline config for custom fonts/colors) ===== -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-    tailwind.config = {
-        theme: {
-            extend: {
-                fontFamily: {
-                    sans: ['Inter', 'system-ui', 'sans-serif'],
-                    display: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-                    mono: ['"JetBrains Mono"', 'monospace'],
-                },
-                colors: {
-                    lime: { accent: '#bfff00' },
-                },
-            }
-        }
-    }
-    </script>
+    <!-- ===== Tailwind CSS (build-time compiled) ===== -->
+    <link rel="stylesheet" href="assets/tailwind.css">
 
     <!-- ===== Fonts ===== -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- ===== Boxicons ===== -->
+    <!-- ===== Boxicons (28 icons used; full CSS ~7KB gzipped, font subsets loaded on demand) ===== -->
     <link rel="preconnect" href="https://unpkg.com" crossorigin>
     <link rel="preload" as="style" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-    <!-- ===== GSAP + ScrollTrigger ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-
-    <!-- ===== Lenis (smooth scroll) ===== -->
-    <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-
     <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="terminal.css">
 
     <!-- ===== Structured Data (schema.org Person) ===== -->
     <script type="application/ld+json">
@@ -73,96 +51,80 @@
 
 <body>
 
-    <!-- ===== PRELOADER (terminal boot sequence) ===== -->
     <div id="preloader" aria-hidden="true">
-        <div class="preloader-inner">
-            <span id="preloaderLabel">INITIALIZING</span>
-            <span id="preloaderCount">0%</span>
-        </div>
+      <span id="preloaderLabel">Loading</span>
+      <span id="preloaderCount">0%</span>
     </div>
 
-    <!-- ===== CUSTOM CURSOR ===== -->
-    <div id="customCursor" class="cursor-dot" aria-hidden="true"></div>
-    <div id="customCursorRing" class="cursor-ring" aria-hidden="true"></div>
-
-    <!-- ===== BACKGROUND ===== -->
-    <div class="bg-decoration" aria-hidden="true">
-        <div class="bg-grid"></div>
-        <div class="bg-noise"></div>
-        <div class="bg-scanline"></div>
-    </div>
+    
 
     <!-- ================================================================
-         TERMINAL HEADER / NAVIGATION
-         Fixed status bar with: logo, nav, clock, music, theme toggle
+         NAVIGATION — Terminal Bar
          ================================================================ -->
     <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
-        <div class="terminal-nav">
-            <nav class="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3.5">
+        <div class="glass-nav">
+            <nav class="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3">
                 
-                <!-- Logo / System ID -->
-                <a href="#hero" class="flex items-center gap-2 font-mono text-sm font-bold tracking-tight">
-                    <span class="text-lime-accent">[ARS]</span>
-                    <span class="nav-name hidden sm:inline text-foreground">anamolrajsingh</span>
-                    <span class="text-muted text-xs">:~$</span>
+                <!-- Logo / Name -->
+                <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5">
+                    <span class="text-lime-accent font-mono text-sm">{</span>
+                    <span class="nav-name">Anamol Raj Singh</span>
+                    <span class="text-lime-accent font-mono text-sm">}</span>
                 </a>
 
                 <!-- Desktop Nav Links -->
-                <div class="hidden md:flex items-center gap-1">
-                    <a href="#hero" class="nav-link active text-xs font-mono px-3 py-1.5 transition-colors">~/home</a>
-                    <a href="#about" class="nav-link text-xs font-mono px-3 py-1.5 transition-colors">~/about</a>
-                    <a href="#grid" class="nav-link text-xs font-mono px-3 py-1.5 transition-colors">~/interests</a>
-                    <a href="#ask" class="nav-link text-xs font-mono px-3 py-1.5 transition-colors">~/ask</a>
-                    <a href="#contact" class="nav-link text-xs font-mono px-3 py-1.5 transition-colors">~/contact</a>
+                <div class="hidden md:flex items-center gap-7">
+                    <a href="#hero" class="nav-link active text-sm font-medium transition-colors">Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium transition-colors">About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium transition-colors">Interests</a>
+                    <a href="#ask" class="nav-link text-sm font-medium transition-colors">Ask Me</a>
+                    <a href="#contact" class="nav-link text-sm font-medium transition-colors">Contact</a>
                 </div>
 
-                <!-- Right cluster -->
-                <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Right cluster: clock, music, theme toggle, mobile menu -->
+                <div class="flex items-center gap-3 sm:gap-4">
                     
                     <!-- Live Clock -->
                     <div class="hidden sm:flex items-center gap-1.5 font-mono text-xs text-muted">
-                        <span class="status-dot status-dot--sm"></span>
+                        <i class='bx bx-time text-lime-accent'></i>
                         <span id="navClock">--:--</span>
                     </div>
 
-                    <!-- Music Widget -->
-                    <button id="vibesToggle" class="terminal-pill flex items-center gap-2 px-3 py-1.5 transition-all duration-300" aria-label="Toggle music player">
+                    <!-- Music Widget (Now Playing) -->
+                    <button id="vibesToggle" class="glass-pill flex items-center gap-2 px-3 py-1.5 transition-all duration-300" aria-label="Toggle music player">
                         <span class="music-visualizer">
                             <span></span><span></span><span></span>
                         </span>
-                        <span class="hidden sm:inline text-xs font-mono">vibes</span>
+                        <span class="hidden sm:inline text-xs font-medium">Vibes</span>
                     </button>
 
                     <!-- Theme Toggle -->
-                    <button id="themeToggle" class="terminal-pill flex items-center justify-center w-9 h-9 transition-all duration-300" aria-label="Toggle theme">
-                        <i class='bx bx-moon text-base transition-transform duration-500' id="themeIcon"></i>
+                    <button id="themeToggle" class="glass-pill flex items-center justify-center w-9 h-9 transition-all duration-300" aria-label="Toggle theme">
+                        <i class='bx bx-moon text-lg transition-transform duration-500' id="themeIcon"></i>
                     </button>
 
                     <!-- Mobile Hamburger -->
-                    <button id="menuToggle" class="md:hidden terminal-pill flex items-center justify-center w-9 h-9 transition-all duration-300" aria-label="Open menu">
-                        <i class='bx bx-menu text-base' id="menuIcon"></i>
+                    <button id="menuToggle" class="md:hidden glass-pill flex items-center justify-center w-9 h-9 transition-all duration-300" aria-label="Open menu">
+                        <i class='bx bx-menu text-lg' id="menuIcon"></i>
                     </button>
                 </div>
             </nav>
 
-            <!-- Mobile Menu -->
+            <!-- Mobile Menu (collapsible) -->
             <div id="mobileMenu" class="md:hidden overflow-hidden transition-all duration-500 ease-in-out" style="max-height: 0px;">
-                <div class="px-5 py-4 flex flex-col gap-1 border-t border-border">
-                    <a href="#hero" class="nav-link text-sm font-mono py-2">~/home</a>
-                    <a href="#about" class="nav-link text-sm font-mono py-2">~/about</a>
-                    <a href="#grid" class="nav-link text-sm font-mono py-2">~/interests</a>
-                    <a href="#ask" class="nav-link text-sm font-mono py-2">~/ask</a>
-                    <a href="#contact" class="nav-link text-sm font-mono py-2">~/contact</a>
+                <div class="px-5 py-4 flex flex-col gap-3">
+                    <a href="#hero" class="nav-link text-sm font-medium py-2">Home</a>
+                    <a href="#about" class="nav-link text-sm font-medium py-2">About</a>
+                    <a href="#interests" class="nav-link text-sm font-medium py-2">Interests</a>
+                    <a href="#ask" class="nav-link text-sm font-medium py-2">Ask Me</a>
+                    <a href="#contact" class="nav-link text-sm font-medium py-2">Contact</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- ================================================================
-         MUSIC DRAWER (slides down from nav)
-         ================================================================ -->
-    <div id="vibesDrawer" class="fixed top-16 right-4 sm:right-8 z-50 transition-all duration-500 opacity-0 pointer-events-none translate-y-[-10px]">
-        <div class="terminal-card rounded-2xl p-4 w-72 sm:w-80" id="vibesPanel">
+    <div id="vibesDrawer" class="fixed top-20 right-4 sm:right-8 z-50 transition-all duration-500 opacity-0 pointer-events-none translate-y-[-10px]">
+        <div class="glass-card rounded-2xl p-4 w-72 sm:w-80" id="vibesPanel">
             <div class="flex items-center justify-between mb-3">
                 <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">Now Playing</span>
                 <button id="vibesClose" class="text-muted hover:text-lime-accent transition-colors" aria-label="Close player">
@@ -170,14 +132,17 @@
                 </button>
             </div>
 
-            <!-- YouTube Player -->
+            <!-- ===== YOUTUBE: Apple-Music-style player with real playback ===== -->
             <div id="ytPane" class="vibes-pane">
+
+                <!-- Hidden/invisible YouTube IFrame host — audio only, no video frame shown -->
                 <div class="yt-hidden-host" aria-hidden="true">
                     <div id="ytPlayerHost"></div>
                 </div>
 
                 <div id="ytPlayerViews" class="yt-player-views">
-                    <!-- MINI PLAYER -->
+
+                    <!-- MINI PLAYER (pill bar) -->
                     <div id="ytMiniPlayer" class="yt-mini-player">
                         <img id="ytMiniThumb" class="yt-mini-thumb" src="" alt="" loading="lazy">
                         <div class="yt-mini-info">
@@ -205,9 +170,19 @@
 
                         <img id="ytExpandedThumb" class="yt-expanded-thumb" src="" alt="" loading="lazy">
 
-                        <div class="yt-expanded-info">
-                            <p id="ytExpandedTitle" class="yt-expanded-title">&mdash;</p>
-                            <p id="ytExpandedArtist" class="yt-expanded-artist">&mdash;</p>
+                        <div class="yt-expanded-titlerow">
+                            <div class="yt-expanded-titles">
+                                <p id="ytExpandedTitle" class="yt-expanded-title">&mdash;</p>
+                                <p id="ytExpandedArtist" class="yt-expanded-artist">&mdash;</p>
+                            </div>
+                            <div class="yt-expanded-actions">
+                                <button class="yt-icon-btn-sm" id="ytFavBtn" aria-label="Favorite">
+                                    <i class='bx bx-star'></i>
+                                </button>
+                                <button class="yt-icon-btn-sm" id="ytMenuBtn" aria-label="More options">
+                                    <i class='bx bx-dots-horizontal-rounded'></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="yt-progress-wrap">
@@ -253,331 +228,238 @@
                 </div>
             </div>
         </div>
-    </div>
+    
 
     <!-- ================================================================
-         HERO SECTION
-         Terminal boot screen with text-scramble name reveal
+         HERO — Terminal Boot Sequence
          ================================================================ -->
-    <section id="hero" class="min-h-screen flex items-center justify-center px-5 sm:px-8 pt-20 pb-12">
-        <div class="max-w-6xl mx-auto w-full">
+    <section id="hero" class="min-h-screen flex items-center px-5 sm:px-8 pt-20">
+        <div class="terminal-hero">
             
-            <!-- Terminal status bar -->
-            <div class="reveal terminal-status-bar mb-8">
-                <div class="terminal-status-item">
-                    <span class="status-dot"></span>
-                    <span class="font-mono text-xs text-muted">SYSTEM ONLINE</span>
-                </div>
-                <div class="terminal-status-item hidden sm:flex">
-                    <i class='bx bx-map-pin text-xs text-lime-accent'></i>
-                    <span class="font-mono text-xs text-muted">Kathmandu, NP</span>
-                </div>
-                <div class="terminal-status-item hidden sm:flex">
-                    <i class='bx bx-time text-xs text-lime-accent'></i>
-                    <span class="font-mono text-xs text-muted" id="heroClock">--:--:--</span>
-                </div>
-                <div class="terminal-status-item">
-                    <span class="font-mono text-xs text-lime-accent">v4.0</span>
-                </div>
+            <!-- System Status Panel -->
+            <div class="reveal terminal-status">
+                <div><span class="stat-dot"></span><span class="stat-label">LOCATION</span> <span class="stat-value">Nepal</span></div>
+                <div><span class="stat-dot"></span><span class="stat-label">STATUS</span> <span class="stat-value">Available for learning</span></div>
+                <div><span class="stat-dot"></span><span class="stat-label">LOCAL TIME</span> <span class="stat-value" id="heroClock">--:--</span></div>
+                <div><span class="stat-dot"></span><span class="stat-label">STREAMS</span> <span class="stat-value">6 active</span></div>
             </div>
 
-            <!-- Main hero content -->
-            <div class="reveal">
-                <p class="font-mono text-sm text-lime-accent mb-4">
-                    <span class="text-muted">$</span> whoami
-                </p>
-            </div>
+            <!-- Prompt line -->
+            <p class="reveal term-prompt">whoami<span class="term-cursor"></span></p>
 
-            <!-- Name with scramble effect -->
-            <h1 class="reveal font-display font-extrabold text-5xl sm:text-7xl md:text-8xl leading-[0.95] tracking-tight mb-6">
-                <span class="text-foreground" id="scrambleName">Anamol Raj Singh</span>
+            <!-- Headline -->
+            <h1 class="reveal font-display font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
+                <span class="scramble-text">Anamol Raj Singh</span>
             </h1>
 
-            <!-- Description -->
-            <div class="reveal max-w-3xl">
-                <p class="text-lg sm:text-xl text-muted leading-relaxed mb-4">
-                    A <span class="text-lime-accent font-medium">student</span>, <span class="text-lime-accent font-medium">lifelong learner</span>, and curious mind navigating the intersection of technology, ideas, and intentional living.
-                </p>
-                <p class="text-base text-muted/60 leading-relaxed mb-10">
-                    Learning isn't a phase — it's a way of being. This is my corner of the internet: a digital garden where I share what I'm exploring, what I'm building, and what I'm becoming.
-                </p>
-            </div>
-
-            <!-- System info grid (dashboard stats) -->
-            <div class="reveal grid grid-cols-2 sm:grid-cols-4 gap-px bg-border border border-border rounded-lg overflow-hidden max-w-3xl">
-                <div class="bg-bg-elevated px-4 py-3">
-                    <p class="font-mono text-xs text-muted mb-1">FOCUS</p>
-                    <p class="font-mono text-sm text-lime-accent">Learning</p>
-                </div>
-                <div class="bg-bg-elevated px-4 py-3">
-                    <p class="font-mono text-xs text-muted mb-1">DOMAINS</p>
-                    <p class="font-mono text-sm text-foreground">06</p>
-                </div>
-                <div class="bg-bg-elevated px-4 py-3">
-                    <p class="font-mono text-xs text-muted mb-1">STATUS</p>
-                    <p class="font-mono text-sm text-lime-accent">Active</p>
-                </div>
-                <div class="bg-bg-elevated px-4 py-3">
-                    <p class="font-mono text-xs text-muted mb-1">YEAR</p>
-                    <p class="font-mono text-sm text-foreground">2026</p>
-                </div>
-            </div>
-
-            <!-- Terminal prompt -->
-            <div class="reveal mt-10">
-                <p class="font-mono text-sm text-muted">
-                    <span class="text-lime-accent">$</span> <span class="cursor-blink">_</span>
-                </p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================================================================
-         ABOUT SECTION
-         Brief module — who I am, not a resume
-         ================================================================ -->
-    <section id="about" class="px-5 sm:px-8 py-16 sm:py-24">
-        <div class="max-w-6xl mx-auto">
-            
-            <!-- Section label -->
-            <div class="reveal mb-8 flex items-center gap-3">
-                <span class="font-mono text-xs text-lime-accent">[00]</span>
-                <span class="font-mono text-xs text-muted uppercase tracking-wider">about</span>
-                <div class="flex-1 h-px bg-border"></div>
-            </div>
-
-            <!-- About module -->
-            <div class="reveal terminal-card rounded-lg p-8 sm:p-12">
-                <h2 class="font-display font-bold text-2xl sm:text-3xl mb-6 leading-tight text-foreground">
-                    Who I am
-                </h2>
-                <div class="space-y-4 text-base text-muted leading-relaxed max-w-3xl">
-                    <p>
-                        I'm a student navigating the vast landscape of knowledge — from technology and science to philosophy and design. I'm not racing toward a title or a job; I'm here for the learning itself.
-                    </p>
-                    <p>
-                        My approach is simple: stay curious, ask questions, and never stop exploring. Some days that means diving into a new programming concept; other days it's reading about history, debating ideas, or just thinking deeply about how things connect.
-                    </p>
-                    <p>
-                        I believe the best learning happens when you follow your curiosity rather than a fixed path. This website is a small reflection of that philosophy — a space to share what I'm discovering along the way.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================================================================
-         BENTO GRID — Six content pillars
-         Dashboard-style modular grid with visible borders
-         ================================================================ -->
-    <section id="grid" class="px-5 sm:px-8 py-16 sm:py-24">
-        <div class="max-w-6xl mx-auto">
-            
-            <!-- Section label -->
-            <div class="reveal mb-8 flex items-center gap-3">
-                <span class="font-mono text-xs text-lime-accent">[01]</span>
-                <span class="font-mono text-xs text-muted uppercase tracking-wider">interests // data streams</span>
-                <div class="flex-1 h-px bg-border"></div>
-            </div>
-
-            <!-- Heading -->
-            <h2 class="reveal font-display font-bold text-3xl sm:text-4xl mb-4 leading-tight text-foreground">
-                What I enjoy learning
-            </h2>
-            <p class="reveal text-muted mb-12 max-w-2xl">
-                Six domains of curiosity — each one a different way of understanding the world.
+            <!-- Subtitle -->
+            <p class="reveal term-sub">
+                A <span class="text-lime-accent font-medium">student</span>, <span class="text-lime-accent font-medium">lifelong learner</span>, and curious mind navigating the intersection of technology, ideas, and intentional living.
             </p>
 
-            <!-- Bento grid -->
-            <div class="bento-grid">
-                
-                <!-- Module: Technology (span 2 cols on desktop) -->
-                <div class="bento-module bento-module--wide reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[01]</span>
-                        <i class='bx bx-code-alt bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Technology</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">Exploring how things work under the hood — from web development to systems thinking and everything in between.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">web-dev</span>
-                            <span class="bento-tag">systems</span>
-                            <span class="bento-tag">under-the-hood</span>
-                        </div>
-                    </div>
-                </div>
+            <!-- Brief statement -->
+            <p class="reveal term-brief">
+                I believe learning isn't a phase — it's a way of being. This is my corner of the internet where I share what I'm exploring, what I'm building, and what I'm becoming.
+            </p>
 
-                <!-- Module: Reading & Ideas -->
-                <div class="bento-module reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[02]</span>
-                        <i class='bx bx-book-open bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Reading &amp; Ideas</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">Books, essays, and long-form articles that challenge my perspective and introduce new ways of thinking.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">books</span>
-                            <span class="bento-tag">essays</span>
-                            <span class="bento-tag">long-form</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Module: Current Affairs -->
-                <div class="bento-module reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[03]</span>
-                        <i class='bx bx-news bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Current Affairs</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">Staying informed about the world — geopolitics, economics, and the forces shaping our future.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">geopolitics</span>
-                            <span class="bento-tag">economics</span>
-                            <span class="bento-tag">world</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Module: Design -->
-                <div class="bento-module reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[04]</span>
-                        <i class='bx bx-palette bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Design</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">The intersection of aesthetics and function — how thoughtful design shapes experiences and communicates ideas.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">aesthetics</span>
-                            <span class="bento-tag">function</span>
-                            <span class="bento-tag">ux</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Module: Philosophy (span 2 cols on desktop) -->
-                <div class="bento-module bento-module--wide reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[05]</span>
-                        <i class='bx bx-brain bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Philosophy</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">Questioning assumptions and exploring big, unanswered questions. Philosophy shapes how I approach everything else — it's the meta-layer that connects all other domains.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">assumptions</span>
-                            <span class="bento-tag">big-questions</span>
-                            <span class="bento-tag">values</span>
-                            <span class="bento-tag">meaning</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Module: Film & Media -->
-                <div class="bento-module reveal" data-cursor="hover">
-                    <div class="bento-header">
-                        <span class="font-mono text-xs text-lime-accent">[06]</span>
-                        <i class='bx bx-movie bento-icon'></i>
-                        <span class="font-mono text-xs text-foreground uppercase tracking-wider">Film &amp; Media</span>
-                        <span class="bento-line"></span>
-                        <span class="status-dot status-dot--sm"></span>
-                    </div>
-                    <div class="bento-body">
-                        <p class="text-muted leading-relaxed">Cinema, documentaries, and visual storytelling — how media reflects and shapes culture.</p>
-                        <div class="bento-tags">
-                            <span class="bento-tag">cinema</span>
-                            <span class="bento-tag">documentaries</span>
-                            <span class="bento-tag">storytelling</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================================================================
-         ASK ME SECTION
-         AI-powered chat widget
-         ================================================================ -->
-    <section id="ask" class="px-5 sm:px-8 py-16 sm:py-24">
-        <div class="max-w-6xl mx-auto">
-            
-            <!-- Section label -->
-            <div class="reveal mb-8 flex items-center gap-3">
-                <span class="font-mono text-xs text-lime-accent">[02]</span>
-                <span class="font-mono text-xs text-muted uppercase tracking-wider">ask me // ai assistant</span>
-                <div class="flex-1 h-px bg-border"></div>
-            </div>
-
-            <div class="reveal terminal-card rounded-lg p-8 sm:p-12 max-w-3xl">
-                <h2 class="font-display font-bold text-2xl sm:text-3xl mb-4 leading-tight text-foreground">
-                    Ask me anything
-                </h2>
-                <p class="text-muted mb-8 max-w-2xl">
-                    A small AI chat assistant. Ask about my interests, projects, or just say hi.
-                </p>
-                <button id="askmeCTA" class="terminal-btn group">
-                    <i class='bx bx-chat text-base'></i>
-                    <span>chat with ai</span>
-                    <i class='bx bx-right-arrow-alt text-base group-hover:translate-x-1 transition-transform'></i>
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- ================================================================
-         CONTACT SECTION
-         ================================================================ -->
-    <section id="contact" class="px-5 sm:px-8 py-16 sm:py-24">
-        <div class="max-w-6xl mx-auto">
-            
-            <!-- Section label -->
-            <div class="reveal mb-8 flex items-center gap-3">
-                <span class="font-mono text-xs text-lime-accent">[03]</span>
-                <span class="font-mono text-xs text-muted uppercase tracking-wider">contact // connect</span>
-                <div class="flex-1 h-px bg-border"></div>
-            </div>
-
-            <div class="reveal">
-                <h2 class="font-display font-bold text-3xl sm:text-4xl mb-4 leading-tight text-foreground">
-                    Let's connect
-                </h2>
-                <p class="text-muted mb-8 max-w-xl">
-                    Whether it's a shared interest, a question, or just a hello — I'm always happy to hear from curious people.
-                </p>
-
-                <a href="mailto:hello@anamolrajsingh.com.np" class="inline-flex items-center gap-2 text-lime-accent font-mono text-sm hover:underline">
-                    <i class='bx bx-envelope'></i>
-                    hello@anamolrajsingh.com.np
+            <!-- CTAs -->
+            <div class="reveal flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4">
+                <a href="#interests" class="btn-primary group">
+                    Explore
+                    <i class='bx bx-right-arrow-alt text-lg group-hover:translate-x-1 transition-transform'></i>
+                </a>
+                <a href="#contact" class="btn-secondary group">
+                    <i class='bx bx-envelope text-lg'></i>
+                    Contact
                 </a>
             </div>
         </div>
     </section>
 
     <!-- ================================================================
-         FOOTER — Terminal status bar
+         ABOUT — Terminal Panel
          ================================================================ -->
-    <footer class="border-t border-border">
-        <!-- Social links bar -->
-        <div class="max-w-6xl mx-auto px-5 sm:px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-            <p class="text-sm text-muted font-mono">
-                © 2026 anamolrajsingh
+    <section id="about" class="py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="reveal term-section-label">01 / About</div>
+            <h2 class="reveal term-section-title">Who I am</h2>
+
+            <div class="reveal term-panel">
+                <div class="term-panel-header">
+                    <span class="term-panel-title">whoami.md — read-only</span>
+                    <div class="term-panel-dots"><span></span><span></span><span></span></div>
+                </div>
+                <div class="term-panel-body">
+                    <div class="term-output">
+                        <p>I'm a student navigating the vast landscape of knowledge — from technology and science to philosophy and design. I'm not racing toward a title or a job; I'm here for the learning itself.</p>
+                        <p>My approach is simple: stay curious, ask questions, and never stop exploring. Some days that means diving into a new programming concept; other days it's reading about history, debating ideas, or just thinking deeply about how things connect.</p>
+                        <p>I believe the best learning happens when you follow your curiosity rather than a fixed path. This website is a small reflection of that philosophy — a space to share what I'm discovering along the way.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         INTERESTS — Bloomberg Terminal Grid
+         ================================================================ -->
+    <section id="interests" class="py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-6xl mx-auto">
+            
+            <div class="reveal term-section-label">02 / Interests</div>
+            <h2 class="reveal term-section-title">What I enjoy learning</h2>
+            <p class="reveal term-section-desc">The topics that keep me curious, exploring, and coming back for more.</p>
+
+            <div class="reveal terminal-grid">
+                
+                <!-- Cell: Technology -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">TECH.01</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Technology</h3>
+                        <p>Exploring how things work under the hood — from web development to systems thinking and everything in between.</p>
+                    </div>
+                </div>
+
+                <!-- Cell: Reading & Ideas -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">READ.02</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Reading & Ideas</h3>
+                        <p>Books, essays, and long-form articles that challenge my perspective and introduce new ways of thinking.</p>
+                    </div>
+                </div>
+
+                <!-- Cell: Current Affairs -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">NEWS.03</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Current Affairs</h3>
+                        <p>Staying informed about the world — geopolitics, economics, and the forces shaping our future.</p>
+                    </div>
+                </div>
+
+                <!-- Cell: Design -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">DSGN.04</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Design</h3>
+                        <p>The intersection of aesthetics and function — how thoughtful design shapes experiences and communicates ideas.</p>
+                    </div>
+                </div>
+
+                <!-- Cell: Philosophy -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">PHIL.05</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Philosophy</h3>
+                        <p>Questioning assumptions, examining values, and exploring the big questions that don't have easy answers.</p>
+                    </div>
+                </div>
+
+                <!-- Cell: Film & Media -->
+                <div class="terminal-cell">
+                    <div class="terminal-cell-header">
+                        <span class="terminal-cell-id">FILM.06</span>
+                        <span class="terminal-cell-status">ACTIVE</span>
+                    </div>
+                    <div class="terminal-cell-body">
+                        <h3>Film & Media</h3>
+                        <p>Cinema, documentaries, and visual storytelling — how media reflects and shapes culture.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         ASK ME — Terminal Section
+         ================================================================ -->
+    <section id="ask" class="py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-3xl mx-auto">
+
+            <div class="reveal term-section-label">03 / Ask Me</div>
+            <h2 class="reveal term-section-title">Ask me anything</h2>
+            <p class="reveal term-section-desc">A small AI chat assistant. Ask about my interests, projects, or just say hi.</p>
+
+            <div class="reveal">
+                <button id="askmeCTA" class="btn-primary group terminal-ask-button">
+                    <i class='bx bx-chat text-lg'></i>
+                    Chat with AI
+                    <i class='bx bx-right-arrow-alt text-lg group-hover:translate-x-1 transition-transform'></i>
+                </button>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ================================================================
+         CONTACT — Terminal Data Table
+         ================================================================ -->
+    <section id="contact" class="py-24 sm:py-32 px-5 sm:px-8">
+        <div class="max-w-4xl mx-auto">
+            
+            <div class="reveal term-section-label">04 / Contact</div>
+            <h2 class="reveal term-section-title">Let's connect</h2>
+            <p class="reveal term-section-desc">Reach out through any of these channels.</p>
+
+            <div class="reveal terminal-contact-table">
+                <div class="terminal-contact-row">
+                    <span class="terminal-contact-key">EMAIL</span>
+                    <span class="terminal-contact-value">hello@anamolrajsingh.com.np</span>
+                    <a href="mailto:hello@anamolrajsingh.com.np" class="terminal-contact-link">SEND <i class='bx bx-arrow-up-right'></i></a>
+                </div>
+                <div class="terminal-contact-row">
+                    <span class="terminal-contact-key">GITHUB</span>
+                    <span class="terminal-contact-value">github.com/anamolrajsingh</span>
+                    <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
+                </div>
+                <div class="terminal-contact-row">
+                    <span class="terminal-contact-key">LINKEDIN</span>
+                    <span class="terminal-contact-value">linkedin.com/in/anamolrajsingh</span>
+                    <a href="https://linkedin.com/in/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
+                </div>
+                <div class="terminal-contact-row">
+                    <span class="terminal-contact-key">TWITTER</span>
+                    <span class="terminal-contact-value">twitter.com/anamolrajsingh</span>
+                    <a href="https://twitter.com/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
+                </div>
+                <div class="terminal-contact-row">
+                    <span class="terminal-contact-key">YOUTUBE</span>
+                    <span class="terminal-contact-value">youtube.com/@anamolrajsingh</span>
+                    <a href="https://youtube.com/@anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================================================================
+         FOOTER — Terminal Style
+         ================================================================ -->
+    <footer class="py-8 px-5 sm:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <p class="font-mono text-xs text-dim">
+                © 2026 Anamol Raj Singh
             </p>
-            <div class="flex items-center gap-4 sm:ml-6">
+
+            <div class="flex items-center gap-3">
                 <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="footer-social" aria-label="GitHub">
                     <i class='bx bxl-github text-lg'></i>
                 </a>
@@ -591,24 +473,17 @@
                     <i class='bx bxl-youtube text-lg'></i>
                 </a>
             </div>
-            <button id="backToTop" class="terminal-pill flex items-center justify-center w-10 h-10 transition-all duration-300 hover:scale-110" aria-label="Back to top">
+
+            <button id="backToTop" class="glass-pill flex items-center justify-center w-10 h-10 transition-all duration-300 hover:scale-110" aria-label="Back to top">
                 <i class='bx bx-up-arrow-alt text-lg text-lime-accent'></i>
             </button>
         </div>
 
-        <!-- Terminal status line -->
-        <div class="max-w-6xl mx-auto px-5 sm:px-8 py-3 border-t border-border flex items-center justify-between gap-4">
-            <p class="font-mono text-xs text-muted">
-                <span class="text-lime-accent">$</span> echo "built with curiosity"
-            </p>
-            <p class="font-mono text-xs text-muted hidden sm:block">
-                session: <span class="text-lime-accent">active</span>
-            </p>
-        </div>
     </footer>
 
     <!-- ===== Custom JavaScript ===== -->
     <script src="script.js"></script>
     <script src="askme.js"></script>
+    <script src="terminal.js"></script>
 </body>
 </html>
