@@ -28,7 +28,6 @@
 
     <!-- ===== Custom Styles ===== -->
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="terminal.css">
 
     <!-- ===== Structured Data (schema.org Person) ===== -->
     <script type="application/ld+json">
@@ -51,19 +50,30 @@
 
 <body>
 
+    <!-- ===== PRELOADER ===== -->
     <div id="preloader" aria-hidden="true">
       <span id="preloaderLabel">Loading</span>
       <span id="preloaderCount">0%</span>
     </div>
 
-    
+    <!-- ================================================================
+         BACKGROUND DECORATIVE ELEMENTS
+         Low-opacity abstract shapes for visual depth (purely decorative)
+         ================================================================ -->
+    <div class="bg-decoration" aria-hidden="true">
+        <div class="bg-blob bg-blob--1"></div>
+        <div class="bg-blob bg-blob--2"></div>
+        <div class="bg-grid"></div>
+    </div>
 
     <!-- ================================================================
-         NAVIGATION — Terminal Bar
+         NAVIGATION
+         Sticky glass header with: logo, live clock, music widget,
+         theme toggle, smooth-scroll links, and mobile hamburger menu
          ================================================================ -->
     <header id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500">
         <div class="glass-nav">
-            <nav class="max-w-7xl mx-auto flex items-center justify-between px-5 sm:px-8 py-3">
+            <nav class="max-w-6xl mx-auto flex items-center justify-between px-5 sm:px-8 py-4">
                 
                 <!-- Logo / Name -->
                 <a href="#hero" class="font-display font-bold text-lg tracking-tight flex items-center gap-1.5">
@@ -123,6 +133,10 @@
         </div>
     </header>
 
+    <!-- ================================================================
+         MUSIC DRAWER (slides down from nav)
+         Apple-Music-style YouTube player (real playback via IFrame API)
+         ================================================================ -->
     <div id="vibesDrawer" class="fixed top-20 right-4 sm:right-8 z-50 transition-all duration-500 opacity-0 pointer-events-none translate-y-[-10px]">
         <div class="glass-card rounded-2xl p-4 w-72 sm:w-80" id="vibesPanel">
             <div class="flex items-center justify-between mb-3">
@@ -228,43 +242,39 @@
                 </div>
             </div>
         </div>
-    
+    </div>
 
     <!-- ================================================================
-         HERO — Terminal Boot Sequence
+         HERO SECTION
+         Full-viewport welcome with headline, intro, and CTAs
          ================================================================ -->
-    <section id="hero" class="min-h-screen flex items-center px-5 sm:px-8 pt-20">
-        <div class="terminal-hero">
+    <section id="hero" class="min-h-screen flex items-center justify-center px-5 sm:px-8 pt-20">
+        <div class="max-w-4xl mx-auto text-center">
             
-            <!-- System Status Panel -->
-            <div class="reveal terminal-status">
-                <div><span class="stat-dot"></span><span class="stat-label">LOCATION</span> <span class="stat-value">Nepal</span></div>
-                <div><span class="stat-dot"></span><span class="stat-label">STATUS</span> <span class="stat-value">Available for learning</span></div>
-                <div><span class="stat-dot"></span><span class="stat-label">LOCAL TIME</span> <span class="stat-value" id="heroClock">--:--</span></div>
-                <div><span class="stat-dot"></span><span class="stat-label">STREAMS</span> <span class="stat-value">6 active</span></div>
+            <!-- Eyebrow / Status -->
+            <div class="reveal inline-flex items-center gap-2 glass-pill px-4 py-1.5 mb-8">
+                <span class="status-dot"></span>
+                <span class="font-mono text-xs text-muted">Available for learning</span>
             </div>
-
-            <!-- Prompt line -->
-            <p class="reveal term-prompt">whoami<span class="term-cursor"></span></p>
 
             <!-- Headline -->
             <h1 class="reveal font-display font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight mb-6">
-                <span class="scramble-text">Anamol Raj Singh</span>
+                Hello, I'm<br class="sm:hidden"> <span class="text-lime-accent">Anamol Raj Singh</span>
             </h1>
 
             <!-- Subtitle -->
-            <p class="reveal term-sub">
+            <p class="reveal text-lg sm:text-xl text-muted max-w-2xl mx-auto leading-relaxed mb-4">
                 A <span class="text-lime-accent font-medium">student</span>, <span class="text-lime-accent font-medium">lifelong learner</span>, and curious mind navigating the intersection of technology, ideas, and intentional living.
             </p>
 
             <!-- Brief statement -->
-            <p class="reveal term-brief">
+            <p class="reveal text-base text-muted/70 max-w-xl mx-auto leading-relaxed mb-10">
                 I believe learning isn't a phase — it's a way of being. This is my corner of the internet where I share what I'm exploring, what I'm building, and what I'm becoming.
             </p>
 
             <!-- CTAs -->
-            <div class="reveal flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4">
-                <a href="#interests" class="btn-primary group">
+            <div class="reveal flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#about" class="btn-primary group">
                     Explore
                     <i class='bx bx-right-arrow-alt text-lg group-hover:translate-x-1 transition-transform'></i>
                 </a>
@@ -277,129 +287,140 @@
     </section>
 
     <!-- ================================================================
-         ABOUT — Terminal Panel
+         ABOUT SECTION
+         Brief introduction — who I am as a person, not a resume
          ================================================================ -->
     <section id="about" class="py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-4xl mx-auto">
             
-            <div class="reveal term-section-label">01 / About</div>
-            <h2 class="reveal term-section-title">Who I am</h2>
+            <!-- Section label -->
+            <div class="reveal mb-12">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">01 / About</span>
+            </div>
 
-            <div class="reveal term-panel">
-                <div class="term-panel-header">
-                    <span class="term-panel-title">whoami.md — read-only</span>
-                    <div class="term-panel-dots"><span></span><span></span><span></span></div>
-                </div>
-                <div class="term-panel-body">
-                    <div class="term-output">
-                        <p>I'm a student navigating the vast landscape of knowledge — from technology and science to philosophy and design. I'm not racing toward a title or a job; I'm here for the learning itself.</p>
-                        <p>My approach is simple: stay curious, ask questions, and never stop exploring. Some days that means diving into a new programming concept; other days it's reading about history, debating ideas, or just thinking deeply about how things connect.</p>
-                        <p>I believe the best learning happens when you follow your curiosity rather than a fixed path. This website is a small reflection of that philosophy — a space to share what I'm discovering along the way.</p>
-                    </div>
+            <!-- About card -->
+            <div class="reveal glass-card rounded-3xl p-8 sm:p-12">
+                <h2 class="font-display font-bold text-3xl sm:text-4xl mb-6 leading-tight">
+                    Who I am
+                </h2>
+                <div class="space-y-4 text-base text-muted leading-relaxed">
+                    <p>
+                        I'm a student navigating the vast landscape of knowledge — from technology and science to philosophy and design. I'm not racing toward a title or a job; I'm here for the learning itself.
+                    </p>
+                    <p>
+                        My approach is simple: stay curious, ask questions, and never stop exploring. Some days that means diving into a new programming concept; other days it's reading about history, debating ideas, or just thinking deeply about how things connect.
+                    </p>
+                    <p>
+                        I believe the best learning happens when you follow your curiosity rather than a fixed path. This website is a small reflection of that philosophy — a space to share what I'm discovering along the way.
+                    </p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ================================================================
-         INTERESTS — Bloomberg Terminal Grid
+         INTERESTS SECTION
+         What I enjoy learning — modular card grid
          ================================================================ -->
     <section id="interests" class="py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-6xl mx-auto">
             
-            <div class="reveal term-section-label">02 / Interests</div>
-            <h2 class="reveal term-section-title">What I enjoy learning</h2>
-            <p class="reveal term-section-desc">The topics that keep me curious, exploring, and coming back for more.</p>
+            <!-- Section label -->
+            <div class="reveal mb-12">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">02 / Interests</span>
+            </div>
 
-            <div class="reveal terminal-grid">
+            <!-- Heading -->
+            <h2 class="reveal font-display font-bold text-3xl sm:text-4xl mb-4 leading-tight">
+                What I enjoy learning
+            </h2>
+            <p class="reveal text-muted mb-12 max-w-2xl">
+                The topics that keep me curious, exploring, and coming back for more.
+            </p>
+
+            <!-- Interest cards grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 
-                <!-- Cell: Technology -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">TECH.01</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Technology -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-code-alt text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Technology</h3>
-                        <p>Exploring how things work under the hood — from web development to systems thinking and everything in between.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Technology</h3>
+                    <p class="text-sm text-muted leading-relaxed">Exploring how things work under the hood — from web development to systems thinking and everything in between.</p>
                 </div>
 
-                <!-- Cell: Reading & Ideas -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">READ.02</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Reading & Ideas -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-book-open text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Reading & Ideas</h3>
-                        <p>Books, essays, and long-form articles that challenge my perspective and introduce new ways of thinking.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Reading & Ideas</h3>
+                    <p class="text-sm text-muted leading-relaxed">Books, essays, and long-form articles that challenge my perspective and introduce new ways of thinking.</p>
                 </div>
 
-                <!-- Cell: Current Affairs -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">NEWS.03</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Current Affairs -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-news text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Current Affairs</h3>
-                        <p>Staying informed about the world — geopolitics, economics, and the forces shaping our future.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Current Affairs</h3>
+                    <p class="text-sm text-muted leading-relaxed">Staying informed about the world — geopolitics, economics, and the forces shaping our future.</p>
                 </div>
 
-                <!-- Cell: Design -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">DSGN.04</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Design -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-palette text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Design</h3>
-                        <p>The intersection of aesthetics and function — how thoughtful design shapes experiences and communicates ideas.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Design</h3>
+                    <p class="text-sm text-muted leading-relaxed">The intersection of aesthetics and function — how thoughtful design shapes experiences and communicates ideas.</p>
                 </div>
 
-                <!-- Cell: Philosophy -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">PHIL.05</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Philosophy -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-brain text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Philosophy</h3>
-                        <p>Questioning assumptions, examining values, and exploring the big questions that don't have easy answers.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Philosophy</h3>
+                    <p class="text-sm text-muted leading-relaxed">Questioning assumptions, examining values, and exploring the big questions that don't have easy answers.</p>
                 </div>
 
-                <!-- Cell: Film & Media -->
-                <div class="terminal-cell">
-                    <div class="terminal-cell-header">
-                        <span class="terminal-cell-id">FILM.06</span>
-                        <span class="terminal-cell-status">ACTIVE</span>
+                <!-- Card: Film & Media -->
+                <div class="reveal glass-card rounded-2xl p-6 interest-card">
+                    <div class="icon-wrap mb-4">
+                        <i class='bx bx-film text-2xl text-lime-accent'></i>
                     </div>
-                    <div class="terminal-cell-body">
-                        <h3>Film & Media</h3>
-                        <p>Cinema, documentaries, and visual storytelling — how media reflects and shapes culture.</p>
-                    </div>
+                    <h3 class="font-display font-semibold text-lg mb-2">Film & Media</h3>
+                    <p class="text-sm text-muted leading-relaxed">Cinema, documentaries, and visual storytelling — how media reflects and shapes culture.</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- ================================================================
-         ASK ME — Terminal Section
+         ASK ME SECTION
+         AI-powered chat widget (OpenRouter via serverless proxy)
          ================================================================ -->
     <section id="ask" class="py-24 sm:py-32 px-5 sm:px-8">
         <div class="max-w-3xl mx-auto">
 
-            <div class="reveal term-section-label">03 / Ask Me</div>
-            <h2 class="reveal term-section-title">Ask me anything</h2>
-            <p class="reveal term-section-desc">A small AI chat assistant. Ask about my interests, projects, or just say hi.</p>
+            <!-- Section label -->
+            <div class="reveal mb-12">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">03 / Ask Me</span>
+            </div>
 
+            <!-- Heading -->
+            <h2 class="reveal font-display font-bold text-3xl sm:text-4xl mb-4 leading-tight">
+                Ask me anything
+            </h2>
+            <p class="reveal text-muted mb-12 max-w-2xl">
+                A small AI chat assistant. Ask about my interests, projects, or just say hi.
+            </p>
+
+            <!-- Chat CTA — opens the floating AI assistant -->
             <div class="reveal">
-                <button id="askmeCTA" class="btn-primary group terminal-ask-button">
+                <button id="askmeCTA" class="btn-primary group">
                     <i class='bx bx-chat text-lg'></i>
                     Chat with AI
                     <i class='bx bx-right-arrow-alt text-lg group-hover:translate-x-1 transition-transform'></i>
@@ -410,56 +431,47 @@
     </section>
 
     <!-- ================================================================
-         CONTACT — Terminal Data Table
+         CONTACT SECTION
+         Let's connect — social links + email
          ================================================================ -->
     <section id="contact" class="py-24 sm:py-32 px-5 sm:px-8">
-        <div class="max-w-4xl mx-auto">
+        <div class="max-w-4xl mx-auto text-center">
             
-            <div class="reveal term-section-label">04 / Contact</div>
-            <h2 class="reveal term-section-title">Let's connect</h2>
-            <p class="reveal term-section-desc">Reach out through any of these channels.</p>
-
-            <div class="reveal terminal-contact-table">
-                <div class="terminal-contact-row">
-                    <span class="terminal-contact-key">EMAIL</span>
-                    <span class="terminal-contact-value">hello@anamolrajsingh.com.np</span>
-                    <a href="mailto:hello@anamolrajsingh.com.np" class="terminal-contact-link">SEND <i class='bx bx-arrow-up-right'></i></a>
-                </div>
-                <div class="terminal-contact-row">
-                    <span class="terminal-contact-key">GITHUB</span>
-                    <span class="terminal-contact-value">github.com/anamolrajsingh</span>
-                    <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
-                </div>
-                <div class="terminal-contact-row">
-                    <span class="terminal-contact-key">LINKEDIN</span>
-                    <span class="terminal-contact-value">linkedin.com/in/anamolrajsingh</span>
-                    <a href="https://linkedin.com/in/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
-                </div>
-                <div class="terminal-contact-row">
-                    <span class="terminal-contact-key">TWITTER</span>
-                    <span class="terminal-contact-value">twitter.com/anamolrajsingh</span>
-                    <a href="https://twitter.com/anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
-                </div>
-                <div class="terminal-contact-row">
-                    <span class="terminal-contact-key">YOUTUBE</span>
-                    <span class="terminal-contact-value">youtube.com/@anamolrajsingh</span>
-                    <a href="https://youtube.com/@anamolrajsingh" target="_blank" rel="noopener" class="terminal-contact-link">OPEN <i class='bx bx-arrow-up-right'></i></a>
-                </div>
+            <!-- Section label -->
+            <div class="reveal mb-12">
+                <span class="font-mono text-xs text-lime-accent uppercase tracking-wider">04 / Contact</span>
             </div>
+
+            <!-- Heading -->
+            <h2 class="reveal font-display font-bold text-3xl sm:text-4xl mb-4 leading-tight">
+                Let's connect
+            </h2>
+            <p class="reveal text-muted mb-12 max-w-xl mx-auto">
+                Whether it's a shared interest, a question, or just a hello — I'm always happy to hear from curious people.
+            </p>
+
+            <!-- Email -->
+            <a href="mailto:hello@anamolrajsingh.com.np" class="reveal inline-flex items-center gap-2 text-lime-accent font-mono text-sm hover:underline">
+                <i class='bx bx-envelope'></i>
+                hello@anamolrajsingh.com.np
+            </a>
         </div>
     </section>
 
     <!-- ================================================================
-         FOOTER — Terminal Style
+         FOOTER
+         Copyright, social links, back-to-top
          ================================================================ -->
-    <footer class="py-8 px-5 sm:px-8">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer class="py-10 px-5 sm:px-8 border-t border-border">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
             
-            <p class="font-mono text-xs text-dim">
+            <!-- Copyright -->
+            <p class="text-sm text-muted font-mono">
                 © 2026 Anamol Raj Singh
             </p>
 
-            <div class="flex items-center gap-3">
+            <!-- Mini socials -->
+            <div class="flex items-center gap-4 sm:ml-6">
                 <a href="https://github.com/anamolrajsingh" target="_blank" rel="noopener" class="footer-social" aria-label="GitHub">
                     <i class='bx bxl-github text-lg'></i>
                 </a>
@@ -474,6 +486,7 @@
                 </a>
             </div>
 
+            <!-- Back to top -->
             <button id="backToTop" class="glass-pill flex items-center justify-center w-10 h-10 transition-all duration-300 hover:scale-110" aria-label="Back to top">
                 <i class='bx bx-up-arrow-alt text-lg text-lime-accent'></i>
             </button>
@@ -484,6 +497,5 @@
     <!-- ===== Custom JavaScript ===== -->
     <script src="script.js"></script>
     <script src="askme.js"></script>
-    <script src="terminal.js"></script>
 </body>
 </html>
