@@ -1162,6 +1162,49 @@ footer {
     border: 1px solid var(--border);
     border-bottom-left-radius: 4px;
 }
+.chat-bubble-ai p {
+    margin: 0 0 0.6rem 0;
+}
+.chat-bubble-ai p:last-child {
+    margin-bottom: 0;
+}
+.chat-bubble-ai strong {
+    font-weight: 600;
+    color: var(--text);
+}
+.chat-bubble-ai em {
+    font-style: italic;
+}
+.chat-bubble-ai code {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.35rem;
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8em;
+}
+.chat-bubble-ai ul,
+.chat-bubble-ai ol {
+    margin: 0 0 0.6rem 0;
+    padding-left: 1.25rem;
+}
+.chat-bubble-ai ul:last-child,
+.chat-bubble-ai ol:last-child {
+    margin-bottom: 0;
+}
+.chat-bubble-ai li {
+    margin-bottom: 0.3rem;
+}
+.chat-bubble-ai li:last-child {
+    margin-bottom: 0;
+}
+.chat-bubble-ai ul li::marker {
+    color: var(--lime);
+}
+.chat-bubble-ai ol li::marker {
+    color: var(--lime);
+    font-weight: 600;
+}
 
 /* --- Typing indicator --- */
 .chat-typing {

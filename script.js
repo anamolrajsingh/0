@@ -712,12 +712,92 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        function addBubble(text, cls) {
+        /* Escape HTML special chars before we inject our own markup */
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+        }
+
+        /* Lightweight markdown renderer for AI replies — bold, lists,
+           inline code, and paragraph breaks. Renders like ChatGPT/Gemini
+           instead of leaving raw ** and - characters in the text. */
+        function renderMarkdown(raw) {
+            var escaped = escapeHtml(raw);
+            var lines = escaped.split(/\r?\n/);
+            var html = '';
+            var listBuffer = [];
+            var listType = null; /* 'ul' | 'ol' */
+            var paraBuffer = [];
+
+            function inlineFormat(line) {
+                return line
+                    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/(?:^|\s)\*(?!\*)(.+?)\*(?!\*)/g, function(m, p1) {
+                        return m.charAt(0) === '*' ? '<em>' + p1 + '</em>' : m.charAt(0) + '<em>' + p1 + '</em>';
+                    })
+                    .replace(/`([^`]+)`/g, '<code>$1</code>');
+            }
+
+            function flushPara() {
+                if (paraBuffer.length) {
+                    html += '<p>' + paraBuffer.join('<br>') + '</p>';
+                    paraBuffer = [];
+                }
+            }
+
+            function flushList() {
+                if (listBuffer.length) {
+                    html += '<' + listType + '>' + listBuffer.map(function(li) {
+                        return '<li>' + li + '</li>';
+                    }).join('') + '</' + listType + '>';
+                    listBuffer = [];
+                    listType = null;
+                }
+            }
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i].trim();
+
+                if (line === '') {
+                    flushPara();
+                    flushList();
+                    continue;
+                }
+
+                var olMatch = line.match(/^(\d+)[.)]\s+(.*)$/);
+                var ulMatch = line.match(/^[-*•]\s+(.*)$/);
+
+                if (olMatch) {
+                    flushPara();
+                    if (listType !== 'ol') { flushList(); listType = 'ol'; }
+                    listBuffer.push(inlineFormat(olMatch[2]));
+                } else if (ulMatch) {
+                    flushPara();
+                    if (listType !== 'ul') { flushList(); listType = 'ul'; }
+                    listBuffer.push(inlineFormat(ulMatch[1]));
+                } else {
+                    flushList();
+                    paraBuffer.push(inlineFormat(line));
+                }
+            }
+            flushPara();
+            flushList();
+
+            return html || '<p>' + inlineFormat(escaped) + '</p>';
+        }
+
+        function addBubble(text, cls, isMarkdown) {
             var div = document.createElement('div');
             div.className = 'chat-bubble ' + cls;
-            var p = document.createElement('p');
-            p.textContent = text;
-            div.appendChild(p);
+            if (isMarkdown) {
+                div.innerHTML = renderMarkdown(text);
+            } else {
+                var p = document.createElement('p');
+                p.textContent = text;
+                div.appendChild(p);
+            }
             chatMessages.appendChild(div);
             scrollToBottom();
             return div;
@@ -795,7 +875,7 @@
 
                 /* Success */
                 var reply = data.reply || 'No response received.';
-                addBubble(reply, 'chat-bubble-ai');
+                addBubble(reply, 'chat-bubble-ai', true);
                 conversation.push({ role: 'assistant', content: reply });
 
                 /* Show remaining rate budget if provided */
