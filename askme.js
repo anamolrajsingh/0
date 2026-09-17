@@ -22,31 +22,31 @@
       response: "Anamol Raj Singh is a student and lifelong learner from Nepal. He's curious about technology, reading, current affairs, design, philosophy, and film — and he believes learning isn't a phase, it's a way of being. This site is his corner of the internet for sharing what he's exploring and building."
     },
     {
-      keywords: ['interest', 'interests', 'what does anamol like', 'what does he like', 'hobby', 'hobbies', 'passion'],
+      about: true, keywords: ['interest', 'interests', 'what does anamol like', 'what does he like', 'hobby', 'hobbies', 'passion'],
       response: "Anamol is interested in six areas: Technology (how things work under the hood), Reading & Ideas (books and essays that challenge perspective), Current Affairs (geopolitics and forces shaping our future), Design (where aesthetics meets function), Philosophy (questioning assumptions and big questions), and Film & Media (cinema and visual storytelling)."
     },
     {
-      keywords: ['technology', 'tech', 'programming', 'coding', 'developer', 'software', 'web dev', 'computer'],
+      about: true, keywords: ['technology', 'tech', 'programming', 'coding', 'developer', 'software', 'web dev', 'computer'],
       response: "Technology is one of Anamol's main interests. He explores how things work under the hood — from web development to systems thinking. He built this website himself."
     },
     {
-      keywords: ['reading', 'books', 'reads', 'essays', 'long-form'],
+      about: true, keywords: ['reading', 'books', 'reads', 'essays', 'long-form'],
       response: "Anamol loves reading — books, essays, and long-form articles that challenge his perspective and introduce new ways of thinking. He's drawn to writing that makes him see things differently."
     },
     {
-      keywords: ['current affairs', 'politics', 'geopolitics', 'economics', 'news', 'world events'],
+      about: true, keywords: ['current affairs', 'politics', 'geopolitics', 'economics', 'news', 'world events'],
       response: "Anamol stays informed about the world — geopolitics, economics, and the conversations shaping our future. He thinks it's important to understand the forces driving change."
     },
     {
-      keywords: ['design', 'aesthetics', 'ux', 'ui', 'visual'],
+      about: true, keywords: ['design', 'aesthetics', 'ux', 'ui', 'visual'],
       response: "Anamol is drawn to the intersection of aesthetics and function — how thoughtful design shapes experiences and communicates ideas. This site is a reflection of that interest."
     },
     {
-      keywords: ['philosophy', 'big questions', 'meaning', 'values', 'thinking deeply', 'existential'],
+      about: true, keywords: ['philosophy', 'big questions', 'meaning', 'values', 'thinking deeply', 'existential'],
       response: "Philosophy is about questioning assumptions, examining values, and exploring the big questions that don't have easy answers. Anamol spends time here — it shapes how he approaches everything else."
     },
     {
-      keywords: ['film', 'cinema', 'movies', 'documentary', 'documentaries', 'media', 'visual storytelling'],
+      about: true, keywords: ['film', 'cinema', 'movies', 'documentary', 'documentaries', 'media', 'visual storytelling'],
       response: "Anamol enjoys cinema, documentaries, and visual storytelling — he's interested in how media reflects and shapes culture."
     },
     {
@@ -54,19 +54,19 @@
       response: "You can reach Anamol at hello@anamolrajsingh.com.np. He's also on GitHub, LinkedIn, Twitter (all @anamolrajsingh), and YouTube (@anamolrajsingh). Scroll to the Contact section for direct links."
     },
     {
-      keywords: ['where is anamol from', 'where does anamol live', 'where is he from', 'nepal', 'country'],
+      about: true, keywords: ['where is anamol from', 'where does anamol live', 'where is he from', 'nepal', 'country'],
       response: "Anamol is from Nepal — you can tell from the .com.np domain on his site."
     },
     {
-      keywords: ['project', 'projects', 'what has anamol built', 'portfolio', 'work', 'what did he build', 'what has he built'],
+      about: true, keywords: ['project', 'projects', 'what has anamol built', 'portfolio', 'work', 'what did he build', 'what has he built'],
       response: "This website is Anamol's current project — a personal space where he shares what he's exploring and building. He built it from scratch with a focus on clean design and minimal aesthetics."
     },
     {
-      keywords: ['student', 'study', 'studying', 'school', 'university', 'college', 'education'],
+      about: true, keywords: ['student', 'study', 'studying', 'school', 'university', 'college', 'education'],
       response: "Anamol is a student — but he's not racing toward a title or a job. He's here for the learning itself. Some days that means diving into a new programming concept; other days it's reading about history, debating ideas, or thinking deeply about how things connect."
     },
     {
-      keywords: ['music', 'playlist', 'spotify', 'youtube music', 'songs', 'listen', 'listening', 'vibes', 'what music'],
+      about: true, keywords: ['music', 'playlist', 'spotify', 'youtube music', 'songs', 'listen', 'listening', 'vibes', 'what music'],
       response: "Anamol has a Vibes widget in the header — click the pill button with the green dot. It has his Spotify and YouTube Music playlists."
     },
     {
@@ -75,7 +75,7 @@
     },
     {
       keywords: ['hello', 'hi', 'hey', 'greetings', 'sup', 'yo', 'what\'s up', 'whats up', 'howdy'],
-      response: "Hey! I'm the AI assistant on Anamol's site. You can ask me about his interests, navigate the site, toggle the theme, control the music, or just chat. What's on your mind?"
+      response: "Hey! I'm the AI assistant on Anamol's site — but I'm happy to chat about anything: tech, philosophy, design, books, film, world events, or whatever's on your mind. I can also navigate the site, toggle the theme, and control the music. What's up?"
     },
     {
       keywords: ['thank', 'thanks', 'thank you', 'appreciate', 'cool', 'nice', 'awesome', 'great'],
@@ -321,6 +321,9 @@
     var bestScore = 0;
     for (var i = 0; i < KNOWLEDGE_BASE.length; i++) {
       var entry = KNOWLEDGE_BASE[i];
+      // Topic entries (about: true) only match questions about Anamol himself;
+      // general questions about tech, books, film, etc. go to the AI instead.
+      if (entry.about && !/\b(anamol|he|his|him|site|website)\b/.test(t)) continue;
       for (var j = 0; j < entry.keywords.length; j++) {
         var kw = entry.keywords[j].toLowerCase();
         var hit = false;
@@ -347,11 +350,12 @@
 
   var SYSTEM_PROMPT =
     "You are the AI assistant on Anamol Raj Singh's personal website (anamolrajsingh.com.np). " +
-    "Anamol is a student and lifelong learner from Nepal interested in technology, reading, current affairs, " +
-    "design, philosophy, and film. Answer questions about Anamol based on what you know from the site. " +
-    "Keep responses short and conversational — 1-3 sentences. Never use Markdown formatting. " +
-    "If you don't know something about Anamol specifically, say so honestly. " +
-    "You can also discuss general topics in Anamol's interest areas (tech, philosophy, design, books, film).";
+    "You are a friendly, well-read general-purpose assistant: happily discuss any topic from around the world — " +
+    "technology, philosophy, design, books, film, science, history, current affairs, or anything else the visitor brings up. " +
+    "Answer general questions directly and substantively with your own knowledge; do NOT steer conversations back to Anamol or the website. " +
+    "When asked about Anamol specifically: he is a student and lifelong learner from Nepal interested in technology, reading, current affairs, design, philosophy, and film; he built this website himself; contact hello@anamolrajsingh.com.np. " +
+    "Keep responses short and conversational — 2-4 sentences by default, longer only if asked. Never use Markdown formatting. " +
+    "Be honest when you don't know something.";
 
   var conversation = [];
   var proxyAvailable = true;
@@ -415,7 +419,7 @@
     tryAIProxy(text, function (aiReply) {
       if (aiReply) { callback(aiReply); }
       else {
-        callback("I'm not sure about that one. I can tell you about Anamol's interests, help you navigate the site, toggle the theme, or control the music. Try asking 'What are Anamol's interests?' or say 'play some music'.");
+        callback("Hmm, I'm having trouble answering that right now — try again in a moment. Meanwhile I can still help around the site: say 'play some music', 'switch to light mode', or ask me about Anamol.");
       }
     });
   }
