@@ -1,12 +1,13 @@
 /**
  * Chat Proxy — Base44 Backend Function
  *
- * Proxies chat requests from anamolrajsingh.com.np to OpenRouter API.
- * The OPENROUTER_API_KEY is stored as an environment secret — never shipped to the browser.
+ * Proxies chat requests from anamolrajsingh.com.np to OpenRouter API
+ * (model: NVIDIA Nemotron 3 Ultra).
+ * The NVIDIA_NEMOTRON_API_KEY is stored as an environment secret — never shipped to the browser.
  *
  * Rate limit: 10 messages per hour per visitor (by IP via CF-Connecting-IP or X-Forwarded-For).
  * CORS: allows https://anamolrajsingh.com.np
- * Default model: openai/gpt-4o
+ * Default model: nvidia/nemotron-3-ultra-550b-a55b
  */
 
 interface ChatMessage {
@@ -22,7 +23,7 @@ interface ChatRequestBody {
 const ORIGIN = 'https://anamolrajsingh.com.np';
 const RATE_LIMIT = 10;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
-const DEFAULT_MODEL = 'openai/gpt-4o';
+const DEFAULT_MODEL = 'nvidia/nemotron-3-ultra-550b-a55b';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const SITE_URL = 'https://anamolrajsingh.com.np';
 const SITE_NAME = 'Anamol Raj Singh';
@@ -82,7 +83,7 @@ async function callOpenRouter(apiKey: string, model: string, messages: ChatMessa
 
   const data = await resp.json() as any;
   const text = data?.choices?.[0]?.message?.content;
-  if (!text) throw new Error('OpenRouter returned an empty response.');
+  if (!text) throw new Error('Model returned an empty response.');
   return text;
 }
 
@@ -126,8 +127,8 @@ export default async function handler(req: Request): Promise<Response> {
   }
 
   try {
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set.');
+    const apiKey = process.env.NVIDIA_NEMOTRON_API_KEY || process.env.OPENROUTER_API_KEY;
+    if (!apiKey) throw new Error('API key is not set.');
 
     const reply = await callOpenRouter(apiKey, model, messages);
 

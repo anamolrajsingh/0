@@ -64,7 +64,7 @@ async function callOpenRouter(env, model, messages) {
       'X-Title': SITE_NAME,
     },
     body: JSON.stringify({
-      model: model || 'openai/gpt-4o',
+      model: model || 'nvidia/nemotron-3-ultra-550b-a55b',
       max_tokens: 1024,
       messages: messages.map(m => ({ role: m.role, content: m.content })),
     }),
@@ -112,7 +112,7 @@ export default {
       return json({ error: 'Invalid JSON body.' }, 400);
     }
 
-    const model = body.model || 'openai/gpt-4o';
+    const model = body.model || 'nvidia/nemotron-3-ultra-550b-a55b';
     const messages = body.messages;
 
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
