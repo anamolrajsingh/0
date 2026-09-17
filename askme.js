@@ -438,13 +438,19 @@
       '  </button>',
       '</div>',
       '<div id="askmeMessages" class="askme-messages">',
-      '  <div class="chat-bubble chat-bubble-ai">',
-      '    <p>Hey! I\'m Anamol\'s AI assistant. Ask me about his interests, say "play some music", "switch to light mode", or "take me to contact". What\'s up?</p>',
+      '  <div class="chat-msg-row">',
+      '    <img class="chat-avatar" src="assets/askme-avatar.png" alt="AI avatar">',
+      '    <div class="chat-bubble chat-bubble-ai">',
+      '      <p>Hey. Ask me anything.</p>',
+      '    </div>',
       '  </div>',
       '</div>',
       '<div id="askmeTyping" class="chat-typing" hidden>',
-      '  <div class="chat-bubble chat-bubble-ai">',
-      '    <div class="chat-dots"><span></span><span></span><span></span></div>',
+      '  <div class="chat-msg-row">',
+      '    <img class="chat-avatar" src="assets/askme-avatar.png" alt="AI avatar">',
+      '    <div class="chat-bubble chat-bubble-ai">',
+      '      <div class="chat-dots"><span></span><span></span><span></span></div>',
+      '    </div>',
       '  </div>',
       '</div>',
       '<div class="askme-input-row">',
@@ -472,7 +478,20 @@
       var p = document.createElement('p');
       p.textContent = text;
       div.appendChild(p);
-      messages.appendChild(div);
+
+      if (cls.indexOf('chat-bubble-ai') !== -1) {
+        var row = document.createElement('div');
+        row.className = 'chat-msg-row';
+        var avatar = document.createElement('img');
+        avatar.className = 'chat-avatar';
+        avatar.src = 'assets/askme-avatar.png';
+        avatar.alt = 'AI avatar';
+        row.appendChild(avatar);
+        row.appendChild(div);
+        messages.appendChild(row);
+      } else {
+        messages.appendChild(div);
+      }
       scrollToBottom();
       return div;
     }
