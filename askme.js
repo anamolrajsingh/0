@@ -11,11 +11,9 @@
   // ==========================================================
   var CHAT_PROXY_URL = 'https://solas-6a809f2b.base44.app/functions/chatProxy';
   var LOG_VISIT_URL  = 'https://solene-copy-27be19bd.base44.app/functions/logVisit';
-  var MODEL = 'openai/gpt-4o-mini';
-  // Web-search variant for time-sensitive questions (current events, upcoming
-  // movies, latest news). Slightly slower/costlier, only used when needed.
-  var MODEL_ONLINE = 'openai/gpt-4o-mini:online';
-  var TIME_SENSITIVE = /(latest|newest|recent|recently|upcoming|right now|currently|current|today|this (week|month|year)|now playing|news|released|release|coming out|in theaters|20(2[4-9]|3\d))/i;
+  // All messages go through the web-search-enabled variant (per owner request
+  // 2026-09-17): the bot searches the live web for every question.
+  var MODEL = 'openai/gpt-4o-mini:online';
 
   // ==========================================================
   // KNOWLEDGE BASE about Anamol
@@ -366,7 +364,7 @@
 
   function tryAIProxy(text, callback) {
     if (!proxyAvailable) { callback(null); return; }
-    var model = TIME_SENSITIVE.test(text) ? MODEL_ONLINE : MODEL;
+    var model = MODEL;
     var today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
     var sysPrompt = SYSTEM_PROMPT + " Today's date is " + today + ". For questions about current or recent events, releases, or anything after your training data, use web search rather than refusing.";
     var messages = [{ role: 'system', content: sysPrompt }].concat(conversation);
