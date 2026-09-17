@@ -323,7 +323,16 @@
       var entry = KNOWLEDGE_BASE[i];
       for (var j = 0; j < entry.keywords.length; j++) {
         var kw = entry.keywords[j].toLowerCase();
-        if (t.indexOf(kw) !== -1) {
+        var hit = false;
+        if (kw.indexOf(' ') !== -1) {
+          // multi-word phrases: plain substring match
+          hit = t.indexOf(kw) !== -1;
+        } else {
+          // single words: match on word boundaries so e.g. 'hi'
+          // doesn't match inside 'ship', 'which', or 'this'
+          hit = new RegExp('\\b' + kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(t);
+        }
+        if (hit) {
           var score = kw.length;
           if (score > bestScore) { bestScore = score; bestMatch = entry.response; }
         }
