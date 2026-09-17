@@ -11,7 +11,7 @@
   // ==========================================================
   var CHAT_PROXY_URL = 'https://solas-6a809f2b.base44.app/functions/chatProxy';
   var LOG_VISIT_URL  = 'https://solene-copy-27be19bd.base44.app/functions/logVisit';
-  var MODEL = 'nvidia/nemotron-3-ultra-550b-a55b';
+  var MODEL = 'openai/gpt-4o-mini';
 
   // ==========================================================
   // KNOWLEDGE BASE about Anamol
