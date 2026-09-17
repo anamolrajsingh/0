@@ -80,9 +80,15 @@
     var clock = document.getElementById('navClock');
     function updateClock() {
         if (!clock) return;
+        // Show each visitor's own local time (auto-adapts to their country/timezone)
         clock.textContent = new Date().toLocaleTimeString('en-GB', {
-            hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Kathmandu'
+            hour: '2-digit', minute: '2-digit', hour12: false
         });
+        // Tooltip: make it clear whose time is displayed
+        try {
+            var tz = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+            if (tz) clock.parentElement.title = 'Your time \u00b7 ' + tz;
+        } catch (e) {}
     }
     updateClock();
     setInterval(updateClock, 1000);
