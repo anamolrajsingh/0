@@ -364,7 +364,7 @@
     var controller;
     try { controller = new AbortController(); } catch (e) { controller = null; }
     var timeout;
-    if (controller) { timeout = setTimeout(function () { controller.abort(); }, 8000); }
+    if (controller) { timeout = setTimeout(function () { controller.abort(); }, 45000); }
 
     fetch(CHAT_PROXY_URL, {
       method: 'POST',
